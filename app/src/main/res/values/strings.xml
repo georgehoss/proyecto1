@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">Tenneco App</string>
+    <!--Splash -->
+    <string name="text_slogan">Cleaner, quieter, smoother, safer</string>
+    <string name="text_sub_slogan_1">Pioneering global ideas for cleaner air and smoother, quieter and safer transportation.</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="footer">www.tenneco.com</string>
+    <string name="sign_in">Sign in</string>
+    <!--Login -->
+    <string name="sign_in_to_your_account">Sign in to your account</string>
+    <string name="welcome_back">Welcome Back,</string>
+    <string name="forgot_your_password">Forgot your password?</string>
+    <string name="last_name">Last name</string>
+    <string name="first_name">First name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="don_t_have_an_account_sing_up">Don\'t have an Account? \<b><u>Sign Up</u></b> </string>
+    <string name="login_email_empty">The E-mail cannot be empty!</string>
+    <string name="login_psw_empty">Password cannot be empty!</string>
+    <string name="login_email_or_psw_incorrect">Incorrect E-mail or password, please check your information and try again!</string>
+    <string name="login_email_invalid">E-mail not valid!</string>
+    <string name="login_short_psw">Password must be larger than 6 characters!</string>
+    <string name="login_rest_psw">We\'ve sent you an email with a link to reset your password:</string>
+    <!--Register -->
+    <string name="register_email_already">E-mail already registered, sign in!</string>
+    <string name="regiter_first_name">Introduce your first name!</string>
+    <string name="register_last_name_empty">Introduce your last name</string>
+    <string name="register_something_wrong">Sorry, something went wrong, please try again</string>
+    <string name="i_have_an_account_sing_in">I already have an account, \<b><u>Sign In</u></b></string>
+    <!--Main -->
+    <string name="sign_out">Sign Out</string>
+    <string name="bold_production"><b>Production</b></string>
+    <string name="bold_users"><b>Users</b></string>
+    <string name="bold_configuration"><b>Configuration</b></string>
+    <string name="production">Production</string>
+    <string name="users">Users</string>
+    <string name="configuration">Configuration</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="shift">Shift</string>
+    <string name="target">Target</string>
+
+</resources>

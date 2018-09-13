@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "295778079355",
+    "firebase_url": "https://tenneco-b78d3.firebaseio.com",
+    "project_id": "tenneco-b78d3",
+    "storage_bucket": "tenneco-b78d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295778079355:android:5039b9f56f376615",
+        "android_client_info": {
+          "package_name": "com.tenneco.tennecoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "295778079355-90lqpsesm33ujo1kogp840v7olhg65lu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tenneco.tennecoapp",
+            "certificate_hash": "1b6c9d89688a031ff2aff503a850474a1b9e9f9c"
+          }
+        },
+        {
+          "client_id": "295778079355-cb7544p27hvu48bfemv521m2nd67tsqn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApBVx346DrOak7rqXljzMJnTLgIYybJ2k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "295778079355-cb7544p27hvu48bfemv521m2nd67tsqn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

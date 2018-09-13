@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Lines.AddEditLineActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="Create or edit a production line"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:id="@+id/tv_title"
+            />
+
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:hint="Name: Ex 402"
+            android:maxLength="5"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/background_rectangle"
+            android:padding="10dp"
+            android:textColor="@color/colorPrimary"
+            android:textColorHint="@color/colorHint"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+</ScrollView>
