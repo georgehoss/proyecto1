@@ -36,9 +36,16 @@
     <string name="users">Users</string>
     <string name="configuration">Configuration</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- AddCreateActivity-->
     <string name="shift">Shift</string>
     <string name="target">Target</string>
+    <string name="add_time">Time</string>
+    <string name="add_target">Target</string>
+    <string name="add_cumulative_planned">Cumulative Planned</string>
+    <string name="add_1st_shift">1st Shift</string>
+    <string name="add_06_30">06:30</string>
+    <string name="add_separator">-</string>
+    <string name="add_07_30">07:30</string>
+    <string name="add_t_29">29</string>
 
 </resources>

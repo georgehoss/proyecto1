@@ -1,5 +1,6 @@
 package com.tenneco.tennecoapp;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Main.MainFragment;
 import com.tenneco.tennecoapp.Splash.SplashFragment;
 
@@ -156,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @Override
     public void launchConfiguration() {
         //getSupportFragmentManager().beginTransaction().replace(R.id.container, new SplashFragment()).commit();
+        startActivity(new Intent(this, AddEditLineActivity.class));
     }
 
     @Override

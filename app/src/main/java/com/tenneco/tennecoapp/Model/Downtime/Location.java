@@ -9,6 +9,10 @@ public class Location {
     public Location() {
     }
 
+    public Location(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }

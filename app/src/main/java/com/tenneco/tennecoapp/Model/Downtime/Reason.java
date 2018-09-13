@@ -9,6 +9,10 @@ public class Reason {
     public Reason() {
     }
 
+    public Reason(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
