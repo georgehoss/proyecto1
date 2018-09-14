@@ -10,7 +10,7 @@ public class User {
     private String email;
     private String phoneNumber;
     private int type;
-    private ArrayList<ProductionLine> productionLines;
+    private ArrayList<Line> productionLines;
 
     public User() {
     }
@@ -62,11 +62,11 @@ public class User {
         this.type = type;
     }
 
-    public ArrayList<ProductionLine> getProductionLines() {
+    public ArrayList<Line> getProductionLines() {
         return productionLines;
     }
 
-    public void setProductionLines(ArrayList<ProductionLine> ProductionLines) {
+    public void setProductionLines(ArrayList<Line> ProductionLines) {
         this.productionLines = ProductionLines;
     }
 }

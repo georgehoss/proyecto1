@@ -13,6 +13,10 @@ public interface MainActivityContract {
         void showMenu();
         void hideMenu();
         void signOut();
+        void restoreButtons();
+        void setProduction();
+        void setUsers();
+        void setConfiguration();
     }
 
 }

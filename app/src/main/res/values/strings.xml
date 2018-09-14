@@ -41,11 +41,48 @@
     <string name="target">Target</string>
     <string name="add_time">Time</string>
     <string name="add_target">Target</string>
-    <string name="add_cumulative_planned">Cumulative Planned</string>
+    <string name="add_cumulative_planned">C.P.</string>
     <string name="add_1st_shift">1st Shift</string>
-    <string name="add_06_30">06:30</string>
     <string name="add_separator">-</string>
+    <string name="add_01_30">01:30</string>
+    <string name="add_02_30">02:30</string>
+    <string name="add_03_30">03:30</string>
+    <string name="add_04_30">04:30</string>
+    <string name="add_05_30">05:30</string>
+    <string name="add_06_30">06:30</string>
     <string name="add_07_30">07:30</string>
+    <string name="add_08_30">08:30</string>
+    <string name="add_09_30">09:30</string>
+    <string name="add_10_30">10:30</string>
+    <string name="add_11_30">11:30</string>
+    <string name="add_12_30">12:30</string>
+    <string name="add_t_20">20</string>
     <string name="add_t_29">29</string>
+    <string name="add_t_39">39</string>
+    <string name="add_t_68">68</string>
+    <string name="add_t_97">97</string>
+    <string name="add_t_136">136</string>
+    <string name="add_t_175">175</string>
+    <string name="add_t_195">195</string>
+    <string name="add_t_234">234</string>
+    <string name="add_t_273">273</string>
+    <string name="add_2nd_shift">2nd Shift</string>
+    <string name="add_3rd_shift">3rd Shift</string>
+    <string name="add_name_402">Name: 402</string>
+    <string name="add_edit_production_line">Edit Production line</string>
+    <string name="save">Save</string>
+    <string name="main_hourly_production">Hourly Production</string>
+    <string name="main_select_one_production_line">Select one production line:</string>
+    <string name="main_come_back_later">There are no Production Lines scheduled for today, please come back later.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="line_shift">Shift</string>
+    <string name="line_actual">Actual</string>
+    <string name="line_1st">1st</string>
+    <string name="line_2nd">2nd</string>
+    <string name="line_3rd">3rd</string>
+
+
 
 </resources>

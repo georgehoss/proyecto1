@@ -9,7 +9,9 @@ import java.util.ArrayList;
  * Created by ghoss on 11/09/2018.
  */
 public class Line {
-    public static final String DB = "line";
+    public static final String DB_LINE = "line";
+    public static final String DB_PRODUCTION_LINE = "production_line";
+
     private String name;
     private String id;
     private Shift first;
@@ -18,8 +20,29 @@ public class Line {
     private String leakFailureCounter;
     private ArrayList<Reason> scrapReasons;
     private Downtime downtime;
+    private String date;
+    private String parentId;
 
     public Line() {
+    }
+
+    public Line(String name, String id, Shift first, Shift second, Shift third) {
+        this.name = name;
+        this.id = id;
+        this.first = first;
+        this.second = second;
+        this.third = third;
+    }
+
+    public Line(Line line){
+        this.name = line.getName();
+        this.first = line.getFirst();
+        this.second = line.getSecond();
+        this.third = line.getThird();
+        this.leakFailureCounter = line.getLeakFailureCounter();
+        this.scrapReasons = line.getScrapReasons();
+        this.downtime = line.getDowntime();
+        this.parentId = line.getId();
     }
 
     public String getName() {
@@ -84,5 +107,21 @@ public class Line {
 
     public void setDowntime(Downtime downtime) {
         this.downtime = downtime;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 }

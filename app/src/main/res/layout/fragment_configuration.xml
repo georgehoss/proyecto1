@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:context=".Configuration.ConfigurationFragment">
 
     <TextView
@@ -17,10 +18,20 @@
         android:id="@+id/tv_title"
         />
 
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:id="@+id/pb_loading"
+        android:visibility="visible"
+        />
+
     <android.support.v7.widget.RecyclerView
         android:layout_below="@id/tv_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/rv_lines"
         />
 
     <android.support.design.widget.FloatingActionButton
@@ -30,6 +41,8 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="20dp"
         android:id="@+id/fb_add"
+        android:src="@drawable/add_page"
+        android:visibility="gone"
         />
 
 </RelativeLayout>

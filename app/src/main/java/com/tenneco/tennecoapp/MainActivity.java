@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.tenneco.tennecoapp.Configuration.ConfigurationFragment;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Main.MainFragment;
 import com.tenneco.tennecoapp.Splash.SplashFragment;
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     private FirebaseAuth.AuthStateListener mAuthListener;
     @BindView(R.id.footer_menu) LinearLayout mMenu;
     @BindView(R.id.tv_production) TextView mTvProduction;
+    @BindView(R.id.tv_users) TextView mTvUsers;
+    @BindView(R.id.tv_configuration) TextView mTvConfiguration;
 
     @OnClick(R.id.tv_production) void production(){
         launchProduction();
@@ -147,18 +151,23 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     @Override
     public void launchProduction() {
-        //getSupportFragmentManager().beginTransaction().replace(R.id.container, new SplashFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+        restoreButtons();
+        setProduction();
     }
 
     @Override
     public void launchUsers() {
         //getSupportFragmentManager().beginTransaction().replace(R.id.container, new SplashFragment()).commit();
+        restoreButtons();
+        setUsers();
     }
 
     @Override
     public void launchConfiguration() {
-        //getSupportFragmentManager().beginTransaction().replace(R.id.container, new SplashFragment()).commit();
-        startActivity(new Intent(this, AddEditLineActivity.class));
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new ConfigurationFragment()).commit();
+        restoreButtons();
+        setConfiguration();
     }
 
     @Override
@@ -174,5 +183,30 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @Override
     public void signOut() {
         mAuth.signOut();
+    }
+
+    @Override
+    public void restoreButtons() {
+        mTvProduction.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+        mTvUsers.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+        mTvConfiguration.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+    }
+
+    @Override
+    public void setProduction() {
+        mTvProduction.setText(getString(R.string.bold_production));
+        mTvProduction.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+    }
+
+    @Override
+    public void setUsers() {
+        mTvUsers.setText(getString(R.string.bold_users));
+        mTvUsers.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+    }
+
+    @Override
+    public void setConfiguration() {
+        mTvConfiguration.setText(getString(R.string.bold_configuration));
+        mTvConfiguration.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
     }
 }

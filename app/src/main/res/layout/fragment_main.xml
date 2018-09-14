@@ -6,73 +6,46 @@
     android:animateLayoutChanges="true"
     tools:context=".Main.MainFragment"
     android:orientation="vertical"
-    android:gravity="center"
     >
 
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:text="Hourly Production"
+        android:layout_margin="10dp"
         android:gravity="center"
+        android:text="@string/main_hourly_production"
+        android:textStyle="bold"
         android:textSize="20sp"
         android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"
-
+        android:id="@+id/tv_title"
         />
 
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    >
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:padding="10dp"
-        >
+        android:text="@string/main_select_one_production_line"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        android:textColor="@color/colorHint"
+        android:id="@+id/tv_slogan"
+        android:visibility="gone"
+        />
 
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:theme="@style/AppTheme.Button"
-            tools:ignore="ButtonStyle" />
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            style="@style/Widget.AppCompat.Button.Colored"
-            />
-    </LinearLayout>
-
-    <LinearLayout
+    <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="10dp"
-        >
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            style="@style/Widget.AppCompat.Button.Colored"
-            />
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:theme="@style/AppTheme.Button"
-            tools:ignore="ButtonStyle" />
-    </LinearLayout>
-</LinearLayout>
+        android:layout_gravity="center"
+        android:id="@+id/pb_loading"
+        android:visibility="visible"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rv_lines"
+        />
 
 </LinearLayout>
