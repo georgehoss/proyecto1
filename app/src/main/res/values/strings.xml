@@ -82,7 +82,11 @@
     <string name="line_1st">1st</string>
     <string name="line_2nd">2nd</string>
     <string name="line_3rd">3rd</string>
-
+    <string name="daily_actuals">Actuals</string>
+    <string name="daily_variance">Variance</string>
+    <string name="daily_cumulative_total">Cumulative Total</string>
+    <string name="daily_comments_problems">Comments/Problems</string>
+    <string name="daily_owner">Owner</string>
 
 
 </resources>

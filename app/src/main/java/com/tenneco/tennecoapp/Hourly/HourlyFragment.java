@@ -110,19 +110,24 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         postsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mLines = new ArrayList<>();
+                ArrayList<Line> lines = new ArrayList<>();
                 boolean today = false;
                 String date = Utils.getDateString();
+
+
                 for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
                 {
                     Line line = itemSnapshot.getValue(Line.class);
                     if (line!=null) {
-                        mLines.add(line);
+                        lines.add(line);
                         if (line.getDate().equals(date))
                             today=true;
                     }
                 }
 
+                mLines = new ArrayList<>();
+                for (int size = lines.size()-1; size>=0 ; size--)
+                    mLines.add(lines.get(size));
 
                 if(!today)
                     showFb();

@@ -16,7 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Lines.AddEditLineActivity"></activity>
+        <activity android:name=".Lines.AddEditLineActivity" />
+        <activity android:name=".Daily.DailyActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
     </application>
 
 </manifest>
