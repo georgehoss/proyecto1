@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Hourly;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -23,6 +24,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.LineAdapter;
 import com.tenneco.tennecoapp.Adapter.ProductionLineAdapter;
+import com.tenneco.tennecoapp.Daily.DailyActivity;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.R;
@@ -99,8 +101,8 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     }
 
     @Override
-    public void onItemClick() {
-
+    public void onItemClick(String lineId) {
+        launchDaily(lineId);
     }
 
     @Override
@@ -222,6 +224,13 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     @Override
     public void showShifts() {
         mLlShifts.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void launchDaily(String lineId) {
+        Intent intent = new Intent(main, DailyActivity.class);
+        intent.putExtra("id",lineId);
+        startActivity(intent);
     }
 
     @Override

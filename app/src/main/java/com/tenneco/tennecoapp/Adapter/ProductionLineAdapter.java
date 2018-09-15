@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Adapter;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +39,7 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
     @Override
     public void onBindViewHolder(@NonNull ProductionLineViewHolder holder, int position) {
 
-        Line line = lines.get(position);
+        final Line line = lines.get(position);
         if (line!=null) {
             holder.mTvDate.setText(line.getDate());
             holder.mTvName.setText(line.getName());
@@ -49,6 +50,12 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
             holder.mTvTarget1.setText(line.getFirst().getCumulativePlanned());
             holder.mTvTarget2.setText(line.getSecond().getCumulativePlanned());
             holder.mTvTarget3.setText(line.getThird().getCumulativePlanned());
+            holder.mCvLine.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    itemInteraction.onItemClick(line.getId());
+                }
+            });
         }
     }
 
@@ -70,6 +77,7 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
         @BindView(R.id.tv_t_s1) TextView mTvTarget1;
         @BindView(R.id.tv_t_s2) TextView mTvTarget2;
         @BindView(R.id.tv_t_s3) TextView mTvTarget3;
+        @BindView(R.id.cv_line) CardView mCvLine;
 
         ProductionLineViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -78,7 +86,7 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
     }
 
     public interface ItemInteraction{
-        void onItemClick();
+        void onItemClick(String lineId);
     }
 
     public ArrayList<Line> getLines() {

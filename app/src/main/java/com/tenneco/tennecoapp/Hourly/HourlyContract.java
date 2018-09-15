@@ -17,6 +17,7 @@ public interface HourlyContract {
         void setLine();
         void hideShifts();
         void showShifts();
+        void launchDaily(String lineId);
     }
     interface Presenter extends BasePresenter<View>{
 

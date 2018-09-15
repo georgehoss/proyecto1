@@ -14,6 +14,7 @@
         android:textStyle="bold"
         android:background="@drawable/daily_item"
         android:padding="5dp"
+        android:textIsSelectable="true"
         />
     <TextView
         android:layout_width="0dp"
@@ -25,6 +26,7 @@
         android:textStyle="bold"
         android:background="@drawable/daily_item"
         android:padding="5dp"
+        android:textIsSelectable="true"
         />
     <TextView
         android:layout_width="0dp"
@@ -36,6 +38,7 @@
         android:id="@+id/tv_actual"
         android:gravity="center"
         android:padding="5dp"
+        android:textIsSelectable="true"
         />
     <TextView
         android:layout_width="0dp"
@@ -47,6 +50,7 @@
         android:id="@+id/tv_variance"
         android:gravity="center"
         android:padding="5dp"
+        android:textIsSelectable="true"
         />
     <LinearLayout
         android:layout_width="0dp"
@@ -55,6 +59,7 @@
         android:background="@drawable/daily_item"
         android:gravity="center"
         android:orientation="vertical"
+        android:textIsSelectable="true"
         >
         <TextView
             android:layout_width="match_parent"
@@ -65,12 +70,14 @@
             android:id="@+id/tv_cActual"
             android:gravity="start"
             android:padding="5dp"
+            android:textIsSelectable="true"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold"
+            android:textIsSelectable="true"
             android:background="@drawable/daily_item"
             android:id="@+id/tv_cPlanned"
             android:gravity="end"
@@ -87,6 +94,7 @@
         android:id="@+id/tv_comments"
         android:gravity="center"
         android:padding="5dp"
+        android:textIsSelectable="true"
         />
     <TextView
         android:layout_width="0dp"
@@ -97,6 +105,7 @@
         android:background="@drawable/daily_item"
         android:id="@+id/tv_owner"
         android:gravity="center"
+        android:textIsSelectable="true"
         android:padding="5dp"
         android:visibility="gone"
         />

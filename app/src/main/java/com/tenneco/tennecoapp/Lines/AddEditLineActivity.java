@@ -171,7 +171,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         if (item.getItemId() == R.id.menu_save)
         {
             mPresenter.saveChanges(mEtName.getText().toString().trim(),dbLines.push().getKey(),
-                    mPresenter.getshift(mEtS1s1.getText().toString().trim(), mEtS1e1.getText().toString().trim(),
+                    mPresenter.getshift(
+                            mEtS1s1.getText().toString().trim(), mEtS1e1.getText().toString().trim(),
                             mEtS1t1.getText().toString().trim(),mEtS1cp1.getText().toString().trim(),
                             mEtS1s2.getText().toString().trim(), mEtS1e2.getText().toString().trim(),
                             mEtS1t2.getText().toString().trim(),mEtS1cp2.getText().toString().trim(),
@@ -187,7 +188,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                             mEtS1t7.getText().toString().trim(),mEtS1cp7.getText().toString().trim(),
                             mEtS1s8.getText().toString().trim(), mEtS1e8.getText().toString().trim(),
                             mEtS1t8.getText().toString().trim(),mEtS1cp8.getText().toString().trim()),
-                    mPresenter.getshift(mEtS2s1.getText().toString().trim(), mEtS2e1.toString().trim(),
+                    mPresenter.getshift(
+                            mEtS2s1.getText().toString().trim(), mEtS2e1.getText().toString().trim(),
                             mEtS2t1.getText().toString().trim(),mEtS2cp1.getText().toString().trim(),
                             mEtS1s2.getText().toString().trim(), mEtS1e2.getText().toString().trim(),
                             mEtS2t2.getText().toString().trim(),mEtS2cp2.getText().toString().trim(),
@@ -203,7 +205,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                             mEtS2t7.getText().toString().trim(),mEtS2cp7.getText().toString().trim(),
                             mEtS2s8.getText().toString().trim(), mEtS2e8.getText().toString().trim(),
                             mEtS2t8.getText().toString().trim(),mEtS2cp8.getText().toString().trim()),
-                    mPresenter.getshift(mEtS3s1.getText().toString().trim(), mEtS3e1.toString().trim(),
+                    mPresenter.getshift(
+                            mEtS3s1.getText().toString().trim(), mEtS3e1.getText().toString().trim(),
                             mEtS3t1.getText().toString().trim(),mEtS3cp1.getText().toString().trim(),
                             mEtS3s2.getText().toString().trim(), mEtS3e2.getText().toString().trim(),
                             mEtS3t2.getText().toString().trim(),mEtS3cp2.getText().toString().trim(),

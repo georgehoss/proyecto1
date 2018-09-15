@@ -87,6 +87,8 @@
     <string name="daily_cumulative_total">Cumulative Total</string>
     <string name="daily_comments_problems">Comments/Problems</string>
     <string name="daily_owner">Owner</string>
+    <string name="daily_date">Date</string>
+    <string name="team_performance_board">Team Performance Board</string>
 
 
 </resources>

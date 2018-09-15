@@ -27,9 +27,9 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
     private ItemInteraction itemInteraction;
     private Context context;
 
-    public DailyAdapter(ArrayList<WorkHour> hours, ItemInteraction itemInteraction, Context context) {
+    public DailyAdapter(ArrayList<WorkHour> hours, Context context) {
         this.hours = hours;
-        this.itemInteraction = itemInteraction;
+        this.itemInteraction = (ItemInteraction) context;
         this.context = context;
     }
 
@@ -185,7 +185,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
         }
     }
 
-    interface ItemInteraction{
+    public interface ItemInteraction{
         void onTargetClick(int position);
         void onOwnerClick (int position);
 
