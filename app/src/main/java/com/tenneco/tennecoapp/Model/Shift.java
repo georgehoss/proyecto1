@@ -19,6 +19,20 @@ public class Shift {
     public Shift() {
     }
 
+    public Shift(ArrayList<WorkHour> hours, String shiftName, String cumulativePlanned) {
+        this.hours = hours;
+        this.shiftName = shiftName;
+        this.cumulativePlanned = cumulativePlanned;
+    }
+
+    public Shift(Shift shift) {
+        this.hours = shift.getHours();
+        this.shiftName = shift.getShiftName();
+        this.cumulativePlanned = shift.getCumulativePlanned();
+    }
+
+
+
     public ArrayList<WorkHour> getHours() {
         return hours;
     }

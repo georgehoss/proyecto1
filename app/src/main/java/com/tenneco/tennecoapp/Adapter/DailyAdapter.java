@@ -46,7 +46,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
         WorkHour hour = hours.get(position);
         if (hour!=null)
         {
-            String date = hour.getHourStart() + " - "+ hour.getHourEnd();
+            String date = hour.getStartHour() + " - "+ hour.getEndHour();
 
             int actual=0,target=0;
 
@@ -137,6 +137,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             holder.mTvDate.setText(date);
             holder.mTvTarget.setText(hour.getTarget());
             holder.mTvCActual.setText(hour.getCumulativeActual());
+            holder.mTvComments.setText(hour.getComments());
 
             //holder.mTvOwner.setText(hour.getComments());
             holder.mTvActual.setOnClickListener(new View.OnClickListener() {
@@ -145,6 +146,14 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
                     itemInteraction.onTargetClick(position);
                 }
             });
+
+            holder.mTvComments.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    itemInteraction.onTargetClick(position);
+                }
+            });
+
             holder.mTvOwner.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

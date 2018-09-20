@@ -30,7 +30,6 @@
                 android:id="@+id/tv_name"
                 android:textSize="20sp"
                 android:padding="10dp"
-                android:maxLength="4"
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
                 android:background="@color/colorPrimary"

@@ -4,8 +4,8 @@ package com.tenneco.tennecoapp.Model;
  * Created by ghoss on 11/09/2018.
  */
 public class WorkHour {
-    private String hourStart;
-    private String hourEnd;
+    private String startHour;
+    private String endHour;
     private String target;
     private String actuals;
     private String cumulativeActual;
@@ -16,27 +16,27 @@ public class WorkHour {
     public WorkHour() {
     }
 
-    public WorkHour(String hourStart, String hourEnd, String target, String cumulativePlanned) {
-        this.hourStart = hourStart;
-        this.hourEnd = hourEnd;
+    public WorkHour(String startHour, String endHour, String target, String cumulativePlanned) {
+        this.startHour = startHour;
+        this.endHour = endHour;
         this.target = target;
         this.cumulativePlanned = cumulativePlanned;
     }
 
-    public String getHourStart() {
-        return hourStart;
+    public String getStartHour() {
+        return startHour;
     }
 
-    public void setHourStart(String hourStart) {
-        this.hourStart = hourStart;
+    public void setStartHour(String startHour) {
+        this.startHour = startHour;
     }
 
-    public String getHourEnd() {
-        return hourEnd;
+    public String getEndHour() {
+        return endHour;
     }
 
-    public void setHourEnd(String hourEnd) {
-        this.hourEnd = hourEnd;
+    public void setEndHour(String endHour) {
+        this.endHour = endHour;
     }
 
     public String getTarget() {

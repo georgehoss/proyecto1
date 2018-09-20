@@ -41,7 +41,7 @@
     <string name="target">Target</string>
     <string name="add_time">Time</string>
     <string name="add_target">Target</string>
-    <string name="add_cumulative_planned">C.P.</string>
+    <string name="add_cumulative_planned">Cumulative Planned</string>
     <string name="add_1st_shift">1st Shift</string>
     <string name="add_separator">-</string>
     <string name="add_01_30">01:30</string>
@@ -68,7 +68,7 @@
     <string name="add_t_273">273</string>
     <string name="add_2nd_shift">2nd Shift</string>
     <string name="add_3rd_shift">3rd Shift</string>
-    <string name="add_name_402">Name: 402</string>
+    <string name="add_name_402">402 - Production Line</string>
     <string name="add_edit_production_line">Edit Production line</string>
     <string name="save">Save</string>
     <string name="main_hourly_production">Hourly Production</string>
@@ -89,6 +89,12 @@
     <string name="daily_owner">Owner</string>
     <string name="daily_date">Date</string>
     <string name="team_performance_board">Team Performance Board</string>
+    <string name="cancel">Cancel</string>
+    <string name="dialog_comments_and_actions">Comments and Actions</string>
+    <string name="star_hour">Introduce start hour!</string>
+    <string name="end_hour">Introduce end hour!</string>
+    <string name="error_target">Introduce Target!</string>
+    <string name="add_name">Name:</string>
 
 
 </resources>

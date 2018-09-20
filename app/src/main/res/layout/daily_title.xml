@@ -5,46 +5,58 @@
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
     android:gravity="center"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/tenneco_logo"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/manufactuering_operatrions_logo"
             tools:ignore="ContentDescription" />
-        <LinearLayout
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/team_performance_board"
-                android:textStyle="bold"
-                android:textColor="@color/colorBlueLine"
-                android:gravity="center"
-                android:textSize="20sp"
-                android:padding="5dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/tv_name"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:padding="5dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/tv_date"
-                android:textSize="16sp"
-                android:gravity="end"
-                android:layout_marginEnd="20dp"
-                android:padding="5dp"
-                />
+            android:text="@string/team_performance_board"
+            android:textStyle="bold"
+            android:textColor="@color/colorBlueLine"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:padding="5dp"
+            />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:id="@+id/tv_name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="5dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:id="@+id/tv_date"
+            android:textSize="16sp"
+            android:gravity="end"
+            android:layout_marginEnd="10dp"
+            android:padding="5dp"
+            />
+    </LinearLayout>
+
 </LinearLayout>

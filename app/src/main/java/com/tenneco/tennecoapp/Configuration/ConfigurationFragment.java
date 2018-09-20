@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.LineAdapter;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
+import com.tenneco.tennecoapp.Lines.AddLineContract;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.R;
@@ -87,7 +88,9 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
 
     @Override
     public void onItemClick(String lineId) {
-
+        Intent intent = new Intent(getContext(), AddEditLineActivity.class);
+        intent.putExtra("id",lineId);
+        startActivity(intent);
     }
 
     @Override

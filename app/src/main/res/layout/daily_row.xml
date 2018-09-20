@@ -58,29 +58,30 @@
         android:layout_height="match_parent"
         android:background="@drawable/daily_item"
         android:gravity="center"
-        android:orientation="vertical"
         android:textIsSelectable="true"
         >
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimaryDark"
-            android:textStyle="bold"
             android:background="@drawable/daily_item"
+            android:textStyle="bold"
             android:id="@+id/tv_cActual"
-            android:gravity="start"
+            android:gravity="center"
             android:padding="5dp"
             android:textIsSelectable="true"
             />
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold"
             android:textIsSelectable="true"
             android:background="@drawable/daily_item"
             android:id="@+id/tv_cPlanned"
-            android:gravity="end"
+            android:gravity="center"
             android:padding="5dp"
             />
     </LinearLayout>
