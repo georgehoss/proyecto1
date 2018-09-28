@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:text="@string/welcome_back"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorBlack"
             android:textAllCaps="true"
             android:textStyle="bold" />
         <TextView

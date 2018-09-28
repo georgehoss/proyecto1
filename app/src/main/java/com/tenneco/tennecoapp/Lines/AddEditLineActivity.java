@@ -1,12 +1,12 @@
 package com.tenneco.tennecoapp.Lines;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,21 +27,38 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.tenneco.tennecoapp.Adapter.DowntimeAdapter;
+import com.tenneco.tennecoapp.Adapter.EmployeeAdapter;
+import com.tenneco.tennecoapp.Adapter.EmployeeSelectionAdapter;
 import com.tenneco.tennecoapp.Adapter.HourAdapter;
+import com.tenneco.tennecoapp.Adapter.LocationAdapter;
+import com.tenneco.tennecoapp.Adapter.PositionAdapter;
+import com.tenneco.tennecoapp.Adapter.ScrapAdapter;
+import com.tenneco.tennecoapp.Model.Downtime.Downtime;
+import com.tenneco.tennecoapp.Model.Downtime.Location;
+import com.tenneco.tennecoapp.Model.Downtime.Reason;
+import com.tenneco.tennecoapp.Model.Downtime.Zone;
+import com.tenneco.tennecoapp.Model.Employee;
+import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddEditLineActivity extends AppCompatActivity implements AddLineContract.View,HourAdapter.ItemInteraction {
+public class AddEditLineActivity extends AppCompatActivity implements AddLineContract.View,HourAdapter.ItemInteraction, PositionAdapter.OnItemClick, DowntimeAdapter.OnItemClick, ScrapAdapter.OnItemClick, EmployeeAdapter.OnEmployeeInteraction, EmployeeSelectionAdapter.OnEmployee {
+    private static final int DOWNTIME = 0;
+    private static final int EVENT = 1;
     private DatabaseReference dbLines;
+    private DatabaseReference dbEmployees;
     private AddLineContract.Presenter mPresenter;
+    private Line mLine;
     private Shift shift1;
     private Shift shift2;
     private Shift shift3;
@@ -50,14 +66,39 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private HourAdapter mAdapter1;
     private HourAdapter mAdapter2;
     private HourAdapter mAdapter3;
+    private EmployeeSelectionAdapter mAdapterEmployee;
+    private PositionAdapter mAdapterPos;
+    private DowntimeAdapter mAdapterDt;
+    private ScrapAdapter mAdapterSr;
+    private ScrapAdapter mAdapterDr;
+    private ArrayList<EmployeePosition> mPositions;
+    private ArrayList<Employee> mEmployees;
+    private ArrayList<Zone> mZones;
+    private ArrayList<Reason> mReasons;
+    private ArrayList<Reason> mDReasons;
     private boolean deletable = false;
+    private Downtime downtime;
     @BindView(R.id.et_name) EditText mEtName;
     @BindView(R.id.ll_shift1) LinearLayout mLlS1;
     @BindView(R.id.ll_shift2) LinearLayout mLlS2;
     @BindView(R.id.ll_shift3) LinearLayout mLlS3;
+    @BindView(R.id.ll_position) LinearLayout mLlPosition;
+    @BindView(R.id.ll_downtime) LinearLayout mLlDowntime;
+    @BindView(R.id.ll_scrap) LinearLayout mLlScrap;
     @BindView(R.id.rv_shift1) RecyclerView mRvS1;
     @BindView(R.id.rv_shift2) RecyclerView mRvS2;
     @BindView(R.id.rv_shift3) RecyclerView mRvS3;
+    @BindView(R.id.rv_employee) RecyclerView mRvEmployee;
+    @BindView(R.id.rv_position) RecyclerView mRvPosition;
+    @BindView(R.id.rv_downtime) RecyclerView mRvDowntime;
+    @BindView(R.id.rv_downtime_reasons) RecyclerView mRvDowntimeReasons;
+    @BindView(R.id.rv_scrap) RecyclerView mRvScrap;
+    @BindView(R.id.cv_s1) CardView mCvS1;
+    @BindView(R.id.cv_s2) CardView mCvS2;
+    @BindView(R.id.cv_s3) CardView mCvS3;
+    @BindView(R.id.cv_sr) CardView mCvSr;
+    @BindView(R.id.cv_dt) CardView mCvDt;
+    @BindView(R.id.cv_ss) CardView mCvSs;
 
 
 
@@ -71,29 +112,48 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mPresenter.onShift3Click(mLlS3.getVisibility(),View.VISIBLE);
     }
 
+    @OnClick(R.id.tv_position) void position(){
+        mPresenter.onPositionClick(mLlPosition.getVisibility(), View.VISIBLE);
+    }
+
+    @OnClick(R.id.bt_add_position) void addPos(){
+        showPositionDialog(new EmployeePosition(""),this);
+    }
+
+    @OnClick (R.id.tv_downtime) void dt(){
+        mPresenter.onDowntimeClick(mLlDowntime.getVisibility(),View.VISIBLE);
+    }
+
+    @OnClick (R.id.tv_scrap) void scr(){
+        mPresenter.onScrapClick(mLlScrap.getVisibility(),View.VISIBLE);
+    }
+
+    @OnClick (R.id.bt_list_shift1) void listS1(){
+        showDialogEmployee(shift1.getEmployees(),this,1).show();
+    }
+
+    @OnClick (R.id.bt_add_downtime) void dtd(){
+        showAddDowntimeDialog(this,null);
+    }
+
+    @OnClick (R.id.bt_add_downtime_reasons) void dtr () {showAddEventDialog(this,DOWNTIME);}
+
+    @OnClick (R.id.bt_add_scrap) void scrr () {showAddEventDialog(this,EVENT);}
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_line);
         ButterKnife.bind(this);
         dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+        dbEmployees = FirebaseDatabase.getInstance().getReference(Employee.DB);
         if (mPresenter == null)
             mPresenter = new AddLinePresenter(this);
         else
             mPresenter.bindView(this);
 
-        shift1 = new Shift();
-        mRvS1.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter1 = new HourAdapter(new ArrayList<WorkHour>(),this,1);
-        mRvS1.setAdapter(mAdapter1);
-        shift2 = new Shift();
-        mRvS2.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter2 = new HourAdapter(new ArrayList<WorkHour>(),this,2);
-        mRvS2.setAdapter(mAdapter2);
-        shift3 = new Shift();
-        mRvS3.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter3 = new HourAdapter(new ArrayList<WorkHour>(),this,3);
-        mRvS3.setAdapter(mAdapter3);
+        initAdapters();
 
         if (getIntent().getExtras()!=null)
         {
@@ -103,7 +163,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         else {
             id = dbLines.push().getKey();
             mPresenter.initData(this);
+            getEmployees();
         }
+
+
 
 
     }
@@ -130,7 +193,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         if (item.getItemId() == R.id.menu_save)
         {
             if (mPresenter.validName(mEtName.getText().toString().trim()))
-                mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3);
+                mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine.getEmployees());
             else
                 showNameError();
         }
@@ -143,12 +206,49 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     }
 
     @Override
+    public void initAdapters() {
+        shift1 = new Shift();
+        mRvS1.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter1 = new HourAdapter(new ArrayList<WorkHour>(),this,1);
+        mRvS1.setAdapter(mAdapter1);
+        shift2 = new Shift();
+        mRvS2.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter2 = new HourAdapter(new ArrayList<WorkHour>(),this,2);
+        mRvS2.setAdapter(mAdapter2);
+        shift3 = new Shift();
+        mRvS3.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter3 = new HourAdapter(new ArrayList<WorkHour>(),this,3);
+        mRvS3.setAdapter(mAdapter3);
+        mPositions = new ArrayList<>();
+        mRvPosition.setLayoutManager(new LinearLayoutManager(this));
+        mAdapterPos = new PositionAdapter(mPositions,this);
+        mRvPosition.setAdapter(mAdapterPos);
+        mZones = new ArrayList<>();
+        mRvDowntime.setLayoutManager(new LinearLayoutManager(this));
+        mAdapterDt = new DowntimeAdapter(mZones,this);
+        mRvDowntime.setAdapter(mAdapterDt);
+        mReasons = new ArrayList<>();
+        mRvScrap.setLayoutManager(new LinearLayoutManager(this));
+        mAdapterSr = new ScrapAdapter(mReasons,this);
+        mRvScrap.setAdapter(mAdapterSr);
+        mDReasons = new ArrayList<>();
+        mRvDowntimeReasons.setLayoutManager(new LinearLayoutManager(this));
+        mAdapterDr = new ScrapAdapter(mDReasons,this);
+        mRvDowntimeReasons.setAdapter(mAdapterDr);
+        mRvEmployee.setLayoutManager(new LinearLayoutManager(this));
+        mAdapterEmployee = new EmployeeSelectionAdapter(null,this);
+        mRvEmployee.setAdapter(mAdapterEmployee);
+
+    }
+
+    @Override
     public void hideshift1() {
         mLlS1.setVisibility(View.GONE);
     }
 
     @Override
     public void showshift1() {
+        mCvS1.setVisibility(View.VISIBLE);
         mLlS1.setVisibility(View.VISIBLE);
     }
 
@@ -159,6 +259,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @Override
     public void showshift2() {
+        mCvS2.setVisibility(View.VISIBLE);
         mLlS2.setVisibility(View.VISIBLE);
     }
 
@@ -168,8 +269,78 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     }
 
     @Override
-    public void showshift3() {
+    public void showshift3()
+    {
+        mCvS3.setVisibility(View.VISIBLE);
         mLlS3.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hidePosition() {
+        mLlPosition.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showPosition() {
+        mCvSr.setVisibility(View.VISIBLE);
+        mLlPosition.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideAll() {
+        mCvS1.setVisibility(View.GONE);
+        mCvS2.setVisibility(View.GONE);
+        mCvS3.setVisibility(View.GONE);
+        mCvSr.setVisibility(View.GONE);
+        mCvDt.setVisibility(View.GONE);
+        mCvSs.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showAll() {
+        mCvS1.setVisibility(View.VISIBLE);
+        mCvS2.setVisibility(View.VISIBLE);
+        mCvS3.setVisibility(View.VISIBLE);
+        mCvSr.setVisibility(View.VISIBLE);
+        mCvDt.setVisibility(View.VISIBLE);
+        mCvSs.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideDowntime() {
+        mLlDowntime.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showDowntime() {
+        mCvDt.setVisibility(View.VISIBLE);
+        mLlDowntime.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideScrap() {
+        mLlScrap.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showScrap() {
+        mCvSs.setVisibility(View.VISIBLE);
+        mLlScrap.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void addPosition(EmployeePosition position) {
+        mPositions.add(position);
+        mAdapterPos.setPositions(mPositions);
+        mAdapterPos.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public void deletePosition(EmployeePosition position) {
+        mPositions.remove(position);
+        mAdapterPos.setPositions(mPositions);
+        mAdapterPos.notifyDataSetChanged();
     }
 
     @Override
@@ -184,7 +355,11 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @Override
     public void onBackPressed() {
-        showExitDialog(this);
+        if (mCvS1.getVisibility()==View.VISIBLE && mCvS2.getVisibility()==View.VISIBLE  && mCvS3.getVisibility()==View.VISIBLE &&
+        mCvSr.getVisibility()==View.VISIBLE && mCvDt.getVisibility()==View.VISIBLE && mCvSs.getVisibility()==View.VISIBLE)
+            showExitDialog(this);
+        else
+            showAll();
     }
 
     @Override
@@ -197,9 +372,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                Line line = dataSnapshot.getValue(Line.class);
                 if (line!=null) {
                     mEtName.setText(line.getName());
-                    setData(line.getFirst(),line.getSecond(),line.getThird());
+                    setData(line);
                     deletable = true;
                     invalidateOptionsMenu();
+                    getEmployees();
                 }
                 else
                     finish();
@@ -213,16 +389,48 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     }
 
     @Override
-    public void setData(Shift s1,Shift s2 , Shift s3) {
-        shift1 = new Shift(s1);
-        shift2 = new Shift(s2);
-        shift3 = new Shift(s3);
+    public void setData(Line line) {
+        mLine = line;
+        shift1 = line.getFirst();
+        shift2 = line.getSecond();
+        shift3 = line.getThird();
+        mPositions = new ArrayList<>();
+        if (line.getPositions()!=null)
+        mPositions.addAll(line.getPositions());
         mAdapter1.setHours(shift1.getHours());
         mAdapter1.notifyDataSetChanged();
         mAdapter2.setHours(shift2.getHours());
         mAdapter2.notifyDataSetChanged();
         mAdapter3.setHours(shift3.getHours());
         mAdapter3.notifyDataSetChanged();
+        mAdapterPos.setPositions(line.getPositions());
+        mAdapterPos.notifyDataSetChanged();
+        mZones = new ArrayList<>();
+        if (line.getDowntime()!=null) {
+            downtime = line.getDowntime();
+            if (line.getDowntime().getZones()!=null){
+            mAdapterDt.setZones(line.getDowntime().getZones());
+            mAdapterDt.notifyDataSetChanged();}
+            if (line.getDowntime().getReasons()!=null) {
+                mAdapterDr.setReasons(line.getDowntime().getReasons());
+                mAdapterDr.notifyDataSetChanged();
+                mDReasons = new ArrayList<>();
+                mDReasons.addAll(line.getDowntime().getReasons());
+            }
+        }
+        else
+            downtime = new Downtime();
+
+        if (line.getScrapReasons()!=null) {
+            mAdapterSr.setReasons(line.getScrapReasons());
+            mAdapterSr.notifyDataSetChanged();
+            mReasons = new ArrayList<>();
+            mReasons.addAll(line.getScrapReasons());
+        }
+
+
+        mLine.setEmployees(mPresenter.getEmployees(shift1.getEmployees(),shift2.getEmployees(),shift3.getEmployees()));
+
 
     }
 
@@ -555,8 +763,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     public void showDeleteDialog(Context context) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setTitle("Delete production Line");
-        alertDialogBuilder.setMessage("Are you sure you want to delete "+mEtName.getText().toString()+" ?");
-        alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setMessage(getString(R.string.delete_question)+mEtName.getText().toString()+" ?");
+        alertDialogBuilder.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 delete();
@@ -577,13 +785,13 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     public void showExitDialog(Context context) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setTitle("Save Changes");
-        alertDialogBuilder.setMessage("Do you want to save changes of the line:"+mEtName.getText().toString()+" ?");
+        alertDialogBuilder.setMessage("Do you want to leave without saving the changes of the line:"+mEtName.getText().toString()+" ?");
         alertDialogBuilder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
                 if (mPresenter.validName(mEtName.getText().toString().trim()))
-                    mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3);
+                    mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine.getEmployees());
                 else
                     showNameError();
             }
@@ -607,6 +815,68 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     }
 
     @Override
+    public void showPositionDialog(final EmployeePosition employeePosition,Context context) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_position, null);
+        alertDialogBuilder.setView(view);
+        alertDialogBuilder.setCancelable(false);
+        if (employeePosition.getName().length()>0)
+            alertDialogBuilder.setTitle(employeePosition.getName());
+        final EditText mEtName = view.findViewById(R.id.et_name);
+        mEtName.setText(employeePosition.getName());
+        Button mBtSave = view.findViewById(R.id.bt_save);
+        Button mBtCancel = view.findViewById(R.id.bt_cancel);
+        final AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+
+        mBtSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mEtName.getText().toString().length()>0) {
+                    employeePosition.setName(mEtName.getText().toString());
+                    addPosition(employeePosition);
+                    dialog.dismiss();
+                }
+                else
+                {
+                    mEtName.setError("Introduce position name!");
+                    mEtName.requestFocus();
+                }
+
+            }
+        });
+
+        mBtCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    @Override
+    public void showDeletePosition(final EmployeePosition employeePosition, Context context) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        alertDialogBuilder.setTitle("Delete Employee Position");
+        alertDialogBuilder.setMessage(getString(R.string.delete_question)+" "+employeePosition.getName()+" ?");
+        alertDialogBuilder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                deletePosition(employeePosition);
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialogBuilder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialogBuilder.create().show();
+    }
+
+    @Override
     public void delete() {
         dbLines.child(id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -623,6 +893,190 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     }
 
     @Override
+    public void getEmployees() {
+        dbEmployees.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mEmployees = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    Employee employee = itemSnapshot.getValue(Employee.class);
+                    if (employee!=null)
+                        mEmployees.add(employee);
+
+
+                }
+
+                if (mLine.getEmployees()!=null)
+                    mLine.setEmployees(mPresenter.verifyEmployees(mLine.getEmployees(),mEmployees));
+                else
+                    mLine.setEmployees(mEmployees);
+
+                mAdapterEmployee.setEmployees(mLine.getEmployees());
+                mAdapterEmployee.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public AlertDialog showDialogEmployee(final ArrayList<Employee> employees, Context context, final int shift) {
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_list_operator_shift, null);
+        EmployeeAdapter adapter1 = new EmployeeAdapter(mLine.getFirst().getEmployees());
+        EmployeeAdapter adapter2 = new EmployeeAdapter(mLine.getSecond().getEmployees());
+        EmployeeAdapter adapter3 = new EmployeeAdapter(mLine.getThird().getEmployees());
+        RecyclerView recyclerView1 = view.findViewById(R.id.rv_eshift1);
+        RecyclerView recyclerView2= view.findViewById(R.id.rv_eshift2);
+        RecyclerView recyclerView3 = view.findViewById(R.id.rv_eshift3);
+        recyclerView1.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView1.setAdapter(adapter1);
+        recyclerView2.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView2.setAdapter(adapter2);
+        recyclerView3.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView3.setAdapter(adapter3);
+        alertDialogBuilder.setView(view);
+        alertDialogBuilder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        return alertDialogBuilder.create();
+
+    }
+
+    @Override
+    public void showAddDowntimeDialog(Context context, Zone zone) {
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_add_downtime, null);
+        alertDialogBuilder.setView(view);
+        alertDialogBuilder.setCancelable(false);
+        final EditText mEvName = view.findViewById(R.id.et_name);
+        final EditText mEvInfo = view.findViewById(R.id.et_info);
+        final ArrayList<Location> locations = new ArrayList<>();
+        if (zone!=null)
+        {
+            mEvName.setText(zone.getName());
+            if (zone.getLocations()!=null)
+                locations.addAll(zone.getLocations());
+        }
+
+        final LocationAdapter mAdapter = new LocationAdapter(locations,null);
+        RecyclerView recyclerView = view.findViewById(R.id.rv_location);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+        alertDialogBuilder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (mEvName.getText().toString().isEmpty()) {
+                    mEvName.setError("Introduce Zone name");
+                    mEvName.requestFocus();
+                }
+                else {
+                   downtime.getZones().add(new Zone(mEvName.getText().toString().trim(),mAdapter.getLocations()));
+                    Collections.sort(downtime.getZones(),Zone.NameComparator);
+                    mAdapterDt.setZones(downtime.getZones());
+                    mAdapterDt.notifyDataSetChanged();
+                    dialogInterface.dismiss();
+                }
+            }
+        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        Button mBtAdd = view.findViewById(R.id.bt_add);
+
+        mBtAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mEvInfo.getText().toString().isEmpty())
+                {
+                    mEvInfo.setError("Introduce new Location Name!");
+                    mEvInfo.requestFocus();
+                }
+                else
+                {
+                    locations.add(new Location(mEvInfo.getText().toString().trim()));
+                    Collections.sort(locations,Location.NameComparator);
+                    mAdapter.setLocations(locations);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        final AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void showAddEventDialog(Context context, final int reason) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_add_reason, null);
+        alertDialogBuilder.setView(view);
+        alertDialogBuilder.setCancelable(false);
+        final EditText mEvName = view.findViewById(R.id.et_name);
+        final ArrayList<Location> locations = new ArrayList<>();
+        Button btSave = view.findViewById(R.id.bt_save);
+        Button btCancel = view.findViewById(R.id.bt_cancel);
+        final AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+
+        btSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mEvName.getText().toString().isEmpty()) {
+                    mEvName.setError("Introduce Reason name!");
+                    mEvName.requestFocus();
+                }
+                else {
+                    if (reason==DOWNTIME)
+                    {
+                        downtime.getReasons().add(new Reason(mEvName.getText().toString().trim()));
+                        Collections.sort(downtime.getReasons(),Reason.NameComparator);
+                        mAdapterDr.setReasons(downtime.getReasons());
+                        mAdapterDr.notifyDataSetChanged();
+                    }
+                    else {
+                        mReasons.add(new Reason(mEvName.getText().toString().trim()));
+                        Collections.sort(mReasons,Reason.NameComparator);
+                        mAdapterSr.setReasons(mReasons);
+                        mAdapterSr.notifyDataSetChanged();
+                    }
+
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        btCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+
+
+
+    }
+
+
+    @Override
     public void bindPresenter(AddLineContract.Presenter presenter) {
         this.mPresenter = presenter;
     }
@@ -637,6 +1091,58 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         else
         if (position==3)
             showShiftDialog(shift3,position,this);
+
+    }
+
+    @Override
+    public void PositionClick(EmployeePosition employeePosition) {
+        showDeletePosition(employeePosition,this);
+    }
+
+    @Override
+    public void ZoneClick(Zone zone) {
+
+    }
+
+    @Override
+    public void eventDeletClick(Reason reason) {
+
+    }
+
+    @Override
+    public void EditEmploye(Employee employee) {
+        showDialogEmployee(shift1.getEmployees(),this,1).show();
+    }
+
+    @Override
+    public void onEmployeeChange() {
+
+        mLine.setEmployees(mLine.getEmployees());
+        shift1.setEmployees(new ArrayList<Employee>());
+        shift2.setEmployees(new ArrayList<Employee>());
+        shift3.setEmployees(new ArrayList<Employee>());
+
+        for (Employee employee : mLine.getEmployees())
+        {
+            if (employee.isAvailable())
+            {
+                switch (employee.getShift()){
+                    case 1:
+                        shift1.getEmployees().add(employee);
+                        break;
+                    case 2:
+                        shift2.getEmployees().add(employee);
+                        break;
+                    case 3:
+                        shift3.getEmployees().add(employee);
+                        break;
+                }
+            }
+        }
+
+        mLine.getFirst().setEmployees(shift1.getEmployees());
+        mLine.getSecond().setEmployees(shift2.getEmployees());
+        mLine.getThird().setEmployees(shift3.getEmployees());
 
     }
 }

@@ -13,4 +13,9 @@ public class Utils {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return dateFormat.format(new Date());
     }
+
+    public static String getTimeString(){
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
+        return dateFormat.format(new Date());
+    }
 }

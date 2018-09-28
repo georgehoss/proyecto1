@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorWhite"
@@ -117,14 +119,80 @@
 
     <include layout="@layout/shift_table"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Report Hour"
-        android:id="@+id/bt_hour"
-        android:layout_margin="10dp"
-        android:visibility="gone"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/daily_report_hour"
+            android:id="@+id/bt_hour"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button"
+            />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/daily_end_1st_shift"
+            android:id="@+id/bt_end_s1"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button" />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/dailly_end_2nd_shift"
+            android:id="@+id/bt_end_s2"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/daily_end_3rd_shift"
+            android:id="@+id/bt_end_s3"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/daily_downtime"
+            android:id="@+id/bt_downtime"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/daily_leak_failure_counter"
+            android:id="@+id/bt_counter"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/daily_scrap_event"
+            android:id="@+id/bt_event"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button" />
+    </LinearLayout>
 </LinearLayout>
 </ScrollView>

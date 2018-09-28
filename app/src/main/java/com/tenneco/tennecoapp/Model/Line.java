@@ -4,6 +4,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by ghoss on 11/09/2018.
@@ -22,16 +23,32 @@ public class Line {
     private Downtime downtime;
     private String date;
     private String parentId;
+    private ArrayList<EmployeePosition> positions;
+    private ArrayList<Employee> employees;
 
     public Line() {
     }
 
-    public Line(String name, String id, Shift first, Shift second, Shift third) {
+    public static Comparator<Line> NameComparator = new Comparator<Line>() {
+
+        public int compare(Line us1, Line us2) {
+            String name1 = us1.getName().toUpperCase();
+            String name2 = us2.getName().toUpperCase();
+
+            //ascending order
+            return name1.compareTo(name2);
+
+            //descending order
+            //return name2.compareTo(name1);
+        }};
+
+    public Line(String name, String id, Shift first, Shift second, Shift third, ArrayList<EmployeePosition> positions) {
         this.name = name;
         this.id = id;
         this.first = first;
         this.second = second;
         this.third = third;
+        this.positions = positions;
     }
 
     public Line(Line line){
@@ -43,6 +60,9 @@ public class Line {
         this.scrapReasons = line.getScrapReasons();
         this.downtime = line.getDowntime();
         this.parentId = line.getId();
+        this.positions = line.getPositions();
+        this.downtime = line.getDowntime();
+        this.scrapReasons = line.getScrapReasons();
     }
 
     public String getName() {
@@ -123,5 +143,21 @@ public class Line {
 
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public ArrayList<EmployeePosition> getPositions() {
+        return positions;
+    }
+
+    public void setPositions(ArrayList<EmployeePosition> positions) {
+        this.positions = positions;
+    }
+
+    public ArrayList<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(ArrayList<Employee> employees) {
+        this.employees = employees;
     }
 }

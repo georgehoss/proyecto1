@@ -1,5 +1,7 @@
 package com.tenneco.tennecoapp.Model;
 
+import java.util.Comparator;
+
 /**
  * Created by ghoss on 11/09/2018.
  */
@@ -12,15 +14,30 @@ public class WorkHour {
     private String cumulativePlanned;
     private String comments;
     private String user;
+    private boolean closed;
 
     public WorkHour() {
     }
+
+    public static Comparator<WorkHour> StartHourComparator = new Comparator<WorkHour>() {
+
+        public int compare(WorkHour us1, WorkHour us2) {
+            String name1 = us1.getStartHour().toUpperCase();
+            String name2 = us2.getStartHour().toUpperCase();
+
+            //ascending order
+            return name1.compareTo(name2);
+
+            //descending order
+            //return name2.compareTo(name1);
+        }};
 
     public WorkHour(String startHour, String endHour, String target, String cumulativePlanned) {
         this.startHour = startHour;
         this.endHour = endHour;
         this.target = target;
         this.cumulativePlanned = cumulativePlanned;
+        this.closed = false;
     }
 
     public String getStartHour() {
@@ -85,5 +102,13 @@ public class WorkHour {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 }

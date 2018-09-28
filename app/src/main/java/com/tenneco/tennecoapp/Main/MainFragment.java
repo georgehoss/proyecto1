@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -95,6 +96,7 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
             if (mUser != null) {
                 getUser();
             }
+
         }
 
         getLines();
@@ -105,6 +107,8 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
     private void saveUser(FirebaseUser user){
         User mUser = new User(user.getUid(),user.getDisplayName(),user.getEmail(),0);
+        if (mUser.getName()==null)
+            mUser.setName(mUser.getEmail());
         dbUsers.child(mUser.getId()).setValue(mUser).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -127,8 +131,13 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
+
+
                 if (user==null)
                 {
+                    if (mUser.getDisplayName()==null)
+                        mUser = FirebaseAuth.getInstance().getCurrentUser();
+
                     saveUser(mUser);
                 }
                 else

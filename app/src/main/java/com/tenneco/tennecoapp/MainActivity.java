@@ -16,9 +16,13 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tenneco.tennecoapp.Configuration.ConfigurationFragment;
+import com.tenneco.tennecoapp.ConfigurationMenu.MenuConfigFragment;
+import com.tenneco.tennecoapp.Emails.EmailFragment;
+import com.tenneco.tennecoapp.Employee.EmployeeFragment;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Main.MainFragment;
 import com.tenneco.tennecoapp.Splash.SplashFragment;
+import com.tenneco.tennecoapp.User.UserFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @BindView(R.id.tv_production) TextView mTvProduction;
     @BindView(R.id.tv_users) TextView mTvUsers;
     @BindView(R.id.tv_configuration) TextView mTvConfiguration;
+    @BindView(R.id.tv_email) TextView mTvEmail;
 
     @OnClick(R.id.tv_production) void production(){
         launchProduction();
@@ -44,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @OnClick(R.id.tv_configuration) void configuration(){
         launchConfiguration();
     }
+
+    @OnClick(R.id.tv_email) void  email(){launchEmail();}
 
 
     @Override
@@ -119,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @Override
     protected void onPause() {
         super.onPause();
+        restoreButtons();
     }
 
     @Override
@@ -151,14 +159,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     @Override
     public void launchProduction() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmployeeFragment()).commit();
         restoreButtons();
         setProduction();
     }
 
     @Override
     public void launchUsers() {
-        //getSupportFragmentManager().beginTransaction().replace(R.id.container, new SplashFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new UserFragment()).commit();
         restoreButtons();
         setUsers();
     }
@@ -168,6 +176,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new ConfigurationFragment()).commit();
         restoreButtons();
         setConfiguration();
+    }
+
+    @Override
+    public void launchEmail() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmailFragment()).commit();
+        restoreButtons();
+        setEmail();
     }
 
     @Override
@@ -185,28 +200,69 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         mAuth.signOut();
     }
 
+
     @Override
     public void restoreButtons() {
         mTvProduction.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
         mTvUsers.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
         mTvConfiguration.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+        mTvEmail.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+        mTvConfiguration.setEnabled(true);
+        mTvUsers.setEnabled(true);
+        mTvProduction.setEnabled(true);
+        mTvEmail.setEnabled(true);
     }
 
     @Override
     public void setProduction() {
         mTvProduction.setText(getString(R.string.bold_production));
         mTvProduction.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        mTvProduction.setEnabled(false);
     }
 
     @Override
     public void setUsers() {
-        mTvUsers.setText(getString(R.string.bold_users));
+        mTvUsers.setText("Operators");
         mTvUsers.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        mTvUsers.setEnabled(false);
     }
 
     @Override
     public void setConfiguration() {
         mTvConfiguration.setText(getString(R.string.bold_configuration));
         mTvConfiguration.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        mTvConfiguration.setEnabled(false);
+    }
+
+    @Override
+    public void setEmail() {
+        mTvEmail.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        mTvEmail.setEnabled(false);
     }
 }
+
+
+/*
+Lista de Operadores
+Operador | Turno 1  Turno 2 Turno 3 |
+
+Producion
+
+Llenar informacion del turno. Y al completar el turno.
+
+Al finalizar el downtime se agrega a los comentarios de la hora.
+
+Scrap Event: Grupos de correos listas a partir de 1 o 2 o 3 eventos
+
+Leak failured fix counter
+
+**** Nuevas  *****
+
+Moodificar target. con contraseña.
+Inicio y fin de turno. Horas de trabajo
+
+
+
+
+
+ */

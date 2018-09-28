@@ -12,6 +12,7 @@ import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +25,8 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
     private ItemInteraction itemInteraction;
 
     public ProductionLineAdapter(ArrayList<Line> lines, ItemInteraction itemInteraction){
+        if (lines!=null)
+            Collections.sort(lines,Line.NameComparator);
         this.lines = lines;
         this.itemInteraction = itemInteraction;
     }

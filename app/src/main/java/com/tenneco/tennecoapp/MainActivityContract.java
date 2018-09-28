@@ -10,6 +10,7 @@ public interface MainActivityContract {
         void launchProduction();
         void launchUsers();
         void launchConfiguration();
+        void launchEmail();
         void showMenu();
         void hideMenu();
         void signOut();
@@ -17,6 +18,7 @@ public interface MainActivityContract {
         void setProduction();
         void setUsers();
         void setConfiguration();
+        void setEmail();
     }
 
 }

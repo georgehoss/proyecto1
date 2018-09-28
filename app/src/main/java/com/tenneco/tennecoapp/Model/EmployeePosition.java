@@ -1,5 +1,7 @@
 package com.tenneco.tennecoapp.Model;
 
+import java.util.Comparator;
+
 /**
  * Created by ghoss on 11/09/2018.
  */
@@ -8,14 +10,29 @@ public class EmployeePosition {
     private String id;
     private String name;
     private String operator;
+    private int position;
 
     public EmployeePosition() {
     }
 
-    public EmployeePosition(String name, String operator) {
+
+    public static Comparator<EmployeePosition> NameComparator = new Comparator<EmployeePosition>() {
+
+        public int compare(EmployeePosition us1, EmployeePosition us2) {
+            String name1 = us1.getName().toUpperCase();
+            String name2 = us2.getName().toUpperCase();
+
+            //ascending order
+            return name1.compareTo(name2);
+
+            //descending order
+            //return name2.compareTo(name1);
+        }};
+
+
+    public EmployeePosition(String name) {
         this.name = name;
-        this.operator = operator;
-    }
+        }
 
     public String getId() {
         return id;
@@ -39,5 +56,13 @@ public class EmployeePosition {
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConfigurationMenu.MenuConfigFragment"
+    android:background="@color/colorWhite"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="Configuration"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:id="@+id/tv_title"
+            />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:layout_below="@id/tv_title"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/colorWhite"
+                android:id="@+id/tv_lines"
+                android:background="@color/colorPrimary"
+                android:text="@string/production_lines"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/colorWhite"
+                android:id="@+id/tv_users"
+                android:text="@string/users"
+                android:background="@color/colorPrimary"
+                android:layout_marginBottom="10dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/colorWhite"
+                android:id="@+id/tv_employee"
+                android:background="@color/colorPrimary"
+                android:text="@string/employees"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/colorWhite"
+                android:id="@+id/tv_emails"
+                android:text="@string/emails"
+                android:background="@color/colorPrimary"
+                android:layout_marginBottom="10dp"
+                />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+</ScrollView>

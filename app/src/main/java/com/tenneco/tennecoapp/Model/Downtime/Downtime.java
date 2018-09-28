@@ -10,6 +10,12 @@ import java.util.ArrayList;
 public class Downtime {
     private ArrayList<Zone> zones;
     private ArrayList<Reason> reasons;
+    private String startTime;
+    private String endTime;
+    private boolean set;
+    private int zone;
+    private int location;
+    private int reason;
 
     public Downtime() {
     }
@@ -28,5 +34,53 @@ public class Downtime {
 
     public void setReasons(ArrayList<Reason> reasons) {
         this.reasons = reasons;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public boolean isSet() {
+        return set;
+    }
+
+    public void setSet(boolean set) {
+        this.set = set;
+    }
+
+    public int getZone() {
+        return zone;
+    }
+
+    public void setZone(int zone) {
+        this.zone = zone;
+    }
+
+    public int getLocation() {
+        return location;
+    }
+
+    public void setLocation(int location) {
+        this.location = location;
+    }
+
+    public int getReason() {
+        return reason;
+    }
+
+    public void setReason(int reason) {
+        this.reason = reason;
     }
 }

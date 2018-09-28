@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 
 public class User {
@@ -14,6 +15,24 @@ public class User {
 
     public User() {
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public static Comparator<User> UserNameComparator = new Comparator<User>() {
+
+        public int compare(User us1, User us2) {
+            String user1 = us1.getName().toUpperCase();
+            String user2 = us2.getName().toUpperCase();
+
+            //ascending order
+            return user1.compareTo(user2);
+
+            //descending order
+            //return StudentName2.compareTo(StudentName1);
+        }};
 
     public User(String id, String name, String email, int type) {
         this.id = id;

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="edit_employee">
+        <item >"Edit"</item>
+        <item >"Delete"</item>
+    </string-array>
+    <string-array name="edit_user">
+        <item >"Operator"</item>
+        <item >"Supervisor"</item>
+        <item >"Administrator"</item>
+    </string-array>
+    <string-array name="edit_operator">
+        <item >"Operator"</item>
+        <item >"Welder"</item>
+    </string-array>
+</resources>

@@ -44,6 +44,16 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
     @Override
     public void onBindViewHolder(@NonNull DailyViewHolder holder, final int position) {
         WorkHour hour = hours.get(position);
+
+        if (position==7 && !hour.isClosed() && hour.getActuals()!=null && hour.getActuals().length()>0)
+            itemInteraction.showFinishFirst();
+
+        if (position==15 && !hour.isClosed() && hour.getActuals()!=null && hour.getActuals().length()>0)
+            itemInteraction.showFinishSecond();
+
+        if (position==23 && !hour.isClosed() && hour.getActuals()!=null && hour.getActuals().length()>0)
+            itemInteraction.showFinishThird();
+
         if (hour!=null)
         {
             String date = hour.getStartHour() + " - "+ hour.getEndHour();
@@ -81,9 +91,9 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             {
                 if (actual==target || actual>target) {
                     holder.mTvVariance.setText(String.valueOf(actual - target));
-                    holder.mTvVariance.setTextColor(context.getResources().getColor(R.color.colorAccent));
+                    holder.mTvVariance.setTextColor(context.getResources().getColor(R.color.colorGreen));
                     holder.mTvVariance.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                    holder.mTvActual.setTextColor(context.getResources().getColor(R.color.colorAccent));
+                    holder.mTvActual.setTextColor(context.getResources().getColor(R.color.colorGreen));
                     holder.mTvActual.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                 }
                 else {
@@ -125,7 +135,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             if (cactual!=0 && cplanned !=0)
             {
                 if (cactual==cplanned || cactual>cplanned) {
-                    holder.mTvCActual.setTextColor(context.getResources().getColor(R.color.colorAccent));
+                    holder.mTvCActual.setTextColor(context.getResources().getColor(R.color.colorGreen));
                     holder.mTvCActual.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                 }
                 else {
@@ -140,26 +150,29 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             holder.mTvComments.setText(hour.getComments());
 
             //holder.mTvOwner.setText(hour.getComments());
-            holder.mTvActual.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    itemInteraction.onTargetClick(position);
-                }
-            });
 
-            holder.mTvComments.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    itemInteraction.onTargetClick(position);
-                }
-            });
+            if (!hour.isClosed()) {
+                holder.mTvActual.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        itemInteraction.onTargetClick(position);
+                    }
+                });
 
-            holder.mTvOwner.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    itemInteraction.onOwnerClick(position);
-                }
-            });
+                holder.mTvComments.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        itemInteraction.onTargetClick(position);
+                    }
+                });
+
+                holder.mTvOwner.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        itemInteraction.onOwnerClick(position);
+                    }
+                });
+            }
         }
     }
 
@@ -197,6 +210,9 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
     public interface ItemInteraction{
         void onTargetClick(int position);
         void onOwnerClick (int position);
+        void showFinishFirst();
+        void showFinishSecond();
+        void showFinishThird();
 
     }
 }

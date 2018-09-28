@@ -1,5 +1,7 @@
 package com.tenneco.tennecoapp.Daily;
 
+import android.content.Intent;
+
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.WorkHour;
@@ -117,16 +119,62 @@ public class DailyPresenter implements DailyContract.Presenter {
 
     @Override
     public boolean validateComment(String comment, String actual, String target) {
+        int act,targ;
+        act = Integer.valueOf(actual);
+        targ = Integer.valueOf(target);
 
-        return false;
+        if (act<targ && comment.isEmpty())
+            return true;
+        else
+            return false;
     }
 
     @Override
     public int reportHour(ArrayList<WorkHour> workHours) {
         for (int i=0;i<=23;i++)
-        if (workHours.get(i).getActuals()==null || workHours.get(i).getActuals().isEmpty())
+        if ((workHours.get(i).getActuals()==null || workHours.get(i).getActuals().isEmpty()) && !workHours.get(i).isClosed())
             return i;
 
         return 24;
+    }
+
+    @Override
+    public void showCount(Line line) {
+        if (!line.getFirst().isClosed())
+        {
+            mView.setCount(line.getFirst().getLfCounter());
+        }
+        else
+        if (!line.getSecond().isClosed())
+        {
+            mView.setCount(line.getSecond().getLfCounter());
+        }
+        else
+        if (!line.getThird().isClosed())
+        {
+            mView.setCount(line.getThird().getLfCounter());
+        }
+        else
+            mView.hideLeakCounter();
+    }
+
+    @Override
+    public void incrementCount(Line line) {
+
+
+        if ((!line.getFirst().isClosed()) || (!line.getSecond().isClosed()) || (!line.getThird().isClosed())) {
+            if (!line.getFirst().isClosed())
+                line.getFirst().setLfCounter(line.getFirst().getLfCounter() + 1);
+                else if (!line.getSecond().isClosed())
+                line.getSecond().setLfCounter(line.getSecond().getLfCounter() + 1);
+                else if (!line.getThird().isClosed())
+                line.getThird().setLfCounter(line.getThird().getLfCounter() + 1);
+
+
+            mView.updateLine(line);
+            showCount(line);
+
+        }
+
     }
 }

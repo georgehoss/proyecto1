@@ -12,6 +12,7 @@ import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,6 +26,8 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
     private boolean date;
 
     public LineAdapter(ArrayList<Line> lines, ItemInteraction itemInteraction, boolean date) {
+        if (lines!=null)
+            Collections.sort(lines,Line.NameComparator);
         this.lines = lines;
         this.itemInteraction = itemInteraction;
         this.date = date;
