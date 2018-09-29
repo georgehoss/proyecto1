@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Daily;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +34,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
+import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Shift;
@@ -51,6 +56,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DailyAdapter mAdapter;
     private String lineId;
     private ArrayList<WorkHour> mHours;
+    private ProgressDialog progressDialog;
 
     @BindView(R.id.tv_name)TextView mTvName;
     @BindView(R.id.tv_date)TextView mTvDate;
@@ -61,7 +67,19 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @BindView(R.id.tv_t_s2) TextView mTvTS2;
     @BindView(R.id.tv_a_s3) TextView mTvActS3;
     @BindView(R.id.tv_t_s3) TextView mTvTS3;
+    @BindView(R.id.tv_start_s1) TextView mTvStartS1;
+    @BindView(R.id.tv_start_s2) TextView mTvStartS2;
+    @BindView(R.id.tv_start_s3) TextView mTvStartS3;
+    @BindView(R.id.tv_end_s1) TextView mTvEndS1;
+    @BindView(R.id.tv_end_s2) TextView mTvEndS2;
+    @BindView(R.id.tv_end_s3) TextView mTvEndS3;
+    @BindView(R.id.tv_leak_s1) TextView mTvLeakS1;
+    @BindView(R.id.tv_leak_s2) TextView mTvLeakS2;
+    @BindView(R.id.tv_leak_s3) TextView mTvLeakS3;
     @BindView(R.id.bt_counter) Button mBtCounter;
+    @BindView(R.id.bt_end_s1) Button mBtS1;
+    @BindView(R.id.bt_end_s2) Button mBtS2;
+    @BindView(R.id.bt_end_s3) Button mBtS3;
 
 
 
@@ -89,15 +107,27 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @OnClick(R.id.bt_counter) void count(){
         mPresenter.incrementCount(mLine);
+        progressDialog.show();
     }
 
     @OnClick(R.id.bt_downtime) void down(){
-        showDowntimeDialog(mLine.getDowntime(),this);
+        if (!(mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed()))
+            showDowntimeDialog(mLine.getDowntime(),this);
     }
 
     @OnClick(R.id.bt_event) void scrap(){
         showScrapDialog(mLine.getScrapReasons(),this);
     }
+
+    @OnClick(R.id.tv_shift1) void shf1(){
+            showEndShiftDialog(mLine,1,this,false); }
+
+    @OnClick(R.id.tv_shift2) void shf2(){
+            showEndShiftDialog(mLine,2,this,false);}
+
+    @OnClick(R.id.tv_shift3) void shf3(){
+            showEndShiftDialog(mLine,3,this,false);}
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +144,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mRvLine.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new DailyAdapter(mHours,this);
         mRvLine.setAdapter(mAdapter);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Saving Changes...");
     }
 
     @Override
@@ -160,6 +192,40 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mTvTS2.setText(mLine.getSecond().getCumulativePlanned());
         mTvActS3.setText(mLine.getThird().getCumulativeActual());
         mTvTS3.setText(mLine.getThird().getCumulativePlanned());
+        if (mLine.getFirst().getTimeStart()!=null && !mLine.getFirst().getTimeStart().isEmpty()) {
+            mTvStartS1.setText(mLine.getFirst().getTimeStart());
+            mBtS1.setText(R.string.daily_end_1st_shift);
+        }
+        else
+            mBtS1.setText(R.string.start_1st_shift);
+
+        if (mLine.getSecond().getTimeStart()!=null && !mLine.getSecond().getTimeStart().isEmpty()) {
+            mTvStartS2.setText(mLine.getSecond().getTimeStart());
+            mBtS2.setText(R.string.dailly_end_2nd_shift);
+        }
+        else
+            mBtS2.setText(R.string.star_2nd_shift);
+
+        if (mLine.getThird().getTimeStart()!=null && !mLine.getThird().getTimeStart().isEmpty()) {
+            mTvStartS3.setText(mLine.getThird().getTimeStart());
+            mBtS3.setText(R.string.daily_end_3rd_shift);
+        }
+        else
+            mBtS3.setText(R.string.start_3rd_shift);
+
+        if (mLine.getFirst().getTimeEnd()!=null)
+            mTvEndS1.setText(mLine.getFirst().getTimeEnd());
+
+        if (mLine.getSecond().getTimeEnd()!=null)
+            mTvEndS2.setText(mLine.getSecond().getTimeEnd());
+
+        if (mLine.getThird().getTimeEnd()!=null)
+            mTvEndS3.setText(mLine.getThird().getTimeEnd());
+
+        mTvLeakS1.setText(String.valueOf(mLine.getFirst().getLfCounter()));
+        mTvLeakS2.setText(String.valueOf(mLine.getSecond().getLfCounter()));
+        mTvLeakS3.setText(String.valueOf(mLine.getThird().getLfCounter()));
+
         mHours = new ArrayList<>();
         mHours.addAll(mLine.getFirst().getHours());
         mHours.addAll(mLine.getSecond().getHours());
@@ -221,6 +287,16 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 public void onClick(View view) {
                     String actual = mEtActual.getText().toString().trim();
                     String comment = mEtComments.getText().toString().trim();
+
+                    if (position==0 && (mLine.getFirst().getTimeStart()==null || mLine.getFirst().getTimeStart().isEmpty()))
+                        mLine.getFirst().setTimeStart(Utils.getTimeString());
+                    else
+                    if (position==8 && (mLine.getSecond().getTimeStart()==null || mLine.getSecond().getTimeStart().isEmpty()))
+                        mLine.getSecond().setTimeStart(Utils.getTimeString());
+                    else
+                    if (position==16 && (mLine.getThird().getTimeStart()==null || mLine.getThird().getTimeStart().isEmpty()))
+                        mLine.getThird().setTimeStart(Utils.getTimeString());
+
                     if (mPresenter.validateActual(actual))
                     {
                         mEtActual.setError("Please, introduce the actual value!");
@@ -265,17 +341,62 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             TextView mTvShift = view.findViewById(R.id.tv_shift);
             Shift eShitf = new Shift();
             String title="";
+            boolean start =false;
+            final Button mBtSave = view.findViewById(R.id.bt_save);
+            Button mBtCancel = view.findViewById(R.id.bt_cancel);
+
             if (shift==1) {
-                title = "End of "+getString(R.string.add_1st_shift)+ " Transfer";
+
+                if (line.getFirst().getTimeStart()==null || line.getFirst().getTimeStart().isEmpty()) {
+                    mBtSave.setText(R.string.start_shift);
+                    start = true;
+                }
+                if (start)
+                    title = "Start of "+getString(R.string.add_1st_shift)+ " Transfer";
+                else
+                    title = "End of "+getString(R.string.add_1st_shift)+ " Transfer";
+
                 eShitf = line.getFirst();
+                if (eShitf.getPositions()==null) {
+                    eShitf.setPositions(mLine.getPositions());
+                    for (EmployeePosition employeePosition : eShitf.getPositions())
+                        employeePosition.setPosition(0);
+                }
+
             }
             if (shift==2) {
-                title = "End of "+getString(R.string.add_2nd_shift)+ " transfer";
+                if (line.getSecond().getTimeStart()==null || line.getSecond().getTimeStart().isEmpty()) {
+                    mBtSave.setText(R.string.start_shift);
+                    start = true;
+                }
+                if (start)
+                    title = "Start of "+getString(R.string.add_2nd_shift)+ " Transfer";
+                else
+                    title = "End of "+getString(R.string.add_2nd_shift)+ " Transfer";
                 eShitf = line.getSecond();
+
+                if (eShitf.getPositions()==null) {
+                    eShitf.setPositions(mLine.getPositions());
+                    for (EmployeePosition employeePosition : eShitf.getPositions())
+                        employeePosition.setPosition(0);
+                }
+
             }
             if (shift==3) {
-                title = "End of "+getString(R.string.add_3rd_shift)+ " transfer";
+                if (line.getThird().getTimeStart()==null || line.getThird().getTimeStart().isEmpty()) {
+                    mBtSave.setText(R.string.start_shift);
+                    start = true;
+                }
+                if (start)
+                    title = "Start of "+getString(R.string.add_3rd_shift)+ " Transfer";
+                else
+                    title = "End of "+getString(R.string.add_3rd_shift)+ " Transfer";
                 eShitf = line.getThird();
+                if (eShitf.getPositions()==null) {
+                    eShitf.setPositions(mLine.getPositions());
+                    for (EmployeePosition employeePosition : eShitf.getPositions())
+                        employeePosition.setPosition(0);
+                }
             }
 
 
@@ -290,13 +411,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
             RecyclerView recyclerView = view.findViewById(R.id.rv_position);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            final EndShiftPositionAdapter adapter = new EndShiftPositionAdapter(this,mLine.getPositions(),eShitf.getEmployees());
+            final EndShiftPositionAdapter adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),eShitf.getEmployees());
             recyclerView.setAdapter(adapter);
 
-
-
-            Button mBtSave = view.findViewById(R.id.bt_save);
-            Button mBtCancel = view.findViewById(R.id.bt_cancel);
 
             if (!close)
                 mBtSave.setText("Save");
@@ -316,6 +433,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 }
             });
 
+            final boolean finalStart = start;
             mBtSave.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -342,21 +460,33 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         }
 
 
-                        if (close) {
+                        if (close && !finalStart) {
 
                             ArrayList<WorkHour> hours = finalShift.getHours();
                             for (WorkHour hour : hours) {
                                 hour.setClosed(true);
-                           /* if (hour.getActuals()==null || hour.getActuals().isEmpty())
+                            if (hour.getActuals()==null || hour.getActuals().isEmpty())
                             {
                                 hour.setActuals("0");
-                                hour.setComments("End of Shift");
-                            } */
+                                if (finalShift.getCumulativeActual()!=null)
+                                    hour.setCumulativeActual(finalShift.getCumulativeActual());
+                                else {
+                                    hour.setCumulativeActual("0");
+                                    finalShift.setCumulativeActual("0");
+                                }
+                                if (hour.getComments()==null || hour.getComments().isEmpty())
+                                hour.setComments("Shift ended");
                             }
-
+                            }
                             finalShift.setClosed(true);
                             finalShift.setHours(hours);
                         }
+
+                        if (finalStart && !mBtSave.getText().toString().equals("Save"))
+                            finalShift.setTimeStart(Utils.getTimeString());
+
+                        if (close && !finalStart)
+                            finalShift.setTimeEnd(Utils.getTimeString());
 
                         switch (shift){
                             case 1:
@@ -384,7 +514,19 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void updateLine(Line line) {
-        dbLine.child(line.getId()).setValue(line);
+        dbLine.child(line.getId()).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (progressDialog!=null && progressDialog.isShowing())
+                progressDialog.hide();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (progressDialog!=null && progressDialog.isShowing())
+                    progressDialog.hide();
+            }
+        });
     }
 
     @Override

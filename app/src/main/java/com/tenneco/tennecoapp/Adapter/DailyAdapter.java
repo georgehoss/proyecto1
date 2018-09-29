@@ -58,7 +58,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
         {
             String date = hour.getStartHour() + " - "+ hour.getEndHour();
 
-            int actual=0,target=0;
+            int actual=-1,target=-1;
 
             if (hour.getActuals()!=null &&  !hour.getActuals().isEmpty())
                 try{
@@ -87,7 +87,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             }
 
 
-            if (actual!=0 && target !=0)
+            if (actual>=0 && target >=0)
             {
                 if (actual==target || actual>target) {
                     holder.mTvVariance.setText(String.valueOf(actual - target));
@@ -107,7 +107,8 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
 
 
 
-            int cactual=0,cplanned=0;
+
+            int cactual=-1,cplanned=-1;
 
             if (hour.getCumulativeActual()!=null &&  !hour.getCumulativeActual().isEmpty())
                 try{
@@ -132,7 +133,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             }
 
 
-            if (cactual!=0 && cplanned !=0)
+            if (cactual>=0 && cplanned >=0)
             {
                 if (cactual==cplanned || cactual>cplanned) {
                     holder.mTvCActual.setTextColor(context.getResources().getColor(R.color.colorGreen));
@@ -143,6 +144,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
                     holder.mTvCActual.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                 }
             }
+
 
             holder.mTvDate.setText(date);
             holder.mTvTarget.setText(hour.getTarget());

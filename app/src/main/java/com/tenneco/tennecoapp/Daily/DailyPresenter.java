@@ -177,4 +177,6 @@ public class DailyPresenter implements DailyContract.Presenter {
         }
 
     }
+
+
 }

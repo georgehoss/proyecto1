@@ -36,5 +36,6 @@ public interface DailyContract {
         void showCount(Line line);
         void incrementCount(Line line);
 
+
     }
 }

@@ -25,6 +25,8 @@ public class Line {
     private String parentId;
     private ArrayList<EmployeePosition> positions;
     private ArrayList<Employee> employees;
+    private String timeStart;
+    private String timeEnd;
 
     public Line() {
     }
@@ -63,6 +65,8 @@ public class Line {
         this.positions = line.getPositions();
         this.downtime = line.getDowntime();
         this.scrapReasons = line.getScrapReasons();
+        this.timeEnd = line.timeEnd;
+        this.timeStart = line.timeStart;
     }
 
     public String getName() {
@@ -159,5 +163,21 @@ public class Line {
 
     public void setEmployees(ArrayList<Employee> employees) {
         this.employees = employees;
+    }
+
+    public String getTimeStart() {
+        return timeStart;
+    }
+
+    public void setTimeStart(String timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public String getTimeEnd() {
+        return timeEnd;
+    }
+
+    public void setTimeEnd(String timeEnd) {
+        this.timeEnd = timeEnd;
     }
 }

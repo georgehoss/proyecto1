@@ -19,6 +19,9 @@ public class Shift {
     private ArrayList<Employee> employees;
     private boolean closed;
     private int lfCounter;
+    private String timeStart;
+    private String timeEnd;
+
 
     public Shift() {
     }
@@ -50,6 +53,8 @@ public class Shift {
         this.cumulativePlanned = shift.getCumulativePlanned();
         this.employees = shift.getEmployees();
         this.lfCounter = shift.getLfCounter();
+        this.timeEnd = shift.timeEnd;
+        this.timeStart = shift.timeStart;
     }
 
     public int getLfCounter() {
@@ -146,5 +151,21 @@ public class Shift {
 
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public String getTimeStart() {
+        return timeStart;
+    }
+
+    public void setTimeStart(String timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public String getTimeEnd() {
+        return timeEnd;
+    }
+
+    public void setTimeEnd(String timeEnd) {
+        this.timeEnd = timeEnd;
     }
 }

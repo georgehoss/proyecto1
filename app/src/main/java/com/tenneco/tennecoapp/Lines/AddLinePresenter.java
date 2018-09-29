@@ -121,6 +121,11 @@ public class AddLinePresenter implements AddLineContract.Presenter {
         if (line.getThird().getEmployees()==null)
             line.getThird().setEmployees(employees);
 
+        for (EmployeePosition employeePosition : line.getPositions()) {
+            employeePosition.setPosition(0);
+            employeePosition.setOperator("");
+        }
+
         for (Employee employee : employees)
             for (Employee shifte : first.getEmployees())
                 if (employee.getId().equals(shifte.getId())) {
@@ -141,6 +146,7 @@ public class AddLinePresenter implements AddLineContract.Presenter {
                     employee.setShift(shifte.getShift());
                     employee.setAvailable(shifte.isAvailable());
                 }
+
 
 
         mView.saveLine(line);

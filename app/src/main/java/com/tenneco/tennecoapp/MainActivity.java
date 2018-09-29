@@ -248,8 +248,6 @@ Operador | Turno 1  Turno 2 Turno 3 |
 
 Producion
 
-Llenar informacion del turno. Y al completar el turno.
-
 Al finalizar el downtime se agrega a los comentarios de la hora.
 
 Scrap Event: Grupos de correos listas a partir de 1 o 2 o 3 eventos
@@ -259,10 +257,5 @@ Leak failured fix counter
 **** Nuevas  *****
 
 Moodificar target. con contraseña.
-Inicio y fin de turno. Horas de trabajo
-
-
-
-
 
  */
