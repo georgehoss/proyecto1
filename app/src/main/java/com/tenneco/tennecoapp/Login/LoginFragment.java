@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Register.RegisterFragment;
 
@@ -66,6 +67,10 @@ public class LoginFragment extends Fragment implements LoginContract.View {
     public void onStart() {
         super.onStart();
         mAuth = FirebaseAuth.getInstance();
+        MainActivity main = (MainActivity) getActivity();
+        if (main!=null) {
+            main.hideMenu();
+        }
     }
 
     @Override

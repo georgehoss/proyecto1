@@ -79,6 +79,10 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         super.onStart();
         main = (MainActivity) getActivity();
         getLines();
+        if (main!=null) {
+            main.restoreButtons();
+            main.setConfiguration();
+        }
     }
 
     @Override

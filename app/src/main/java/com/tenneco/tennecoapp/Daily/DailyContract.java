@@ -26,6 +26,11 @@ public interface DailyContract {
         void setCount(int count);
         void showDowntimeDialog(Downtime downtime, Context context);
         void showScrapDialog(ArrayList<Reason> reasons, Context context);
+        void showFTQ(int shift);
+        void sendEmail(String[] Adresses,String[] CCs,String subject,String body);
+        void showScrap();
+        void hideScrap();
+        void initAdapter();
 
     }
     interface Presenter extends BasePresenter<View>{
@@ -35,7 +40,10 @@ public interface DailyContract {
         int reportHour(ArrayList<WorkHour>workHours);
         void showCount(Line line);
         void incrementCount(Line line);
-
-
+        void setDowntime(Line line,Downtime downtime);
+        boolean setComment(WorkHour workHour, Downtime downtime, int shift);
+        String convertHour(String hour, int shift);
+        String downtime (String zone, String location , String reason);
+        void verifyLeaks(Line line);
     }
 }

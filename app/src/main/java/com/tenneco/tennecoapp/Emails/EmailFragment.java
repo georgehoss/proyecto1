@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.EmailAdapter;
+import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.R;
 
@@ -71,6 +72,11 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
         super.onStart();
         getEmails();
         showFloatingButton();
+        MainActivity main = (MainActivity) getActivity();
+        if (main!=null) {
+            main.restoreButtons();
+            main.setEmail();
+        }
     }
 
     @Override

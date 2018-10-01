@@ -24,17 +24,24 @@
        android:visibility="visible"
        android:background="@drawable/background_footer"
        android:gravity="center"
+       android:padding="5dp"
        >
-      <TextView
+      <LinearLayout
           android:layout_width="0dp"
-          android:layout_height="wrap_content"
           android:layout_weight="1"
-          android:text="@string/production"
-          android:padding="10dp"
           android:gravity="center"
-          android:id="@+id/tv_production"
-          android:enabled="false"
-          />
+          android:layout_height="wrap_content">
+         <ImageView
+             android:layout_width="50dp"
+             android:layout_height="50dp"
+             android:background="@drawable/home_icon"
+             android:padding="10dp"
+             android:gravity="center"
+             android:id="@+id/tv_production"
+             android:enabled="false"
+             />
+      </LinearLayout>
+
       <View
           android:layout_width="0.5dp"
           android:layout_margin="2dp"
@@ -42,16 +49,23 @@
           android:background="@color/colorSeparator"
           android:gravity="center"
          />
-      <TextView
+      <LinearLayout
           android:layout_width="0dp"
-          android:layout_height="wrap_content"
           android:layout_weight="1"
-          android:text="Operators"
-          android:padding="10dp"
           android:gravity="center"
-          android:visibility="visible"
-          android:id="@+id/tv_users"
-          />
+          android:padding="5dp"
+          android:layout_height="wrap_content">
+         <ImageView
+             android:layout_width="50dp"
+             android:layout_height="50dp"
+             android:background="@drawable/user_icon"
+             android:padding="10dp"
+             android:gravity="center"
+             android:visibility="visible"
+             android:id="@+id/tv_users"
+             />
+
+      </LinearLayout>
       <View
           android:layout_width="0.5dp"
           android:layout_margin="2dp"
@@ -59,15 +73,25 @@
           android:visibility="visible"
           android:background="@color/colorSeparator"
           />
-      <TextView
+
+      <LinearLayout
           android:layout_width="0dp"
-          android:layout_height="wrap_content"
           android:layout_weight="1"
-          android:text="@string/email"
-          android:padding="10dp"
           android:gravity="center"
-          android:id="@+id/tv_email"
-          />
+          android:padding="5dp"
+          android:layout_height="wrap_content">
+
+         <ImageView
+             android:layout_width="50dp"
+             android:layout_height="40dp"
+             android:background="@drawable/email_icon"
+             android:padding="10dp"
+             android:gravity="center"
+             android:id="@+id/tv_email"
+             />
+
+      </LinearLayout>
+
       <View
           android:layout_width="0.5dp"
           android:layout_margin="2dp"
@@ -75,15 +99,21 @@
           android:visibility="visible"
           android:background="@color/colorSeparator"
           />
-      <TextView
+      <LinearLayout
           android:layout_width="0dp"
-          android:layout_height="wrap_content"
           android:layout_weight="1"
-          android:text="@string/configuration"
-          android:padding="10dp"
           android:gravity="center"
-          android:id="@+id/tv_configuration"
-          />
+          android:padding="5dp"
+          android:layout_height="wrap_content">
+         <ImageView
+             android:layout_width="50dp"
+             android:layout_height="50dp"
+             android:background="@drawable/config_icon"
+             android:padding="10dp"
+             android:gravity="center"
+             android:id="@+id/tv_configuration"
+             />
+      </LinearLayout>
 
    </LinearLayout>
 

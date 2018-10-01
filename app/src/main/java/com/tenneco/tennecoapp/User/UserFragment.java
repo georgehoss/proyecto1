@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.UserAdapter;
+import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.R;
 
@@ -72,6 +73,10 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
     public void onStart() {
         super.onStart();
         getUsers();
+        MainActivity main = (MainActivity) getActivity();
+        if (main!=null) {
+            main.hideMenu();
+        }
         //showFloatingButton();
     }
 

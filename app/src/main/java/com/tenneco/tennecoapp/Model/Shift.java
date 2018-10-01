@@ -21,6 +21,7 @@ public class Shift {
     private int lfCounter;
     private String timeStart;
     private String timeEnd;
+    private boolean leakReached;
 
 
     public Shift() {
@@ -168,4 +169,13 @@ public class Shift {
     public void setTimeEnd(String timeEnd) {
         this.timeEnd = timeEnd;
     }
+
+    public boolean isLeakReached() {
+        return leakReached;
+    }
+
+    public void setLeakReached(boolean leakReached) {
+        this.leakReached = leakReached;
+    }
+
 }

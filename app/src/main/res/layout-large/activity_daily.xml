@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     tools:context=".Daily.DailyActivity"
+    android:id="@+id/sv"
 
     >
     <LinearLayout
@@ -127,11 +128,52 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Report Hour"
+                android:text="@string/daily_report_hour"
                 android:id="@+id/bt_hour"
                 android:layout_margin="10dp"
                 style="@style/AppTheme.Button"
                 />
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/daily_end_1st_shift"
+                android:id="@+id/bt_end_s1"
+                android:layout_margin="10dp"
+                style="@style/AppTheme.Button" />
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/dailly_end_2nd_shift"
+                android:id="@+id/bt_end_s2"
+                android:layout_margin="10dp"
+                style="@style/AppTheme.Button" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/daily_end_3rd_shift"
+                android:id="@+id/bt_end_s3"
+                android:layout_margin="10dp"
+                style="@style/AppTheme.Button" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/daily_downtime"
+                android:id="@+id/bt_downtime"
+                android:layout_margin="10dp"
+                style="@style/AppTheme.Button" />
 
             <Button
                 android:layout_width="0dp"
@@ -143,79 +185,16 @@
                 android:layout_margin="10dp"
                 style="@style/AppTheme.Button" />
 
-
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/daily_downtime"
-                android:id="@+id/bt_downtime"
+                android:text="@string/daily_scrap_event"
+                android:id="@+id/bt_event"
                 android:layout_margin="10dp"
-                style="@style/AppTheme.Button"/>
-
-
+                style="@style/AppTheme.Button" />
         </LinearLayout>
-
-       <LinearLayout
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content">
-
-           <LinearLayout
-               android:layout_width="0dp"
-               android:layout_weight="1"
-               android:layout_height="wrap_content"
-               android:orientation="vertical"
-               android:gravity="center"
-               >
-
-               <Button
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:gravity="center"
-                   android:text="@string/daily_scrap_event"
-                   android:id="@+id/bt_event"
-                   android:layout_margin="10dp"
-                   style="@style/AppTheme.Button" />
-
-           </LinearLayout>
-
-           <LinearLayout
-               android:layout_width="0dp"
-               android:layout_height="wrap_content"
-               android:layout_weight="1"
-               android:orientation="vertical"
-               android:gravity="center"
-               >
-               <Button
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:gravity="center"
-                   android:text="@string/daily_end_1st_shift"
-                   android:id="@+id/bt_end_s1"
-                   android:layout_margin="10dp"
-                   style="@style/AppTheme.Button" />
-               <Button
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:gravity="center"
-                   android:text="@string/dailly_end_2nd_shift"
-                   android:id="@+id/bt_end_s2"
-                   android:layout_margin="10dp"
-                   style="@style/AppTheme.Button" />
-
-               <Button
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:gravity="center"
-                   android:text="@string/daily_end_3rd_shift"
-                   android:id="@+id/bt_end_s3"
-                   android:layout_margin="10dp"
-                   style="@style/AppTheme.Button" />
-           </LinearLayout>
-
-       </LinearLayout>
-
 
     </LinearLayout>
 

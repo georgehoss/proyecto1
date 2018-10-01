@@ -2,11 +2,14 @@ package com.tenneco.tennecoapp.Daily;
 
 import android.content.Intent;
 
+import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.WorkHour;
+import com.tenneco.tennecoapp.Utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by ghoss on 14/09/2018.
@@ -94,16 +97,26 @@ public class DailyPresenter implements DailyContract.Presenter {
 
         }
 
-        if (cA1!=0)
-        line.getFirst().setCumulativeActual(String.valueOf(cA1));
-        else
+        if (cA1!=0) {
+            line.getFirst().setCumulativeActual(String.valueOf(cA1));
+            if (line.getFirst().getLfCounter()>=(0.10*cA1)&& !line.getFirst().isClosed())
+                line.getFirst().setLeakReached(true);
+        }
+        else {
             line.getFirst().setCumulativeActual("");
-        if (cA2!=0)
+        }
+        if (cA2!=0) {
             line.getSecond().setCumulativeActual(String.valueOf(cA2));
+            if (line.getSecond().getLfCounter()>=(0.10*cA2) && !line.getSecond().isClosed())
+                line.getSecond().setLeakReached(true);
+        }
         else
             line.getSecond().setCumulativeActual("");
-        if (cA3!=0)
+        if (cA3!=0) {
             line.getThird().setCumulativeActual(String.valueOf(cA3));
+            if (line.getThird().getLfCounter()>=(0.10*cA3) && !line.getThird().isClosed())
+                line.getThird().setLeakReached(true);
+        }
         else
             line.getThird().setCumulativeActual("");
 
@@ -160,15 +173,32 @@ public class DailyPresenter implements DailyContract.Presenter {
 
     @Override
     public void incrementCount(Line line) {
-
+        int counter = 0;
 
         if ((!line.getFirst().isClosed()) || (!line.getSecond().isClosed()) || (!line.getThird().isClosed())) {
-            if (!line.getFirst().isClosed())
+            if (!line.getFirst().isClosed()) {
                 line.getFirst().setLfCounter(line.getFirst().getLfCounter() + 1);
-                else if (!line.getSecond().isClosed())
+                if (line.getFirst().getCumulativeActual()!=null && !line.getFirst().getCumulativeActual().isEmpty()) {
+                    counter = Integer.valueOf(line.getFirst().getCumulativeActual());
+                    if (line.getFirst().getLfCounter() >= (0.10 * counter))
+                        line.getFirst().setLeakReached(true);
+                }
+            }
+                else if (!line.getSecond().isClosed()) {
                 line.getSecond().setLfCounter(line.getSecond().getLfCounter() + 1);
-                else if (!line.getThird().isClosed())
+                if (line.getSecond().getCumulativeActual()!=null && !line.getSecond().getCumulativeActual().isEmpty()){
+                    counter = Integer.valueOf(line.getSecond().getCumulativeActual());
+                    if (line.getSecond().getLfCounter()>= (0.10 * counter))
+                    line.getSecond().setLeakReached(true);}
+            }
+                else if (!line.getThird().isClosed()) {
                 line.getThird().setLfCounter(line.getThird().getLfCounter() + 1);
+                if (line.getThird().getCumulativeActual()!=null && !line.getThird().getCumulativeActual().isEmpty()){
+                    counter = Integer.valueOf(line.getThird().getCumulativeActual());
+                    if (line.getThird().getLfCounter()>= (0.10 * counter))
+                    line.getThird().setLeakReached(true);
+                }
+            }
 
 
             mView.updateLine(line);
@@ -176,6 +206,161 @@ public class DailyPresenter implements DailyContract.Presenter {
 
         }
 
+    }
+
+    @Override
+    public void setDowntime(Line line, Downtime downtime) {
+
+        for (WorkHour workHour : line.getFirst().getHours())
+            if (setComment(workHour,downtime,1))
+                if (workHour.getComments()==null || workHour.getComments().isEmpty())                 {
+                    workHour.setComments(downtime.getDowntime() +".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                }
+                else{
+                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                }
+
+
+
+
+        for (WorkHour workHour : line.getSecond().getHours())
+            if (setComment(workHour,downtime,2))
+                if (workHour.getComments()==null || workHour.getComments().isEmpty())
+                {
+                    workHour.setComments(downtime.getDowntime() +".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                }
+                else{
+                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                }
+
+        for (WorkHour workHour : line.getThird().getHours())
+            if (setComment(workHour,downtime,3))
+                if (workHour.getComments()==null || workHour.getComments().isEmpty())
+                {
+                    workHour.setComments(downtime.getDowntime() +".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                }
+                else{
+                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                }
+
+        line.setDowntime(downtime);
+
+        mView.updateLine(line);
+
+    }
+
+    @Override
+    public boolean setComment(WorkHour workHour, Downtime downtime, int shift) {
+
+        String startHour = convertHour(workHour.getStartHour(),shift);
+
+        startHour = Utils.converTimeString(startHour);
+
+
+        String[] parts = startHour.split(":");
+        Calendar starth = Calendar.getInstance();
+        starth.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
+        starth.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
+        starth.set(Calendar.SECOND, Integer.parseInt(parts[2]));
+
+        String endHour = convertHour(workHour.getEndHour(),shift);
+        endHour = Utils.converTimeString(endHour);
+
+        String[] partsEnd = endHour.split(":");
+        Calendar endh = Calendar.getInstance();
+        endh.set(Calendar.HOUR_OF_DAY, Integer.parseInt(partsEnd[0]));
+        endh.set(Calendar.MINUTE, Integer.parseInt(partsEnd[1]));
+        endh.set(Calendar.SECOND, Integer.parseInt(partsEnd[2]));
+
+
+        String startDowntime = Utils.converTimeString(downtime.getStartTime());
+
+        String[] partsSd = startDowntime.split(":");
+        Calendar starthdowntime = Calendar.getInstance();
+        starthdowntime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(partsSd[0]));
+        starthdowntime.set(Calendar.MINUTE, Integer.parseInt(partsSd[1]));
+        starthdowntime.set(Calendar.SECOND, Integer.parseInt(partsSd[2]));
+
+        String endDowntime = Utils.converTimeString(downtime.getEndTime());
+
+        String[] partsEndD = endDowntime.split(":");
+        Calendar endhdowntime = Calendar.getInstance();
+        endhdowntime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(partsEndD[0]));
+        endhdowntime.set(Calendar.MINUTE, Integer.parseInt(partsEndD[1]));
+        endhdowntime.set(Calendar.SECOND, Integer.parseInt(partsEndD[2]));
+
+
+        if (endhdowntime.before(starthdowntime)) {
+            endhdowntime.add(Calendar.DATE, 1);
+        }
+
+        if (shift==3)
+        {
+            String mid = "00:00:00";
+            String[] split = mid.split(":");
+            Calendar middnight = Calendar.getInstance();
+            middnight.set(Calendar.HOUR_OF_DAY, Integer.parseInt(split[0]));
+            middnight.set(Calendar.MINUTE, Integer.parseInt(split[1]));
+            middnight.set(Calendar.SECOND, Integer.parseInt(split[2]));
+
+            if (starth.after(middnight))
+                starth.add(Calendar.DATE,1);
+
+            if (endh.after(middnight))
+                endh.add(Calendar.DATE,1);
+        }
+
+        return (starthdowntime.after(starth) && starthdowntime.before(endh)) || (endhdowntime.after(starth) && endhdowntime.before(endh));
+
+
+    }
+
+    @Override
+    public String convertHour(String hour, int shift) {
+
+        if ((shift==1 && (hour.equals("12:30")||hour.equals("01:30") ||hour.equals("02:30")))
+                ||(shift ==2)
+                || (shift == 3 && (hour.equals("10:30")||hour.equals("11:30")))
+                ) return hour + ":00 PM";
+
+            return hour + ":00 AM";
+    }
+
+    @Override
+    public String downtime(String zone, String location, String reason) {
+        String zon ="";
+        String loc = "";
+        String reas = "";
+
+        if (zone!=null)
+            zon = zone;
+
+        if (location !=null)
+            loc = location;
+
+        if (reason !=null)
+            reas = reason;
+
+        return "DOWNTIME due to: " + zon + ", " + loc + ", " + reas;
+    }
+
+    @Override
+    public void verifyLeaks(Line line) {
+        if (line.getFirst().isLeakReached() &&
+                line.getFirst().getHours().get(0).getActuals()!=null &&
+                !line.getFirst().getHours().get(0).getActuals().isEmpty()
+                )
+            mView.showFTQ(1);
+        else
+        if (line.getSecond().isLeakReached()&&
+                line.getSecond().getHours().get(0).getActuals()!=null &&
+                !line.getSecond().getHours().get(0).getActuals().isEmpty())
+            mView.showFTQ(2);
+        else
+        if (line.getThird().isLeakReached()&&
+                line.getSecond().getHours().get(0).getActuals()!=null &&
+                !line.getSecond().getHours().get(0).getActuals().isEmpty())
+            mView.showFTQ(3);
     }
 
 

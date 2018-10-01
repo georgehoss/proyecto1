@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.EmployeeAdapter;
+import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.R;
 
@@ -72,6 +73,10 @@ public class EmployeeFragment extends Fragment implements EmployeeContract.View,
         super.onStart();
         getEmployees();
         showFloatingButton();
+        MainActivity main = (MainActivity) getActivity();
+        if (main!=null) {
+            main.hideMenu();
+        }
     }
 
     @Override

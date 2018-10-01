@@ -16,6 +16,11 @@ public class Downtime {
     private int zone;
     private int location;
     private int reason;
+    private String downtime;
+    private String zoneValue;
+    private String locationValue;
+    private String reasonValue;
+
 
     public Downtime() {
     }
@@ -82,5 +87,37 @@ public class Downtime {
 
     public void setReason(int reason) {
         this.reason = reason;
+    }
+
+    public String getDowntime() {
+        return downtime;
+    }
+
+    public void setDowntime(String downtime) {
+        this.downtime = downtime;
+    }
+
+    public String getZoneValue() {
+        return zoneValue;
+    }
+
+    public void setZoneValue(String zoneValue) {
+        this.zoneValue = zoneValue;
+    }
+
+    public String getLocationValue() {
+        return locationValue;
+    }
+
+    public void setLocationValue(String locationValue) {
+        this.locationValue = locationValue;
+    }
+
+    public String getReasonValue() {
+        return reasonValue;
+    }
+
+    public void setReasonValue(String reasonValue) {
+        this.reasonValue = reasonValue;
     }
 }

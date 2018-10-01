@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.tenneco.tennecoapp.Login.LoginFragment;
+import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.R;
 
 import butterknife.BindView;
@@ -68,6 +69,10 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     public void onStart() {
         super.onStart();
         mAuth = FirebaseAuth.getInstance();
+        MainActivity main = (MainActivity) getActivity();
+        if (main!=null) {
+            main.hideMenu();
+        }
     }
 
     @Override

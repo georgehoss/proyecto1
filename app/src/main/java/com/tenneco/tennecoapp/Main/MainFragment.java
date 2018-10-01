@@ -99,7 +99,13 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
         }
 
-        getLines();
+        if (main!=null) {
+            main.restoreButtons();
+            main.setProduction();
+        }
+
+
+
 
 
 
@@ -127,7 +133,7 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     public void getUser() {
         Query postsQuery;
         postsQuery = dbUsers.child(mUser.getUid());
-        postsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        postsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -142,6 +148,14 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
                 }
                 else
                 {
+
+                    if (user.getType()==0)
+                    {
+                        showNoLines();
+                    }
+                    else
+                        getLines();
+
                     if (user.getType()==3)
                         main.showMenu();
                 }

@@ -10,7 +10,9 @@ import android.widget.Button;
 
 import com.tenneco.tennecoapp.Configuration.ConfigurationFragment;
 import com.tenneco.tennecoapp.Employee.EmployeeFragment;
+import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.User.UserFragment;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -53,13 +55,24 @@ public class MenuConfigFragment extends Fragment implements MenuConfigContract.V
     }
 
     @Override
-    public void launchUsers() {
+    public void onStart() {
+        super.onStart();
+        MainActivity main = (MainActivity) getActivity();
+        if (main!=null) {
+            main.restoreButtons();
+            main.setUsers();
+            main.showMenu();
+        }
+    }
 
+    @Override
+    public void launchUsers() {
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new UserFragment()).addToBackStack(null).commit();
     }
 
     @Override
     public void launchLines() {
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new ConfigurationFragment()).addToBackStack(null).commit();
+
     }
 
     @Override

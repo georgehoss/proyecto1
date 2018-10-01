@@ -146,6 +146,9 @@
     <string name="star_2nd_shift">Start 2nd Shift</string>
     <string name="start_3rd_shift">Start 3rd Shift</string>
     <string name="shift_leak_failure">Leak Failure</string>
+    <string name="send_email">Send Email</string>
+    <string name="ftq_over_10_escalation_and_actions">FTQ over 10% Escalation and Actions</string>
+    <string name="please_write_here_the_actions_taken_to_solve_ftq_leak_issues_faced_on_current_shift">Please write here the actions taken to solve FTQ Leak issues faced on current shift.</string>
 
 
 </resources>

@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Lines;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
@@ -78,6 +79,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private ArrayList<Reason> mDReasons;
     private boolean deletable = false;
     private Downtime downtime;
+    private ProgressDialog progressDialog;
     @BindView(R.id.et_name) EditText mEtName;
     @BindView(R.id.ll_shift1) LinearLayout mLlS1;
     @BindView(R.id.ll_shift2) LinearLayout mLlS2;
@@ -166,9 +168,18 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             getEmployees();
         }
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Saving Changes");
+        progressDialog.setMessage("Please Wait.");
 
 
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (progressDialog!=null && progressDialog.isShowing())
+            progressDialog.hide();
     }
 
     @Override
@@ -345,10 +356,13 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @Override
     public void saveLine(Line line) {
+        progressDialog.show();
         dbLines.child(line.getId()).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 finish();
+                if (progressDialog!=null && progressDialog.isShowing())
+                    progressDialog.hide();
             }
         });
     }

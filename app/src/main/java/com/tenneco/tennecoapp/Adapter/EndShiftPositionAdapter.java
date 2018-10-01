@@ -25,14 +25,16 @@ public class EndShiftPositionAdapter extends RecyclerView.Adapter<EndShiftPositi
     private ArrayList<EmployeePosition> employeePositions;
     private ArrayList<Employee> employees;
     private Context context;
+    private boolean ended;
 
-    public EndShiftPositionAdapter(Context context,ArrayList<EmployeePosition> employeePositions,ArrayList<Employee> employees) {
+    public EndShiftPositionAdapter(Context context,ArrayList<EmployeePosition> employeePositions,ArrayList<Employee> employees, boolean ended) {
         if (employees!=null)
             Collections.sort(employees,Employee.EmployeeNameComparator);
 
         this.employeePositions = employeePositions;
         this.context = context;
         this.employees = employees;
+        this.ended = ended;
     }
 
 
@@ -73,6 +75,8 @@ public class EndShiftPositionAdapter extends RecyclerView.Adapter<EndShiftPositi
 
                 }
             });
+
+            holder.mSpPosition.setEnabled(!ended);
         }
     }
 

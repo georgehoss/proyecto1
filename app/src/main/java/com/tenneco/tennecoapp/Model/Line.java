@@ -27,6 +27,7 @@ public class Line {
     private ArrayList<Employee> employees;
     private String timeStart;
     private String timeEnd;
+    private ArrayList<Scrap> scraps;
 
     public Line() {
     }
@@ -179,5 +180,13 @@ public class Line {
 
     public void setTimeEnd(String timeEnd) {
         this.timeEnd = timeEnd;
+    }
+
+    public ArrayList<Scrap> getScraps() {
+        return scraps;
+    }
+
+    public void setScraps(ArrayList<Scrap> scraps) {
+        this.scraps = scraps;
     }
 }
