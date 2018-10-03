@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/ll_email"
+    android:visibility="gone"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="List of emails for notifications"
+        android:gravity="center"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/colorWhite"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/add_downtime"
+            android:id="@+id/tv_dw_emails"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button"
+            android:id="@+id/bt_add_dw_email"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Addresses:"
+        android:textSize="17sp"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:textIsSelectable="true"
+        android:id="@+id/tv_addresses_dwt"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/colorWhite"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text="1st Scrap Event"
+            android:id="@+id/tv_dw_scrap1"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button"
+            android:id="@+id/bt_add_dw_sc1"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Addresses:"
+        android:textSize="17sp"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:textIsSelectable="true"
+        android:id="@+id/tv_addresses_sc1"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/colorWhite"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text="2nd Scrap Event"
+            android:id="@+id/tv_dw_scrap2"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button"
+            android:id="@+id/bt_add_dw_sc2"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Addresses:"
+        android:textSize="17sp"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:textIsSelectable="true"
+        android:id="@+id/tv_addresses_sc2"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/colorWhite"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text="Next Scrap Events"
+            android:id="@+id/tv_dw_scrap3"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button"
+            android:id="@+id/bt_add_dw_sc3"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Addresses:"
+        android:textSize="17sp"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:textIsSelectable="true"
+        android:id="@+id/tv_addresses_sc3"
+        />
+
+
+
+
+
+</LinearLayout>

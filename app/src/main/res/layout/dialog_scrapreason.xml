@@ -71,6 +71,18 @@
                </LinearLayout>
            </LinearLayout>
 
+           <EditText
+               android:layout_width="match_parent"
+               android:layout_height="100dp"
+               android:layout_margin="10dp"
+               android:inputType="textMultiLine"
+               android:background="@drawable/background_rectangle"
+               android:hint="Please write here the actions taken to solve the scraps issue."
+               android:gravity="start"
+               android:id="@+id/et_actions"
+               android:visibility="gone"
+               />
+
 
            <LinearLayout
                android:layout_width="match_parent"

@@ -42,6 +42,12 @@ public class Employee {
         this.info = info;
     }
 
+    public Employee(String name, String info, String type) {
+        this.fullName = name;
+        this.info = info;
+        this.type = type;
+    }
+
     public Employee(String id) {
         this.id = id;
     }

@@ -3,6 +3,7 @@ package com.tenneco.tennecoapp.Daily;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -35,6 +36,7 @@ import com.tenneco.tennecoapp.Adapter.DailyAdapter;
 import com.tenneco.tennecoapp.Adapter.EndShiftPositionAdapter;
 import com.tenneco.tennecoapp.Adapter.ScrapAdapter;
 import com.tenneco.tennecoapp.Adapter.ScrapEventAdapter;
+import com.tenneco.tennecoapp.Adapter.UserSelectorAdapter;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
@@ -44,11 +46,13 @@ import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Scrap;
 import com.tenneco.tennecoapp.Model.Shift;
+import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,12 +62,17 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     private DailyContract.Presenter mPresenter;
     private DatabaseReference dbLine;
+    private DatabaseReference dbTeamLd;
+    private DatabaseReference dbGroupLd;
+    private ArrayList<User> mTeam;
+    private ArrayList<User> mGroup;
     private Line mLine;
     private DailyAdapter mAdapter;
     private ScrapEventAdapter mAdapterScr;
     private String lineId;
     private ArrayList<WorkHour> mHours;
     private ProgressDialog progressDialog;
+    private boolean isShowingLeak = false;
 
     @BindView(R.id.tv_name)TextView mTvName;
     @BindView(R.id.tv_date)TextView mTvDate;
@@ -83,6 +92,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @BindView(R.id.tv_leak_s1) TextView mTvLeakS1;
     @BindView(R.id.tv_leak_s2) TextView mTvLeakS2;
     @BindView(R.id.tv_leak_s3) TextView mTvLeakS3;
+    @BindView(R.id.tv_tls) TextView mTvTls;
+    @BindView(R.id.tv_gls) TextView mTvGls;
+    @BindView(R.id.bt_hour) Button mBtHour;
+    @BindView(R.id.bt_downtime) Button mBtDowntime;
+    @BindView(R.id.bt_event) Button mBtScrap;
     @BindView(R.id.bt_counter) Button mBtCounter;
     @BindView(R.id.bt_end_s1) Button mBtS1;
     @BindView(R.id.bt_end_s2) Button mBtS2;
@@ -102,16 +116,22 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @OnClick(R.id.bt_end_s1) void endS1(){
         if (!mLine.getFirst().isClosed())
             showFinishFirst();
+        else
+            showEndShiftDialog(mLine,1,this,false);
     }
 
     @OnClick(R.id.bt_end_s2) void endS2(){
         if (!mLine.getSecond().isClosed())
             showFinishSecond();
+        else
+            showEndShiftDialog(mLine,2,this,false);
     }
 
     @OnClick(R.id.bt_end_s3) void endS3(){
         if (!mLine.getThird().isClosed())
             showFinishThird();
+        else
+            showEndShiftDialog(mLine,3,this,false);
     }
 
     @OnClick(R.id.bt_counter) void count(){
@@ -137,6 +157,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @OnClick(R.id.tv_shift3) void shf3(){
             showEndShiftDialog(mLine,3,this,false);}
 
+    @OnClick(R.id.ll_gls) void group(){
+        showUserDialog(mGroup,this,"Group Leaders",1);
+    }
+
+    @OnClick(R.id.ll_tls) void team(){
+        showUserDialog(mTeam,this,"Team Leaders",0);
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +173,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         setContentView(R.layout.activity_daily);
         ButterKnife.bind(this);
         dbLine = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE);
+        dbGroupLd = FirebaseDatabase.getInstance().getReference(User.DB_GROUP);
+        dbTeamLd = FirebaseDatabase.getInstance().getReference(User.DB_TEAM);
         if (mPresenter == null)
             mPresenter = new DailyPresenter(this);
         else
@@ -160,6 +191,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         if (getIntent().getExtras()!=null && getIntent().getExtras().getString("id")!=null)
              lineId = getIntent().getExtras().getString("id");
         getLine();
+        getGroup();
+        getTeam();
     }
 
     @Override
@@ -200,21 +233,32 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mTvTS3.setText(mLine.getThird().getCumulativePlanned());
         if (mLine.getFirst().getTimeStart()!=null && !mLine.getFirst().getTimeStart().isEmpty()) {
             mTvStartS1.setText(mLine.getFirst().getTimeStart());
-            mBtS1.setText(R.string.daily_end_1st_shift);
+            if (mLine.getFirst().getTimeEnd()==null || mLine.getFirst().getTimeEnd().isEmpty())
+                mBtS1.setText(R.string.daily_end_1st_shift);
+            else
+                mBtS1.setText(R.string.add_1st_shift);
         }
         else
             mBtS1.setText(R.string.start_1st_shift);
 
         if (mLine.getSecond().getTimeStart()!=null && !mLine.getSecond().getTimeStart().isEmpty()) {
             mTvStartS2.setText(mLine.getSecond().getTimeStart());
-            mBtS2.setText(R.string.dailly_end_2nd_shift);
+            if (mLine.getSecond().getTimeEnd()==null || mLine.getSecond().getTimeEnd().isEmpty())
+                mBtS2.setText(R.string.dailly_end_2nd_shift);
+            else
+                mBtS2.setText(R.string.add_2nd_shift);
+
         }
         else
             mBtS2.setText(R.string.star_2nd_shift);
 
         if (mLine.getThird().getTimeStart()!=null && !mLine.getThird().getTimeStart().isEmpty()) {
             mTvStartS3.setText(mLine.getThird().getTimeStart());
-            mBtS3.setText(R.string.daily_end_3rd_shift);
+            if (mLine.getThird().getTimeEnd()==null || mLine.getThird().getTimeEnd().isEmpty())
+                mBtS3.setText(R.string.daily_end_3rd_shift);
+            else
+                mBtS3.setText(R.string.add_3rd_shift);
+
         }
         else
             mBtS3.setText(R.string.start_3rd_shift);
@@ -252,7 +296,56 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             hideScrap();
         }
 
+        mPresenter.setTeam(mLine.getTeamLeaders());
+        mPresenter.setGroup(mLine.getGroupLeaders());
 
+    }
+
+    @Override
+    public void getGroup() {
+
+        dbGroupLd.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mGroup = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    User user = itemSnapshot.getValue(User.class);
+                    if (user!=null)
+                        mGroup.add(user);
+                }
+                Collections.sort(mGroup,User.UserNameComparator);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void getTeam() {
+        dbTeamLd.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mTeam = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    User user = itemSnapshot.getValue(User.class);
+                    if (user!=null)
+                        mTeam.add(user);
+                }
+                Collections.sort(mTeam,User.UserNameComparator);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -347,186 +440,202 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     public void showEndShiftDialog(final Line line, final int shift, final Context context, final boolean close) {
         if (!mLine.getDowntime().isSet())
         {
-            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                    context);
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.dialog_end_shift, null);
-            alertDialogBuilder.setView(view);
-            alertDialogBuilder.setCancelable(false);
-            TextView mTvName = view.findViewById(R.id.tv_name);
-            mTvName.setText(line.getName());
-            TextView mTvDate = view.findViewById(R.id.tv_date);
-            mTvDate.setText(line.getDate());
-            TextView mTvShift = view.findViewById(R.id.tv_shift);
-            Shift eShitf = new Shift();
-            String title="";
-            boolean start =false;
-            final Button mBtSave = view.findViewById(R.id.bt_save);
-            Button mBtCancel = view.findViewById(R.id.bt_cancel);
+            if (mTeam==null || mGroup==null||(mLine.getTeamLeaders()!=null && !mLine.getTeamLeaders().isEmpty()
+                    && mLine.getGroupLeaders()!=null && !mLine.getGroupLeaders().isEmpty())
+                    || (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())){
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.dialog_end_shift, null);
+                alertDialogBuilder.setView(view);
+                alertDialogBuilder.setCancelable(false);
+                TextView mTvName = view.findViewById(R.id.tv_name);
+                mTvName.setText(line.getName());
+                TextView mTvDate = view.findViewById(R.id.tv_date);
+                mTvDate.setText(line.getDate());
+                TextView mTvShift = view.findViewById(R.id.tv_shift);
+                Shift eShitf = new Shift();
+                String title="";
+                boolean start =false;
+                final Button mBtSave = view.findViewById(R.id.bt_save);
+                Button mBtCancel = view.findViewById(R.id.bt_cancel);
 
-            if (shift==1) {
+                if (shift==1) {
 
-                if (line.getFirst().getTimeStart()==null || line.getFirst().getTimeStart().isEmpty()) {
-                    mBtSave.setText(R.string.start_shift);
-                    start = true;
+                    if (line.getFirst().getTimeStart()==null || line.getFirst().getTimeStart().isEmpty()) {
+                        mBtSave.setText(R.string.start_shift);
+                        start = true;
+                    }
+                    if (start)
+                        title = "Start of "+getString(R.string.add_1st_shift)+ " Transfer";
+                    else
+                        title = "End of "+getString(R.string.add_1st_shift)+ " Transfer";
+
+                    eShitf = line.getFirst();
+                    if (eShitf.getPositions()==null) {
+                        eShitf.setPositions(mLine.getPositions());
+                        for (EmployeePosition employeePosition : eShitf.getPositions())
+                            employeePosition.setPosition(0);
+                    }
+
                 }
-                if (start)
-                    title = "Start of "+getString(R.string.add_1st_shift)+ " Transfer";
-                else
-                    title = "End of "+getString(R.string.add_1st_shift)+ " Transfer";
+                if (shift==2) {
+                    if (line.getSecond().getTimeStart()==null || line.getSecond().getTimeStart().isEmpty()) {
+                        mBtSave.setText(R.string.start_shift);
+                        start = true;
+                    }
+                    if (start)
+                        title = "Start of "+getString(R.string.add_2nd_shift)+ " Transfer";
+                    else
+                        title = "End of "+getString(R.string.add_2nd_shift)+ " Transfer";
+                    eShitf = line.getSecond();
 
-                eShitf = line.getFirst();
-                if (eShitf.getPositions()==null) {
-                    eShitf.setPositions(mLine.getPositions());
-                    for (EmployeePosition employeePosition : eShitf.getPositions())
-                        employeePosition.setPosition(0);
+                    if (eShitf.getPositions()==null) {
+                        eShitf.setPositions(mLine.getPositions());
+                        for (EmployeePosition employeePosition : eShitf.getPositions())
+                            employeePosition.setPosition(0);
+                    }
+
                 }
-
-            }
-            if (shift==2) {
-                if (line.getSecond().getTimeStart()==null || line.getSecond().getTimeStart().isEmpty()) {
-                    mBtSave.setText(R.string.start_shift);
-                    start = true;
-                }
-                if (start)
-                    title = "Start of "+getString(R.string.add_2nd_shift)+ " Transfer";
-                else
-                    title = "End of "+getString(R.string.add_2nd_shift)+ " Transfer";
-                eShitf = line.getSecond();
-
-                if (eShitf.getPositions()==null) {
-                    eShitf.setPositions(mLine.getPositions());
-                    for (EmployeePosition employeePosition : eShitf.getPositions())
-                        employeePosition.setPosition(0);
-                }
-
-            }
-            if (shift==3) {
-                if (line.getThird().getTimeStart()==null || line.getThird().getTimeStart().isEmpty()) {
-                    mBtSave.setText(R.string.start_shift);
-                    start = true;
-                }
-                if (start)
-                    title = "Start of "+getString(R.string.add_3rd_shift)+ " Transfer";
-                else
-                    title = "End of "+getString(R.string.add_3rd_shift)+ " Transfer";
-                eShitf = line.getThird();
-                if (eShitf.getPositions()==null) {
-                    eShitf.setPositions(mLine.getPositions());
-                    for (EmployeePosition employeePosition : eShitf.getPositions())
-                        employeePosition.setPosition(0);
-                }
-            }
-
-
-
-
-            mTvShift.setText(title);
-
-            TextView mTvActual = view.findViewById(R.id.tv_actual);
-            mTvActual.setText(eShitf.getCumulativeActual());
-            TextView mTvTarget = view.findViewById(R.id.tv_target);
-            mTvTarget.setText(eShitf.getCumulativePlanned());
-
-            RecyclerView recyclerView = view.findViewById(R.id.rv_position);
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            final EndShiftPositionAdapter adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),eShitf.getEmployees(),eShitf.isClosed());
-            recyclerView.setAdapter(adapter);
-
-
-            if (!close)
-                mBtSave.setText("Save");
-
-            if (eShitf.isClosed()) {
-                mBtSave.setVisibility(View.GONE);
-                mBtCancel.setText("OK");
-            }
-
-            final AlertDialog dialog = alertDialogBuilder.create();
-            dialog.show();
-
-            mBtCancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialog.dismiss();
-                }
-            });
-
-            final boolean finalStart = start;
-            mBtSave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    boolean error = false;
-                    ArrayList<EmployeePosition> employeePositions = adapter.getPositions();
-                    for (EmployeePosition position : employeePositions)
-                        if ((position.getOperator()==null || position.getOperator().isEmpty()|| position.getOperator().equals("-Select Operator-")) && !error) {
-                            Toast.makeText(context, "Select an operator for position: " + position.getName(), Toast.LENGTH_LONG).show();
-                            error = true;
-                        }
-                    if (!error)
-                    {
-                        Shift finalShift = new Shift();
-                        switch (shift){
-                            case 1:
-                                finalShift = line.getFirst();
-                                break;
-                            case 2:
-                                finalShift = line.getSecond();
-                                break;
-                            case 3:
-                                finalShift = line.getThird();
-                                break;
-                        }
-
-
-                        if (close && !finalStart) {
-
-                            ArrayList<WorkHour> hours = finalShift.getHours();
-                            for (WorkHour hour : hours) {
-                                hour.setClosed(true);
-                            if (hour.getActuals()==null || hour.getActuals().isEmpty())
-                            {
-                                hour.setActuals("0");
-                                if (finalShift.getCumulativeActual()!=null)
-                                    hour.setCumulativeActual(finalShift.getCumulativeActual());
-                                else {
-                                    hour.setCumulativeActual("0");
-                                    finalShift.setCumulativeActual("0");
-                                }
-                                if (hour.getComments()==null || hour.getComments().isEmpty())
-                                hour.setComments("Shift ended");
-                            }
-                            }
-                            finalShift.setClosed(true);
-                            finalShift.setHours(hours);
-                        }
-
-                        if (finalStart && !mBtSave.getText().toString().equals("Save"))
-                            finalShift.setTimeStart(Utils.getTimeString());
-
-                        if (close && !finalStart)
-                            finalShift.setTimeEnd(Utils.getTimeString());
-
-                        switch (shift){
-                            case 1:
-                                line.setFirst(finalShift);
-                                break;
-                            case 2:
-                                line.setSecond(finalShift);
-                                break;
-                            case 3:
-                                line.setThird(finalShift);
-                                break;
-                        }
-
-                        updateLine(line);
-                        dialog.dismiss();
-
+                if (shift==3) {
+                    if (line.getThird().getTimeStart()==null || line.getThird().getTimeStart().isEmpty()) {
+                        mBtSave.setText(R.string.start_shift);
+                        start = true;
+                    }
+                    if (start)
+                        title = "Start of "+getString(R.string.add_3rd_shift)+ " Transfer";
+                    else
+                        title = "End of "+getString(R.string.add_3rd_shift)+ " Transfer";
+                    eShitf = line.getThird();
+                    if (eShitf.getPositions()==null) {
+                        eShitf.setPositions(mLine.getPositions());
+                        for (EmployeePosition employeePosition : eShitf.getPositions())
+                            employeePosition.setPosition(0);
                     }
                 }
-            });
 
+
+
+
+                mTvShift.setText(title);
+
+                TextView mTvActual = view.findViewById(R.id.tv_actual);
+                mTvActual.setText(eShitf.getCumulativeActual());
+                TextView mTvTarget = view.findViewById(R.id.tv_target);
+                mTvTarget.setText(eShitf.getCumulativePlanned());
+
+                RecyclerView recyclerView = view.findViewById(R.id.rv_position);
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                final EndShiftPositionAdapter adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),eShitf.getEmployees(),eShitf.isClosed());
+                recyclerView.setAdapter(adapter);
+
+
+                if (!close)
+                    mBtSave.setText("Save");
+
+                if (eShitf.isClosed()) {
+                    mBtSave.setVisibility(View.GONE);
+                    mBtCancel.setText("OK");
+                }
+
+                final AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+
+                mBtCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+                final boolean finalStart = start;
+                mBtSave.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        boolean error = false;
+                        ArrayList<EmployeePosition> employeePositions = adapter.getPositions();
+                        for (EmployeePosition position : employeePositions)
+                            if ((position.getOperator()==null || position.getOperator().isEmpty()|| position.getOperator().equals("-Select Operator-")) && !error) {
+                                Toast.makeText(context, "Select an operator for position: " + position.getName(), Toast.LENGTH_LONG).show();
+                                error = true;
+                            }
+                        if (!error)
+                        {
+                            Shift finalShift = new Shift();
+                            switch (shift){
+                                case 1:
+                                    finalShift = line.getFirst();
+                                    break;
+                                case 2:
+                                    finalShift = line.getSecond();
+                                    break;
+                                case 3:
+                                    finalShift = line.getThird();
+                                    break;
+                            }
+
+
+                            if (close && !finalStart) {
+
+                                ArrayList<WorkHour> hours = finalShift.getHours();
+                                for (WorkHour hour : hours) {
+                                    hour.setClosed(true);
+                                    if (hour.getActuals()==null || hour.getActuals().isEmpty())
+                                    {
+                                        hour.setActuals("0");
+                                        if (finalShift.getCumulativeActual()!=null)
+                                            hour.setCumulativeActual(finalShift.getCumulativeActual());
+                                        else {
+                                            hour.setCumulativeActual("0");
+                                            finalShift.setCumulativeActual("0");
+                                        }
+                                        if (hour.getComments()==null || hour.getComments().isEmpty())
+                                            hour.setComments("Shift ended");
+                                    }
+                                }
+                                finalShift.setClosed(true);
+                                finalShift.setHours(hours);
+                            }
+
+                            if (finalStart && !mBtSave.getText().toString().equals("Save"))
+                                finalShift.setTimeStart(Utils.getTimeString());
+
+                            if (close && !finalStart)
+                                finalShift.setTimeEnd(Utils.getTimeString());
+
+                            switch (shift){
+                                case 1:
+                                    line.setFirst(finalShift);
+                                    break;
+                                case 2:
+                                    line.setSecond(finalShift);
+                                    break;
+                                case 3:
+                                    line.setThird(finalShift);
+                                    break;
+                            }
+
+                            updateLine(line);
+                            dialog.dismiss();
+
+                        }
+                    }
+                });
+
+            }
+            else
+                if ((mLine.getGroupLeaders()==null ||mLine.getGroupLeaders().isEmpty())&& mGroup!=null)
+                {
+                    Toast.makeText(this,"Please select group leaders!",Toast.LENGTH_LONG).show();
+                    showUserDialog(mGroup,this,"Group Leaders",1);
+                }
+                else
+                    if((mLine.getTeamLeaders()==null || mLine.getTeamLeaders().isEmpty()) && mTeam!=null)
+                    {
+                        Toast.makeText(this,"Please select team leaders!",Toast.LENGTH_LONG).show();
+                        showUserDialog(mTeam,this,"Team Leaders",0);
+                    }
         }
         else
             showDowntimeDialog(mLine.getDowntime(),this);
@@ -552,6 +661,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @Override
     public void hideLeakCounter() {
         mBtCounter.setVisibility(View.GONE);
+        mBtDowntime.setVisibility(View.GONE);
+        mBtScrap.setVisibility(View.GONE);
+        mBtHour.setVisibility(View.GONE);
     }
 
     @Override
@@ -711,7 +823,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                             "\nLocation: " +mLine.getDowntime().getLocationValue() +
                             "\nReason: " + mLine.getDowntime().getReasonValue()+
                             "\n\nPlease take immediate action";
-                    sendEmail(new String[]{"ghoss@gmail.com.ve"},new String[]{"georgehoss92@gmail.com"},subject,body);
+                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body);
                 }
             }
         });
@@ -735,7 +847,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         "This is a notification that Cell " + mLine.getName()+ " is back to production at " + Utils.getTimeString() +
                         "\nThank you";
 
-                sendEmail(new String[]{"ghoss@gmail.com.ve"},new String[]{"georgehoss92@gmail.com"},subject,body);
+                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body);
 
                 }
                 else
@@ -746,185 +858,194 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void showScrapDialog(ArrayList<Reason> reasons, final Context context) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.dialog_scrapreason, null);
-        alertDialogBuilder.setView(view);
-        final Spinner spinner = view.findViewById(R.id.sp_reason);
-        ArrayList<Reason> mReasons = new ArrayList<>();
-        mReasons.add(new Reason("- Select a Reason -"));
-        mReasons.addAll(reasons);
-        ArrayAdapter<Reason> mAdapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_item,mReasons);
-        spinner.setAdapter(mAdapter);
-        Button mBtReport = view.findViewById(R.id.bt_report);
+        if (!mLine.getFirst().isClosed() || !mLine.getSecond().isClosed() || !mLine.getThird().isClosed()) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.dialog_scrapreason, null);
+            alertDialogBuilder.setView(view);
+            final Spinner spinner = view.findViewById(R.id.sp_reason);
+            ArrayList<Reason> mReasons = new ArrayList<>();
+            mReasons.add(new Reason("- Select a Reason -"));
+            mReasons.addAll(reasons);
+            ArrayAdapter<Reason> mAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, mReasons);
+            spinner.setAdapter(mAdapter);
+            Button mBtReport = view.findViewById(R.id.bt_report);
+            final EditText editText = view.findViewById(R.id.et_actions);
+            if (mLine.getScraps() != null && mLine.getScraps().size() >= 3)
+                editText.setVisibility(View.VISIBLE);
+
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
 
 
-        final AlertDialog dialog = alertDialogBuilder.create();
-        dialog.show();
+            mBtReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Reason reason = (Reason) spinner.getSelectedItem();
+
+                    if (reason != null && reason.getName().equals("- Select a Reason -"))
+                        Toast.makeText(context, "You must select a reason to make the Report!", Toast.LENGTH_LONG).show();
+                    else if (mLine.getScraps() != null && mLine.getScraps().size() >= 3 && editText.getText().toString().isEmpty()) {
+                        editText.setError("You must write some actions!");
+                        editText.requestFocus();
+                        editText.setVisibility(View.VISIBLE);
+                    } else if (reason != null) {
+
+                        if (mLine.getScraps() == null) {
+                            mLine.setScraps(new ArrayList<Scrap>());
+                        }
+                        if (mLine.getScraps().size() >= 3)
+                            mLine.getScraps().add(new Scrap(reason.getName() + ". Actions: " + editText.getText().toString(), Utils.getTimeString()));
+                        else
+                            mLine.getScraps().add(new Scrap(reason.getName(), Utils.getTimeString()));
+                        dialog.dismiss();
+                        updateLine(mLine);
+
+                        String subject = "";
+                        String body = "";
+
+                        if (mLine.getScraps().size() == 1) {
+                            subject = "Cell " + mLine.getName() + " Produced a First Scrap Piece due to: " + reason.getName();
+                            body = "Hi \n\n" +
+                                    "This is a notification that Cell " + mLine.getName() + " Produced a First Scrap Piece at " + Utils.getTimeString()
+                                    + " due to: " + reason.getName() +
+                                    "\n\nFirst Occurrence";
+
+                            sendEmail(mPresenter.getEmails(mLine.getScrap1List(), mLine), mPresenter.getCC(mLine.getScrap1List(), mLine), subject, body);
+                        } else if (mLine.getScraps().size() == 2) {
+                            subject = "Cell " + mLine.getName() + " Produced a Second Scrap Piece due to: " + reason.getName();
+                            body = "Hi \n\n" +
+                                    "This is a notification that Cell " + mLine.getName() + " Produced a Second Scrap Piece at " + Utils.getTimeString()
+                                    + " due to: " + reason.getName() +
+                                    "\n\nSecond Occurrence...   Next notification will be send to Group Leaders";
+
+                            sendEmail(mPresenter.getEmails(mLine.getScrap2List(), mLine), mPresenter.getCC(mLine.getScrap2List(), mLine), subject, body);
+                        } else {
+                            subject = "Cell " + mLine.getName() + " Produced Scrap Piece #" + String.valueOf(mLine.getScraps().size())
+                                    + " due to: " + reason.getName();
+                            body = "Hi \n\n" +
+                                    "This is a notification that Cell " + mLine.getName() + " Produced Scrap Piece #" + String.valueOf(mLine.getScraps().size())
+                                    + " at " + Utils.getTimeString()
+                                    + " due to: " + reason.getName() +
+                                    "\n\nActions: " + editText.getText().toString() +
+                                    "\n\nScrap piece # " + String.valueOf(mLine.getScraps().size()) + " Next notification will be send to the Management Team";
+
+                            sendEmail(mPresenter.getEmails(mLine.getScrap3List(), mLine), mPresenter.getCC(mLine.getScrap3List(), mLine), subject, body);
+                        }
 
 
-        mBtReport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Reason reason = (Reason) spinner.getSelectedItem();
-
-                if (reason!=null && reason.getName().equals("- Select a Reason -"))
-                    Toast.makeText(context, "You must select a reason to make the Report!", Toast.LENGTH_LONG).show();
-                else if (reason!=null) {
-
-                    if (mLine.getScraps()==null)
-                    {
-                        mLine.setScraps(new ArrayList<Scrap>());
                     }
-
-                    mLine.getScraps().add(new Scrap(reason.getName(),Utils.getTimeString()));
-                    dialog.dismiss();
-                    updateLine(mLine);
-
-                    String subject="";
-                    String body = "";
-
-                    if (mLine.getScraps().size()==1)
-                    {
-                        subject =  "Cell " + mLine.getName()+" Produced a First Scrap Piece due to: " + reason.getName();
-                        body = "Hi \n\n"+
-                                "This is a notification that Cell "+ mLine.getName()+" Produced a First Scrap Piece at " + Utils.getTimeString()
-                                + " due to: " + reason.getName()+
-                        "\n\nFirst Occurrence";
-                    }
-                    else
-                    if (mLine.getScraps().size()==2)
-                    {
-                        subject =  "Cell " + mLine.getName()+" Produced a Second Scrap Piece due to: " + reason.getName();
-                        body = "Hi \n\n"+
-                                "This is a notification that Cell "+ mLine.getName()+" Produced a Second Scrap Piece at " + Utils.getTimeString()
-                                + " due to: " + reason.getName()+
-                                "\n\nSecond Occurrence...   Next notification will be send to Group Leaders";
-                    }
-                    else
-                    {
-                        subject =  "Cell " + mLine.getName()+" Produced Scrap Piece #"+ String.valueOf(mLine.getScraps().size())
-                                + " due to: "+ reason.getName();
-                        body = "Hi \n\n"+
-                                "This is a notification that Cell "+ mLine.getName()+" Produced Scrap Piece #"+ String.valueOf(mLine.getScraps().size())
-                                +" at " + Utils.getTimeString()
-                                + " due to: " + reason.getName()+
-                                "\n\nScrap piece # " + String.valueOf(mLine.getScraps().size())+ " Next notification will be send to the Management Team";
-                    }
-
-
-                    sendEmail(new String[]{"ghoss@phl.com.ve"},new String[]{"georgehoss92@gmail.com"},subject,body);
 
                 }
-
-            }
-        });
+            });
+        }
 
     }
 
     @Override
     public void showFTQ(final int shift) {
-        Context context = DailyActivity.this;
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.dialog_leak, null);
-        alertDialogBuilder.setView(view);
-        Button btSave = view.findViewById(R.id.bt_save);
-        Button btCancel = view.findViewById(R.id.bt_cancel);
-        TextView mTvName = view.findViewById(R.id.tv_name);
-        mTvName.setText(mLine.getName());
-        TextView mTvDate = view.findViewById(R.id.tv_date);
-        TextView mTvActual = view.findViewById(R.id.tv_actual);
-        TextView mTvLeak = view.findViewById(R.id.tv_leak);
-        String date = mLine.getDate() + " " + Utils.getTimeString();
-        mTvDate.setText(date);
-        TextView mTvShift = view.findViewById(R.id.tv_shift);
-        final EditText eTActions = view.findViewById(R.id.et_actions);
-        String stilte="";
-        Shift tshift;
-        if (shift == 1) {
-            stilte = getString(R.string.add_1st_shift);
-            tshift = mLine.getFirst();
-        }
-        else
-        if (shift == 2) {
-            stilte = getString(R.string.add_2nd_shift);
-            tshift = mLine.getSecond();
-        }
-        else
-        {
-            stilte = getString(R.string.add_3rd_shift);
-            tshift = mLine.getThird();
-        }
+        if (!isShowingLeak) {
+            Context context = DailyActivity.this;
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.dialog_leak, null);
+            alertDialogBuilder.setView(view);
+            Button btSave = view.findViewById(R.id.bt_save);
+            Button btCancel = view.findViewById(R.id.bt_cancel);
+            TextView mTvName = view.findViewById(R.id.tv_name);
+            mTvName.setText(mLine.getName());
+            TextView mTvDate = view.findViewById(R.id.tv_date);
+            TextView mTvActual = view.findViewById(R.id.tv_actual);
+            TextView mTvLeak = view.findViewById(R.id.tv_leak);
+            String date = mLine.getDate() + " " + Utils.getTimeString();
+            mTvDate.setText(date);
+            TextView mTvShift = view.findViewById(R.id.tv_shift);
+            final EditText eTActions = view.findViewById(R.id.et_actions);
+            String stilte = "";
+            Shift tshift;
+            if (shift == 1) {
+                stilte = getString(R.string.add_1st_shift);
+                tshift = mLine.getFirst();
+            } else if (shift == 2) {
+                stilte = getString(R.string.add_2nd_shift);
+                tshift = mLine.getSecond();
+            } else {
+                stilte = getString(R.string.add_3rd_shift);
+                tshift = mLine.getThird();
+            }
 
-        mTvShift.setText(stilte);
-        mTvActual.setText(tshift.getCumulativeActual());
-        mTvLeak.setText(String.valueOf(tshift.getLfCounter()));
+            mTvShift.setText(stilte);
+            mTvActual.setText(tshift.getCumulativeActual());
+            mTvLeak.setText(String.valueOf(tshift.getLfCounter()));
 
 
-        final AlertDialog dialog = alertDialogBuilder.create();
-        dialog.show();
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
 
-        if (!tshift.isLeakReached())
-            dialog.dismiss();
+            if (!tshift.isLeakReached())
+                dialog.dismiss();
 
-        btSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            btSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
-                if(!eTActions.getText().toString().isEmpty()) {
+                    if (!eTActions.getText().toString().isEmpty()) {
 
-                    switch (shift) {
-                        case 1:
-                            mLine.getFirst().setLeakReached(false);
-                            break;
-                        case 2:
-                            mLine.getSecond().setLeakReached(false);
-                            break;
-                        case 3:
-                            mLine.getThird().setLeakReached(false);
-                            break;
+                        switch (shift) {
+                            case 1:
+                                mLine.getFirst().setLeakReached(false);
+                                break;
+                            case 2:
+                                mLine.getSecond().setLeakReached(false);
+                                break;
+                            case 3:
+                                mLine.getThird().setLeakReached(false);
+                                break;
+                        }
+                        updateLine(mLine);
+                        dialog.dismiss();
+                        isShowingLeak = false;
+                        String subject = "Cell " + mLine.getName() + "  FTQ over 10% Escalation and Actions";
+                        String body = "Hi\n" +
+                                " \n" +
+                                "Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on Cell " +
+                                mLine.getName() + "\n" +
+                                " \n" +
+                                eTActions.getText().toString();
+
+                        sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine), mPresenter.getEmails(mLine.getDowntimeList(),mLine), subject, body);
+                    } else {
+                        eTActions.setError("You must introduce the actions taken!");
+                        eTActions.requestFocus();
                     }
-                    updateLine(mLine);
-                    dialog.dismiss();
-                    String subject = "Cell " + mLine.getName()+ "  FTQ over 10% Escalation and Actions";
-                    String body = "Hi\n" +
-                            " \n" +
-                            "Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on Cell "+
-                            mLine.getName() + "\n" +
-                            " \n" +
-                            eTActions.getText().toString();
 
-                    sendEmail(new String[]{"ghoss@phl.com.ve"}, new String[]{"georgehoss92@gmail.com"}, subject,body );
+
                 }
-                else
-                {
-                    eTActions.setError("You must introduce the actions taken!");
-                    eTActions.requestFocus();
-                }
-            }
-        });
+            });
 
-        btCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            btCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
                     dialog.dismiss();
+                    isShowingLeak = false;
 
-            }
-        });
+                }
+            });
+        }
+
     }
 
     @Override
     public void sendEmail(String[] addresses, String[] ccs, String subject, String body) {
-        String[] address = new String[]{"MPope@Tenneco.com","AHarder@Tenneco.com","JBaxter@Tenneco.com","KTaylor3@Tenneco.com","TSmith12@Tenneco.com",
+/*        String[] address = new String[]{"MPope@Tenneco.com","AHarder@Tenneco.com","JBaxter@Tenneco.com","KTaylor3@Tenneco.com","TSmith12@Tenneco.com",
                 "JDugger@Tenneco.com","JPorto@Tenneco.com","DAdams2@Tenneco.com","BRaymond@Tenneco.com","GTompkins@Tenneco.com","MTurnbow@Tenneco.com",
                 "RBeckenbach@Tenneco.com","TButler1@Tenneco.com","MBrady1@Tenneco.com"};
-        String[] cc = new String[]{"RCadena@Tenneco.com","NBuckley@Tenneco.com","MRiddle@Tenneco.com","TSmith12@Tenneco.com"};
+        String[] cc = new String[]{"RCadena@Tenneco.com","NBuckley@Tenneco.com","MRiddle@Tenneco.com","TSmith12@Tenneco.com"};*/
 
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-        intent.putExtra(Intent.EXTRA_EMAIL, address);
-        intent.putExtra(Intent.EXTRA_CC, cc);
+        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_CC, ccs);
         intent.putExtra(Intent.EXTRA_TEXT, body);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -951,6 +1072,85 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mRvScrap.setLayoutManager(new LinearLayoutManager(this));
         mAdapterScr = new ScrapEventAdapter(null);
         mRvScrap.setAdapter(mAdapterScr);
+    }
+
+    @Override
+    public void showUserDialog(ArrayList<User> users, Context context, String title, final int position) {
+        if (users!=null && users.size()>0 && (!mLine.getFirst().isClosed()|| !mLine.getSecond().isClosed() || !mLine.getThird().isClosed())) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            final UserSelectorAdapter adapter = new UserSelectorAdapter(users,context);
+            RecyclerView recyclerView = new RecyclerView(context);
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            alertDialogBuilder.setView(recyclerView);
+            alertDialogBuilder.setTitle(title);
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("");
+                    switch (position) {
+                        case 1:
+                            for (User user : adapter.getUsers())
+                                if (user.isSelected())
+                                stringBuilder.append(user.getName().trim()).append(", ");
+                            if (!stringBuilder.toString().isEmpty())
+                                mLine.setGroupLeaders(stringBuilder.toString().substring(0,stringBuilder.toString().length()-2));
+                            else
+                                mLine.setGroupLeaders("");
+                            break;
+                        default:
+                            for (User user : adapter.getUsers())
+                                if (user.isSelected())
+                                stringBuilder.append(user.getName().trim()).append(", ");
+                            if (!stringBuilder.toString().isEmpty())
+                                mLine.setTeamLeaders(stringBuilder.toString().substring(0,stringBuilder.toString().length()-2));
+                            else mLine.setTeamLeaders("");
+                            break;
+                    }
+                    updateLine(mLine);
+                    dialogInterface.dismiss();
+                }
+            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
+        }
+    }
+
+    @Override
+    public void showTeam() {
+        mTvTls.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideTeam() {
+        mTvTls.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setTeam(String title) {
+        mTvTls.setText(title);
+    }
+
+    @Override
+    public void showGroup() {
+        mTvGls.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideGroup() {
+        mTvGls.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setGroup(String title) {
+        mTvGls.setText(title);
     }
 
     @Override

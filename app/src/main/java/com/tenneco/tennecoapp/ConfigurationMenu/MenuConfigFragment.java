@@ -6,11 +6,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
-import com.tenneco.tennecoapp.Configuration.ConfigurationFragment;
 import com.tenneco.tennecoapp.Employee.EmployeeFragment;
 import com.tenneco.tennecoapp.MainActivity;
+import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.User.UserFragment;
 
@@ -23,8 +22,10 @@ import butterknife.OnClick;
 public class MenuConfigFragment extends Fragment implements MenuConfigContract.View {
 
 
-    @OnClick(R.id.tv_lines) void lines(){
-        launchLines();
+    private MainActivity main;
+
+    @OnClick(R.id.tv_groups) void groups(){
+        launchGroups();
     }
 
     @OnClick(R.id.tv_users) void users(){
@@ -35,8 +36,8 @@ public class MenuConfigFragment extends Fragment implements MenuConfigContract.V
         launchEmployee();
    }
 
-    @OnClick(R.id.tv_emails) void emails(){
-        launchEmails();
+    @OnClick(R.id.tv_teams) void teams(){
+        launchTeams();
     }
 
 
@@ -57,7 +58,7 @@ public class MenuConfigFragment extends Fragment implements MenuConfigContract.V
     @Override
     public void onStart() {
         super.onStart();
-        MainActivity main = (MainActivity) getActivity();
+        main = (MainActivity) getActivity();
         if (main!=null) {
             main.restoreButtons();
             main.setUsers();
@@ -67,22 +68,24 @@ public class MenuConfigFragment extends Fragment implements MenuConfigContract.V
 
     @Override
     public void launchUsers() {
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new UserFragment()).addToBackStack(null).commit();
+        main.getSupportFragmentManager().beginTransaction().replace(R.id.container, new UserFragment()).addToBackStack(null).commit();
     }
 
     @Override
-    public void launchLines() {
-
+    public void launchGroups() {
+        UserFragment userFragment = UserFragment.newInstance(User.DB_GROUP);
+        main.getSupportFragmentManager().beginTransaction().replace(R.id.container, userFragment).addToBackStack(null).commit();
     }
 
     @Override
-    public void launchEmails() {
-
+    public void launchTeams() {
+        UserFragment userFragment = UserFragment.newInstance(User.DB_TEAM);
+        main.getSupportFragmentManager().beginTransaction().replace(R.id.container, userFragment).addToBackStack(null).commit();
     }
 
     @Override
     public void launchEmployee() {
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmployeeFragment()).addToBackStack(null).commit();
+        main.getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmployeeFragment()).addToBackStack(null).commit();
     }
 
     @Override

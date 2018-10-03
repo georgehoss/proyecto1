@@ -59,6 +59,14 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
                     itemInteraction.onItemClick(line.getId());
                 }
             });
+            holder.mTvNumber.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    if (!line.getFirst().isClosed() || !line.getSecond().isClosed() || !line.getThird().isClosed())
+                    itemInteraction.onLongClick(line.getId());
+                }
+            });
         }
     }
 
@@ -90,6 +98,7 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
 
     public interface ItemInteraction{
         void onItemClick(String lineId);
+        void onLongClick(String lineId);
     }
 
     public ArrayList<Line> getLines() {

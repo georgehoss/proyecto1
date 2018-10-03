@@ -6,12 +6,15 @@ import java.util.Comparator;
 
 public class User {
     public static final String DB_USER = "users";
+    public static final String DB_GROUP = "users_group";
+    public static final String DB_TEAM = "users_team";
     private String id;
     private String name;
     private String email;
     private String phoneNumber;
     private int type;
     private ArrayList<Line> productionLines;
+    private boolean selected;
 
     public User() {
     }
@@ -87,5 +90,13 @@ public class User {
 
     public void setProductionLines(ArrayList<Line> ProductionLines) {
         this.productionLines = ProductionLines;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

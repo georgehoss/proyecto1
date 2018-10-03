@@ -6,6 +6,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
+import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
@@ -110,7 +111,54 @@ public class AddLinePresenter implements AddLineContract.Presenter {
     }
 
     @Override
-    public void saveChanges(String name, String id, Shift first, Shift second, Shift third, ArrayList<EmployeePosition> positions, Downtime downtime, ArrayList<Reason> reasons,ArrayList<Employee> employees) {
+    public void onEmailClick(int viewVisibility, int resultVisibility) {
+        if (viewVisibility == resultVisibility) {
+            mView.hideEmails();
+            mView.showAll();
+        }
+        else {
+            mView.hideAll();
+            mView.showEmails();
+        }
+    }
+
+    @Override
+    public StringBuilder getEmailList(ArrayList<Email> emails) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("1st Shift:\n");
+        stringBuilder.append("\nAddresses:");
+        for (Email email :emails)
+            if (email.isShift1()&& !email.isCc1())
+                stringBuilder.append(" ").append(email.getEmail());
+        stringBuilder.append("\n\nCC:");
+        for (Email email : emails)
+            if (email.isShift1() && email.isCc1())
+                stringBuilder.append(" ").append(email.getEmail());
+
+        stringBuilder.append("\n\n2nd Shift:\n");
+        stringBuilder.append("\nAddresses:");
+        for (Email email : emails)
+            if (email.isShift2()&& !email.isCc2())
+                stringBuilder.append(" ").append(email.getEmail());
+        stringBuilder.append("\n\nCC:");
+        for (Email email : emails)
+            if (email.isShift2() && email.isCc2())
+                stringBuilder.append(" ").append(email.getEmail());
+
+        stringBuilder.append("\n\n3rd Shift:\n");
+        stringBuilder.append("\nAddresses:");
+        for (Email email : emails)
+            if (email.isShift3()&& !email.isCc3())
+                stringBuilder.append(" ").append(email.getEmail());
+        stringBuilder.append("\n\nCC:");
+        for (Email email : emails)
+            if (email.isShift3() && email.isCc3())
+                stringBuilder.append(" ").append(email.getEmail());
+        return stringBuilder;
+    }
+
+    @Override
+    public void saveChanges(String name, String id, Shift first, Shift second, Shift third, ArrayList<EmployeePosition> positions, Downtime downtime, ArrayList<Reason> reasons,Line mLine, ArrayList<Employee> employees, ArrayList<Email> emails) {
         Line line = new Line(name,id,first,second,third,positions);
         line.setDowntime(downtime);
         line.setScrapReasons(reasons);
@@ -147,7 +195,74 @@ public class AddLinePresenter implements AddLineContract.Presenter {
                     employee.setAvailable(shifte.isAvailable());
                 }
 
+        line.setDowntimeList(mLine.getDowntimeList());
+        line.setScrap1List(mLine.getScrap1List());
+        line.setScrap2List(mLine.getScrap2List());
+        line.setScrap3List(mLine.getScrap3List());
+        if (mLine.getParentId()!=null)
+            line.setParentId(mLine.getParentId());
 
+        if (mLine.getDate()!=null)
+            line.setDate(mLine.getDate());
+
+        if (mLine.getGroupLeaders()!=null)
+            line.setGroupLeaders(mLine.getGroupLeaders());
+
+        if (mLine.getTeamLeaders()!=null)
+            line.setTeamLeaders(mLine.getTeamLeaders());
+
+        if (mLine.getScraps()!=null)
+            line.setScraps(mLine.getScraps());
+
+
+        if (line.getDowntimeList()==null) {
+            mLine.setDowntimeList(new ArrayList<Email>());
+            for (Email email : emails)
+            {
+                Email email1 = new Email(email);
+                email1.setShift1(true);
+                email1.setShift2(true);
+                email1.setShift3(true);
+                mLine.getDowntimeList().add(new Email(email1));
+            }
+        }
+
+        if (line.getScrap1List()==null) {
+            mLine.setScrap1List(new ArrayList<Email>());
+            for (Email email : emails)
+            {
+                Email email1 = new Email(email);
+                email1.setShift1(true);
+                email1.setShift2(true);
+                email1.setShift3(true);
+                mLine.getScrap1List().add(new Email(email1));
+            }
+        }
+
+        if (line.getScrap2List()==null) {
+            mLine.setScrap2List(new ArrayList<Email>());
+            for (Email email : emails)
+            {
+                Email email1 = new Email(email);
+                email1.setShift1(true);
+                email1.setShift2(true);
+                email1.setShift3(true);
+                mLine.getScrap2List().add(new Email(email1));
+            }
+        }
+
+
+        if (line.getScrap3List()==null) {
+            mLine.setScrap3List(new ArrayList<Email>());
+            for (Email email : emails)
+            {
+                Email email1 = new Email(email);
+                email1.setShift1(true);
+                email1.setShift2(true);
+                email1.setShift3(true);
+                mLine.getScrap3List().add(new Email(email1));
+            }
+        }
 
         mView.saveLine(line);
 
@@ -215,6 +330,48 @@ public class AddLinePresenter implements AddLineContract.Presenter {
         Collections.sort(employees,Employee.EmployeeNameComparator);
 
         return employees;
+
+    }
+
+    @Override
+    public ArrayList<Email> verifyEmails(ArrayList<Email> list, ArrayList<Email> notifications) {
+        ArrayList<Email> emails = new ArrayList<>();
+        for (Email email : notifications)
+            emails.add(new Email(email));
+
+
+        if (list!=null && list.size()>0)
+        {
+            for ( Email online : emails)
+                for (Email offline : list)
+                    if (online.getId().equals(offline.getId())) {
+                        online.setShift1(offline.isShift1());
+                        online.setShift2(offline.isShift2());
+                        online.setShift3(offline.isShift3());
+                        online.setCc1(offline.isCc1());
+                        online.setCc2(offline.isCc2());
+                        online.setCc3(offline.isCc3());
+
+                    }
+
+        }
+        else
+        {
+            for (Email online : emails)
+            {
+                online.setShift1(false);
+                online.setShift2(false);
+                online.setShift3(false);
+                online.setCc1(false);
+                online.setCc2(false);
+                online.setCc3(false);
+            }
+
+        }
+
+        Collections.sort(emails,Email.EmailNameComparator);
+
+        return emails;
 
     }
 

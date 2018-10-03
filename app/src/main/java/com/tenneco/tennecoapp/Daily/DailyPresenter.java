@@ -3,6 +3,7 @@ package com.tenneco.tennecoapp.Daily;
 import android.content.Intent;
 
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
+import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.WorkHour;
@@ -361,6 +362,87 @@ public class DailyPresenter implements DailyContract.Presenter {
                 line.getSecond().getHours().get(0).getActuals()!=null &&
                 !line.getSecond().getHours().get(0).getActuals().isEmpty())
             mView.showFTQ(3);
+    }
+
+    @Override
+    public String[] getEmails(ArrayList<Email> emails, Line line) {
+        ArrayList<Email> list = new ArrayList<>();
+        if (!line.getFirst().isClosed())
+        {
+            for (Email email : emails)
+                if (email.isShift1())
+                list.add(new Email(email));
+
+        }
+        else
+        if (!line.getSecond().isClosed())
+        {
+            for (Email email : emails)
+                if (email.isShift2())
+                    list.add(new Email(email));
+        }
+        else
+        {
+            for (Email email : emails)
+                if (email.isShift3())
+                    list.add(new Email(email));
+        }
+        String [] em = new String[list.size()];
+        for (int i=0; i<list.size(); i++)
+            em[i]= list.get(i).toString();
+        return em ;
+    }
+
+    @Override
+    public String[] getCC(ArrayList<Email> emails, Line line) {
+        ArrayList<Email> list = new ArrayList<>();
+        if (!line.getFirst().isClosed())
+        {
+            for (Email email : emails)
+                if (email.isCc1())
+                    list.add(new Email(email));
+
+        }
+        else
+        if (!line.getSecond().isClosed())
+        {
+            for (Email email : emails)
+                if (email.isCc2())
+                    list.add(new Email(email));
+        }
+        else
+        {
+            for (Email email : emails)
+                if (email.isCc3())
+                    list.add(new Email(email));
+        }
+
+        String [] em = new String[list.size()];
+        for (int i=0; i<list.size(); i++)
+            em[i]= list.get(i).toString();
+        return em ;
+    }
+
+    @Override
+    public void setTeam(String teams) {
+        if (teams==null || teams.isEmpty())
+            mView.hideTeam();
+        else
+        {
+            mView.showTeam();
+            mView.setTeam(teams);
+        }
+    }
+
+    @Override
+    public void setGroup(String group) {
+        if (group==null || group.isEmpty())
+            mView.hideGroup();
+        else
+        {
+            mView.showGroup();
+            mView.setGroup(group);
+        }
     }
 
 

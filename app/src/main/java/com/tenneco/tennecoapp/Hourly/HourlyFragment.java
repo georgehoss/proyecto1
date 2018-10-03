@@ -25,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.LineAdapter;
 import com.tenneco.tennecoapp.Adapter.ProductionLineAdapter;
 import com.tenneco.tennecoapp.Daily.DailyActivity;
+import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.R;
@@ -47,6 +48,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     private HourlyContract.Presenter mPresenter;
     private String lineId;
     private Line mLine;
+    private int admin=0;
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
@@ -74,12 +76,13 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         // Required empty public constructor
     }
 
-    public static HourlyFragment newInstance(String lineId) {
+    public static HourlyFragment newInstance(String lineId,int admin) {
 
         Bundle args = new Bundle();
 
         HourlyFragment fragment = new HourlyFragment();
         args.putString("id",lineId);
+        args.putInt("admin",admin);
         fragment.setArguments(args);
         return fragment;
     }
@@ -106,9 +109,23 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     }
 
     @Override
+    public void onLongClick(String lineId) {
+        if (admin==3) {
+            Intent intent = new Intent(main, AddEditLineActivity.class);
+            intent.putExtra("cell", true);
+            intent.putExtra("id", lineId);
+            startActivity(intent);
+        }
+
+    }
+
+    @Override
     public void getLines() {
         Query postsQuery;
-        postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
+        if (admin>1)
+            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
+        else
+            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(1);
         postsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -171,9 +188,14 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     @Override
     public void onStart() {
         super.onStart();
-        if (getArguments()!=null)
+        if (getArguments()!=null) {
             lineId = getArguments().getString("id");
+            admin  =getArguments().getInt("admin");
+        }
         main = (MainActivity) getActivity();
+        if (main != null) {
+            main.hideMenu();
+        }
         getLine();
     }
 
@@ -183,6 +205,10 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         line.setId(dbPLines.push().getKey());
         line.setDate(Utils.getDateString());
         line.setParentId(lineId);
+        line.setDowntimeList(mLine.getDowntimeList());
+        line.setScrap1List(mLine.getScrap1List());
+        line.setScrap2List(mLine.getScrap2List());
+        line.setScrap3List(mLine.getScrap3List());
         dbPLines.child(line.getId()).setValue(line);
 
     }

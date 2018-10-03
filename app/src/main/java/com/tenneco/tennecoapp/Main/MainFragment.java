@@ -49,6 +49,7 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
     @BindView(R.id.tv_slogan) TextView mTvSlogan;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
+    private int admin =0;
 
 
 
@@ -149,6 +150,8 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
                 else
                 {
 
+                    admin = user.getType();
+
                     if (user.getType()==0)
                     {
                         showNoLines();
@@ -156,8 +159,11 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
                     else
                         getLines();
 
-                    if (user.getType()==3)
+                    if (user.getType()==3) {
                         main.showMenu();
+                    }
+                    else
+                        main.hideMenu();
                 }
             }
 
@@ -240,7 +246,7 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
     @Override
     public void launchHourly(String lineId) {
-        HourlyFragment hourlyFragment = HourlyFragment.newInstance(lineId);
+        HourlyFragment hourlyFragment = HourlyFragment.newInstance(lineId,admin);
         main.getSupportFragmentManager().beginTransaction().replace(R.id.container, hourlyFragment).addToBackStack(null).commit();
     }
 

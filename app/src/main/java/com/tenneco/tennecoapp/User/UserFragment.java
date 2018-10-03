@@ -18,8 +18,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,6 +36,7 @@ import com.tenneco.tennecoapp.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,9 +48,12 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
     private DatabaseReference dbUsers;
     private ArrayList<User> mUsers;
     private UserAdapter mAdapter;
+    private boolean leads = false;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
     @BindView(R.id.rv_user) RecyclerView mRvUsers;
+    @BindView(R.id.tv_title) TextView mTvTitle;
+
 
     @OnClick(R.id.fb_add) void add(){
         addEditDialog(new User(dbUsers.push().getKey(),"","",0),getActivity());
@@ -55,13 +62,35 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         // Required empty public constructor
     }
 
+    public static UserFragment newInstance(String db) {
+
+        Bundle args = new Bundle();
+        args.putString("db",db);
+        UserFragment fragment = new UserFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_user, container, false);
         ButterKnife.bind(this,view);
-        dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_USER);
+        if (getArguments()!=null &&  getArguments().getString("db")!=null) {
+            if (Objects.requireNonNull(getArguments().getString("db")).equals(User.DB_GROUP)) {
+                setTitle("Group Leads");
+                dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_GROUP);
+            }
+            else {
+                setTitle("Team Leads");
+                dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_TEAM);
+            }
+
+            showFloatingButton();
+            leads=true;
+        }
+        else
+            dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_USER);
         mUsers = new ArrayList<>();
         mRvUsers.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new UserAdapter(mUsers,this,getActivity());
@@ -131,6 +160,7 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         mEtInfo.setText(user.getEmail());
         Button mBtSave = (Button) view.findViewById(R.id.bt_save);
         Button mBtCancel = (Button) view.findViewById(R.id.bt_cancel);
+        ImageView imageView = view.findViewById(R.id.iv_icon);
         final AlertDialog dialog = alertDialogBuilder.create();
         dialog.show();
         final Spinner spinner = view.findViewById(R.id.sp_user);
@@ -139,6 +169,28 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         spinner.setAdapter(adapter);
         if (user.getType()!=0)
         spinner.setSelection(user.getType()-1);
+
+        switch (user.getType())
+        {
+            default:
+                imageView.setBackground(getResources().getDrawable(R.drawable.supervisor_icon,null));
+                break;
+            case 1:
+                imageView.setBackground(getResources().getDrawable(R.drawable.employee_icon,null));
+                break;
+            case 3:
+                imageView.setBackground(getResources().getDrawable(R.drawable.admin_icon,null));
+                break;
+
+        }
+
+        if (leads) {
+            spinner.setSelection(1);
+            TextView textView = view.findViewById(R.id.tv_type);
+            textView.setVisibility(View.GONE);
+            LinearLayout linearLayout = view.findViewById(R.id.ll_spinner);
+            linearLayout.setVisibility(View.GONE);
+        }
 
         mBtSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,6 +251,8 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
 
     @Override
     public void addEditEmployee(User user) {
+        if (user.getId()==null || user.getId().isEmpty())
+            user.setId(dbUsers.push().getKey());
         dbUsers.child(user.getId()).setValue(user);
     }
 
@@ -221,6 +275,11 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
             }
         });
         alertDialogBuilder.create().show();
+    }
+
+    @Override
+    public void setTitle(String title) {
+        mTvTitle.setText(title);
     }
 
     @Override

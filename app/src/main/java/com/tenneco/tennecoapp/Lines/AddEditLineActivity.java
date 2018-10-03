@@ -29,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.DowntimeAdapter;
+import com.tenneco.tennecoapp.Adapter.EmailSelectionAdapter;
 import com.tenneco.tennecoapp.Adapter.EmployeeAdapter;
 import com.tenneco.tennecoapp.Adapter.EmployeeSelectionAdapter;
 import com.tenneco.tennecoapp.Adapter.HourAdapter;
@@ -39,6 +40,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
+import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
@@ -58,6 +60,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private static final int EVENT = 1;
     private DatabaseReference dbLines;
     private DatabaseReference dbEmployees;
+    private DatabaseReference dbEmails;
     private AddLineContract.Presenter mPresenter;
     private Line mLine;
     private Shift shift1;
@@ -74,9 +77,12 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private ScrapAdapter mAdapterDr;
     private ArrayList<EmployeePosition> mPositions;
     private ArrayList<Employee> mEmployees;
+    private ArrayList<Email> mEmails;
     private ArrayList<Zone> mZones;
     private ArrayList<Reason> mReasons;
     private ArrayList<Reason> mDReasons;
+    private ArrayList<Email> mDwtList;
+    private ArrayList<Email> mScr1List;
     private boolean deletable = false;
     private Downtime downtime;
     private ProgressDialog progressDialog;
@@ -87,6 +93,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @BindView(R.id.ll_position) LinearLayout mLlPosition;
     @BindView(R.id.ll_downtime) LinearLayout mLlDowntime;
     @BindView(R.id.ll_scrap) LinearLayout mLlScrap;
+    @BindView(R.id.ll_email) LinearLayout mLlEmails;
     @BindView(R.id.rv_shift1) RecyclerView mRvS1;
     @BindView(R.id.rv_shift2) RecyclerView mRvS2;
     @BindView(R.id.rv_shift3) RecyclerView mRvS3;
@@ -101,6 +108,12 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @BindView(R.id.cv_sr) CardView mCvSr;
     @BindView(R.id.cv_dt) CardView mCvDt;
     @BindView(R.id.cv_ss) CardView mCvSs;
+    @BindView(R.id.cv_emails) CardView mCvEmail;
+    @BindView(R.id.tv_addresses_dwt) TextView mTvDwEmailList;
+    @BindView(R.id.tv_addresses_sc1) TextView mTvSc1EmailList;
+    @BindView(R.id.tv_addresses_sc2) TextView mTvSc2EmailList;
+    @BindView(R.id.tv_addresses_sc3) TextView mTvSc3EmailList;
+
 
 
 
@@ -130,6 +143,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mPresenter.onScrapClick(mLlScrap.getVisibility(),View.VISIBLE);
     }
 
+    @OnClick (R.id.tv_email) void email(){
+        mPresenter.onEmailClick(mLlEmails.getVisibility(),View.VISIBLE);
+    }
+
     @OnClick (R.id.bt_list_shift1) void listS1(){
         showDialogEmployee(shift1.getEmployees(),this,1).show();
     }
@@ -142,14 +159,35 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @OnClick (R.id.bt_add_scrap) void scrr () {showAddEventDialog(this,EVENT);}
 
+    @OnClick (R.id.bt_add_dw_email) void dwlist(){
+        showEmailList(this,mLine.getDowntimeList(),0);
+    }
+
+    @OnClick (R.id.bt_add_dw_sc1) void sc1list(){
+        showEmailList(this,mLine.getScrap1List(),1);
+    }
+
+    @OnClick (R.id.bt_add_dw_sc2) void sc2list(){
+        showEmailList(this,mLine.getScrap2List(),2);
+    }
+
+    @OnClick (R.id.bt_add_dw_sc3) void sc3list(){
+        showEmailList(this,mLine.getScrap3List(),3);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_line);
         ButterKnife.bind(this);
-        dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+        if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell"))
+            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE);
+        else
+            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+
         dbEmployees = FirebaseDatabase.getInstance().getReference(Employee.DB);
+        dbEmails = FirebaseDatabase.getInstance().getReference(Email.DB);
         if (mPresenter == null)
             mPresenter = new AddLinePresenter(this);
         else
@@ -157,16 +195,20 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
         initAdapters();
 
-        if (getIntent().getExtras()!=null)
+        if (getIntent().getExtras()!=null && getIntent().getExtras().getString("id")!=null)
         {
             id = getIntent().getExtras().getString("id");
             getData();
         }
-        else {
+        else
+        if (getIntent().getExtras()==null || !getIntent().getExtras().getBoolean("cell")){
             id = dbLines.push().getKey();
             mPresenter.initData(this);
             getEmployees();
+            getEmails();
         }
+        else
+            finish();
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Saving Changes");
@@ -204,7 +246,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         if (item.getItemId() == R.id.menu_save)
         {
             if (mPresenter.validName(mEtName.getText().toString().trim()))
-                mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine.getEmployees());
+                mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine,mEmployees,mEmails);
             else
                 showNameError();
         }
@@ -305,6 +347,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mCvSr.setVisibility(View.GONE);
         mCvDt.setVisibility(View.GONE);
         mCvSs.setVisibility(View.GONE);
+        mCvEmail.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -315,6 +359,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mCvSr.setVisibility(View.VISIBLE);
         mCvDt.setVisibility(View.VISIBLE);
         mCvSs.setVisibility(View.VISIBLE);
+        mCvEmail.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -337,6 +382,19 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     public void showScrap() {
         mCvSs.setVisibility(View.VISIBLE);
         mLlScrap.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideEmails() {
+        mLlEmails.setVisibility(View.GONE);
+
+    }
+
+    @Override
+    public void showEmails() {
+        mCvEmail.setVisibility(View.VISIBLE);
+        mLlEmails.setVisibility(View.VISIBLE);
+
     }
 
     @Override
@@ -390,6 +448,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                     deletable = true;
                     invalidateOptionsMenu();
                     getEmployees();
+                    getEmails();
                 }
                 else
                     finish();
@@ -441,6 +500,29 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             mReasons = new ArrayList<>();
             mReasons.addAll(line.getScrapReasons());
         }
+
+        if(mLine.getDowntimeList()!=null && mLine.getDowntimeList().size()>0)
+        {
+            mTvDwEmailList.setText(mPresenter.getEmailList(mLine.getDowntimeList()).toString());
+        }
+
+        if(line.getScrap1List()!=null && line.getScrap1List().size()>0)
+        {
+
+            mTvSc1EmailList.setText(mPresenter.getEmailList(line.getScrap1List()).toString());
+        }
+
+        if(line.getScrap2List()!=null && line.getScrap2List().size()>0)
+        {
+            mTvSc2EmailList.setText(mPresenter.getEmailList(line.getScrap2List()).toString());
+        }
+
+        if(line.getScrap3List()!=null && line.getScrap3List().size()>0)
+        {
+            mTvSc3EmailList.setText(mPresenter.getEmailList(line.getScrap3List()).toString());
+        }
+
+
 
 
         mLine.setEmployees(mPresenter.getEmployees(shift1.getEmployees(),shift2.getEmployees(),shift3.getEmployees()));
@@ -777,7 +859,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     public void showDeleteDialog(Context context) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setTitle("Delete production Line");
-        alertDialogBuilder.setMessage(getString(R.string.delete_question)+mEtName.getText().toString()+" ?");
+        alertDialogBuilder.setMessage(getString(R.string.delete_question)+ " "+mEtName.getText().toString()+" ?");
         alertDialogBuilder.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -805,7 +887,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
                 if (mPresenter.validName(mEtName.getText().toString().trim()))
-                    mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine.getEmployees());
+                    mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine,mEmployees,mEmails);
                 else
                     showNameError();
             }
@@ -892,10 +974,15 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @Override
     public void delete() {
+        progressDialog.show();
         dbLines.child(id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+
+                if (progressDialog!=null && progressDialog.isShowing())
+                    progressDialog.hide();
                 finish();
+
             }
         });
     }
@@ -923,8 +1010,11 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
                 if (mLine.getEmployees()!=null)
                     mLine.setEmployees(mPresenter.verifyEmployees(mLine.getEmployees(),mEmployees));
-                else
-                    mLine.setEmployees(mEmployees);
+                else {
+                    mLine.setEmployees(new ArrayList<Employee>());
+                    for (Employee employee : mEmployees)
+                    mLine.getEmployees().add(new Employee(employee.getFullName(),employee.getInfo(),employee.getType()));
+                }
 
                 mAdapterEmployee.setEmployees(mLine.getEmployees());
                 mAdapterEmployee.notifyDataSetChanged();
@@ -1089,24 +1179,115 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     }
 
-
     @Override
-    public void bindPresenter(AddLineContract.Presenter presenter) {
-        this.mPresenter = presenter;
+    public void getEmails() {
+        dbEmails.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ArrayList<Email> emails = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    Email email = itemSnapshot.getValue(Email.class);
+                    if (email!=null)
+                        emails.add(email);
+                }
+
+                setEmails(emails);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+
+    void setEmails(ArrayList<Email> emails)
+    {
+
+        mEmails = new ArrayList<>(emails);
+
+        if (mLine.getDowntimeList()==null) {
+            mLine.setDowntimeList(new ArrayList<Email>());
+           for (Email email: emails)
+               mLine.getDowntimeList().add(new Email(email));
+        }
+        else
+            mLine.setDowntimeList(mPresenter.verifyEmails(mLine.getDowntimeList(),emails));
+
+        if (mLine.getScrap1List()==null) {
+            mLine.setScrap1List(new ArrayList<Email>());
+            for (Email email: emails) {
+                mLine.getScrap1List().add(new Email(email));
+
+            }
+        }
+        else
+            mLine.setScrap1List(mPresenter.verifyEmails(mLine.getScrap1List(),emails));
+
+        if (mLine.getScrap2List()==null){
+            mLine.setScrap2List(new ArrayList<Email>());
+            for (Email email: emails)
+                mLine.getScrap2List().add(new Email(email));
+        }
+        else
+            mLine.setScrap2List(mPresenter.verifyEmails(mLine.getScrap2List(),emails));
+
+        if (mLine.getScrap3List()==null)
+        {
+            mLine.setScrap3List(new ArrayList<Email>());
+            for (Email email: emails)
+                mLine.getScrap3List().add(new Email(email));
+        }
+        else
+            mLine.setScrap3List(mPresenter.verifyEmails(mLine.getScrap3List(),emails));
+
+        setData(mLine);
     }
 
     @Override
-    public void onTargetClick(int position) {
-        if (position==1)
-        showShiftDialog(shift1,position,this);
-        else
-        if (position==2)
-            showShiftDialog(shift2,position,this);
-        else
-        if (position==3)
-            showShiftDialog(shift3,position,this);
-
+    public void showEmailList(Context context, ArrayList<Email> list, final int position) {
+        if (list!=null && list.size()>0) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            final EmailSelectionAdapter adapter = new EmailSelectionAdapter(list);
+            RecyclerView recyclerView = new RecyclerView(context);
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            alertDialogBuilder.setView(recyclerView);
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    switch (position) {
+                        case 1:
+                            mLine.setScrap1List(adapter.getEmails());
+                            break;
+                        case 2:
+                            mLine.setScrap2List(adapter.getEmails());
+                            break;
+                        case 3:
+                            mLine.setScrap3List(adapter.getEmails());
+                            break;
+                        default:
+                            mLine.setDowntimeList(adapter.getEmails());
+                            break;
+                    }
+                    setData(mLine);
+                    dialogInterface.dismiss();
+                }
+            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
+        }
     }
+
 
     @Override
     public void PositionClick(EmployeePosition employeePosition) {
@@ -1131,7 +1312,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @Override
     public void onEmployeeChange() {
 
-        mLine.setEmployees(mLine.getEmployees());
+        mLine.setEmployees(mAdapterEmployee.getEmployees());
         shift1.setEmployees(new ArrayList<Employee>());
         shift2.setEmployees(new ArrayList<Employee>());
         shift3.setEmployees(new ArrayList<Employee>());
@@ -1157,6 +1338,25 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mLine.getFirst().setEmployees(shift1.getEmployees());
         mLine.getSecond().setEmployees(shift2.getEmployees());
         mLine.getThird().setEmployees(shift3.getEmployees());
+
+
+    }
+
+    @Override
+    public void bindPresenter(AddLineContract.Presenter presenter) {
+        this.mPresenter = presenter;
+    }
+
+    @Override
+    public void onTargetClick(int position) {
+        if (position==1)
+            showShiftDialog(shift1,position,this);
+        else
+        if (position==2)
+            showShiftDialog(shift2,position,this);
+        else
+        if (position==3)
+            showShiftDialog(shift3,position,this);
 
     }
 }

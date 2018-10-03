@@ -7,7 +7,9 @@ import com.tenneco.tennecoapp.BasePresenter;
 import com.tenneco.tennecoapp.BaseView;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
+import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
 
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ public interface DailyContract {
     interface View extends BaseView<Presenter>{
         void getLine();
         void setLine();
+        void getGroup();
+        void getTeam();
         void showActualsDialog(WorkHour workHour, Line line,int position, Context context);
         void showEndShiftDialog(Line line,int shift,Context context,boolean close);
         void updateLine(Line line);
@@ -31,6 +35,13 @@ public interface DailyContract {
         void showScrap();
         void hideScrap();
         void initAdapter();
+        void showUserDialog(ArrayList<User> users,Context context,String title,int position);
+        void showTeam();
+        void hideTeam();
+        void setTeam(String title);
+        void showGroup();
+        void hideGroup();
+        void setGroup(String title);
 
     }
     interface Presenter extends BasePresenter<View>{
@@ -45,5 +56,9 @@ public interface DailyContract {
         String convertHour(String hour, int shift);
         String downtime (String zone, String location , String reason);
         void verifyLeaks(Line line);
+        String[] getEmails (ArrayList<Email> emails, Line line);
+        String[] getCC (ArrayList<Email> emails, Line line);
+        void setTeam(String teams);
+        void setGroup(String group);
     }
 }

@@ -28,6 +28,12 @@ public class Line {
     private String timeStart;
     private String timeEnd;
     private ArrayList<Scrap> scraps;
+    private ArrayList<Email> downtimeList;
+    private ArrayList<Email> scrap1List;
+    private ArrayList<Email> scrap2List;
+    private ArrayList<Email> scrap3List;
+    private String groupLeaders;
+    private String teamLeaders;
 
     public Line() {
     }
@@ -188,5 +194,53 @@ public class Line {
 
     public void setScraps(ArrayList<Scrap> scraps) {
         this.scraps = scraps;
+    }
+
+    public ArrayList<Email> getDowntimeList() {
+        return downtimeList;
+    }
+
+    public void setDowntimeList(ArrayList<Email> downtimeList) {
+        this.downtimeList = downtimeList;
+    }
+
+    public ArrayList<Email> getScrap1List() {
+        return scrap1List;
+    }
+
+    public void setScrap1List(ArrayList<Email> scrap1List) {
+        this.scrap1List = scrap1List;
+    }
+
+    public ArrayList<Email> getScrap2List() {
+        return scrap2List;
+    }
+
+    public void setScrap2List(ArrayList<Email> scrap2List) {
+        this.scrap2List = scrap2List;
+    }
+
+    public ArrayList<Email> getScrap3List() {
+        return scrap3List;
+    }
+
+    public void setScrap3List(ArrayList<Email> scrap3List) {
+        this.scrap3List = scrap3List;
+    }
+
+    public String getGroupLeaders() {
+        return groupLeaders;
+    }
+
+    public void setGroupLeaders(String groupLeaders) {
+        this.groupLeaders = groupLeaders;
+    }
+
+    public String getTeamLeaders() {
+        return teamLeaders;
+    }
+
+    public void setTeamLeaders(String teamLeaders) {
+        this.teamLeaders = teamLeaders;
     }
 }

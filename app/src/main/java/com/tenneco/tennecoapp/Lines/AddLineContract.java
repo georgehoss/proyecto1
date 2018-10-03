@@ -8,6 +8,7 @@ import com.tenneco.tennecoapp.BaseView;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
+import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
@@ -35,6 +36,8 @@ public interface AddLineContract {
         void showDowntime();
         void hideScrap();
         void showScrap();
+        void hideEmails();
+        void showEmails();
         void addPosition (EmployeePosition position);
         void deletePosition (EmployeePosition position);
         void saveLine(Line line);
@@ -51,6 +54,8 @@ public interface AddLineContract {
         AlertDialog showDialogEmployee(ArrayList<Employee> employees, Context context,int shift);
         void showAddDowntimeDialog(Context context, Zone zone);
         void showAddEventDialog(Context context,int reason);
+        void getEmails();
+        void showEmailList(Context context, ArrayList<Email> list,int position);
 
 
     }
@@ -63,7 +68,9 @@ public interface AddLineContract {
         void onPositionClick(int viewVisibility, int resultVisibility);
         void onDowntimeClick(int viewVisibility, int resultVisibility);
         void onScrapClick(int viewVisibility, int resultVisibility);
-        void saveChanges(String name,String id, Shift first,Shift second,Shift third,ArrayList<EmployeePosition> positions,Downtime downtime, ArrayList<Reason> reasons,ArrayList<Employee> employees);
+        void onEmailClick(int viewVisibility, int resultVisibility);
+        StringBuilder getEmailList(ArrayList<Email> emails);
+        void saveChanges(String name,String id, Shift first,Shift second,Shift third,ArrayList<EmployeePosition> positions,Downtime downtime, ArrayList<Reason> reasons, Line line, ArrayList<Employee> employees,ArrayList<Email>emails);
         Shift getshift(String sh1,String eh1,String t1,
                        String sh2,String eh2,String t2,
                        String sh3,String eh3,String t3,
@@ -75,6 +82,7 @@ public interface AddLineContract {
         void addPosition(String position);
         boolean validPosition(String position);
         ArrayList<Employee> verifyEmployees(ArrayList<Employee> shift, ArrayList<Employee> employees);
+        ArrayList<Email> verifyEmails(ArrayList<Email> list, ArrayList<Email> notifications);
         ArrayList<Employee> getEmployees(ArrayList<Employee> shift1,ArrayList<Employee> shift2,ArrayList<Employee> shift3);
     }
 

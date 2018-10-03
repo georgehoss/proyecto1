@@ -25,8 +25,9 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/email_icon"
+                    android:background="@drawable/employee_icon"
                     android:layout_gravity="center"
+                    android:id="@+id/iv_icon"
                     />
 
                 <TextView
@@ -74,6 +75,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/type_of_user"
                     android:layout_marginTop="5dp"
+                    android:id="@+id/tv_type"
                     />
 
                 <LinearLayout
@@ -81,6 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/background_rectangle"
+                    android:id="@+id/ll_spinner"
                     >
 
                     <Spinner

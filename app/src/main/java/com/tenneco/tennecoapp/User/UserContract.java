@@ -17,4 +17,5 @@ public interface UserContract {
     void delete(String id);
     void addEditEmployee(User user);
     void deleteDialog(User user);
+    void setTitle(String title);
 }

@@ -74,9 +74,6 @@
     <string name="main_hourly_production">Hourly Production</string>
     <string name="main_select_one_production_line">Select one production line:</string>
     <string name="main_come_back_later">There are no Production Lines scheduled for today, please come back later.</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="line_shift">Shift</string>
     <string name="line_actual">Actual</string>
     <string name="line_1st">1st</string>
@@ -135,7 +132,7 @@
     <string name="end_downtime">End Downtime</string>
     <string name="downtime_end_time">End Time:</string>
     <string name="emails_list_of_emails_to_notify">List of Emails to notify</string>
-    <string name="email_introduce_contact_full_name">Introduce contact name</string>
+    <string name="email_introduce_contact_full_name">Introduce full name</string>
     <string name="type_of_user">Type of user:</string>
     <string name="available">Available</string>
     <string name="preview_lists">Preview Lists</string>
@@ -149,6 +146,9 @@
     <string name="send_email">Send Email</string>
     <string name="ftq_over_10_escalation_and_actions">FTQ over 10% Escalation and Actions</string>
     <string name="please_write_here_the_actions_taken_to_solve_ftq_leak_issues_faced_on_current_shift">Please write here the actions taken to solve FTQ Leak issues faced on current shift.</string>
+    <string name="select">Select</string>
+    <string name="group_leads">Group Leaders</string>
+    <string name="team_leaders">Team Leaders</string>
 
 
 </resources>

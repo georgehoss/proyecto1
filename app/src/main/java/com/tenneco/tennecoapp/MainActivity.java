@@ -235,11 +235,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
 
 /*
-Lista de Operadores
-Operador | Turno 1  Turno 2 Turno 3 |
 
-**** Nuevas  *****
-
-Moodificar target. con contraseña.
+TODO: Moodificar target. con contraseña.
 
 */

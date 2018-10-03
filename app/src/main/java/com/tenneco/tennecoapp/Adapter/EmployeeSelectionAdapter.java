@@ -63,10 +63,10 @@ public class EmployeeSelectionAdapter extends RecyclerView.Adapter<EmployeeSelec
                     holder.mRbs1.setChecked(true);
                     break;
                 case 2:
-                    holder.mRbs3.setChecked(true);
+                    holder.mRbs2.setChecked(true);
                     break;
                 case 3:
-                    holder.mRbs2.setChecked(true);
+                    holder.mRbs3.setChecked(true);
                     break;
                 default:
                     holder.mRbs1.setChecked(false);
@@ -81,9 +81,9 @@ public class EmployeeSelectionAdapter extends RecyclerView.Adapter<EmployeeSelec
 
 
 
-            holder.mRbGs.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            holder.mRbs1.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(RadioGroup radioGroup, int position) {
+                public void onClick(View view) {
                     if (holder.mRbs1.isChecked())
                         employee.setShift(1);
 
@@ -93,18 +93,69 @@ public class EmployeeSelectionAdapter extends RecyclerView.Adapter<EmployeeSelec
                     if (holder.mRbs3.isChecked())
                         employee.setShift(3);
 
-                    if (employee.isAvailable())
-                        onEmployee.onEmployeeChange();
+                    employee.setAvailable(holder.mCheckBox.isChecked());
+
+                    onEmployee.onEmployeeChange();
+
+                }
+            });
+
+            holder.mRbs2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (holder.mRbs1.isChecked())
+                        employee.setShift(1);
+
+                    if (holder.mRbs2.isChecked())
+                        employee.setShift(2);
+
+                    if (holder.mRbs3.isChecked())
+                        employee.setShift(3);
+
+                    employee.setAvailable(holder.mCheckBox.isChecked());
+
+                    onEmployee.onEmployeeChange();
+
+                }
+            });
+
+            holder.mRbs3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    employee.setAvailable(holder.mCheckBox.isChecked());
+
+                    if (employee.isAvailable()){
+                    if (holder.mRbs1.isChecked())
+                        employee.setShift(1);
+
+                    if (holder.mRbs2.isChecked())
+                        employee.setShift(2);
+
+                    if (holder.mRbs3.isChecked())
+                        employee.setShift(3);
+                    }
+                    else {
+                        employee.setShift(0);
+                        holder.mRbs1.setChecked(false);
+                        holder.mRbs3.setChecked(false);
+                        holder.mRbs2.setChecked(false);
+                    }
+
+
+                    onEmployee.onEmployeeChange();
 
                 }
             });
 
             holder.mCheckBox.setVisibility(View.VISIBLE);
             holder.mCheckBox.setChecked(employee.isAvailable());
-            holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    employee.setAvailable(b);
+                public void onClick(View view) {
+
+                    employee.setAvailable(holder.mCheckBox.isChecked());
+
                     if (holder.mRbs1.isChecked())
                         employee.setShift(1);
 

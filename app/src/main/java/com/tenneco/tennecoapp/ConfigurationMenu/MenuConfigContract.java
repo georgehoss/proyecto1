@@ -9,8 +9,8 @@ import com.tenneco.tennecoapp.BaseView;
 public interface MenuConfigContract {
     interface View extends BaseView<Presenter> {
         void launchUsers();
-        void launchLines();
-        void launchEmails();
+        void launchGroups();
+        void launchTeams();
         void launchEmployee();
     }
     interface Presenter extends BasePresenter<View> {}
