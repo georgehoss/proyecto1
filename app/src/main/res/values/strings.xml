@@ -149,6 +149,7 @@
     <string name="select">Select</string>
     <string name="group_leads">Group Leaders</string>
     <string name="team_leaders">Team Leaders</string>
+    <string name="add_introduce_cell_password">Introduce cell password</string>
 
 
 </resources>

@@ -24,6 +24,7 @@ public interface DailyContract {
         void getGroup();
         void getTeam();
         void showActualsDialog(WorkHour workHour, Line line,int position, Context context);
+        void showTargetDialog(WorkHour workHour,Line line, int position,Context context);
         void showEndShiftDialog(Line line,int shift,Context context,boolean close);
         void updateLine(Line line);
         void hideLeakCounter();
@@ -46,6 +47,7 @@ public interface DailyContract {
     }
     interface Presenter extends BasePresenter<View>{
         void saveLine(Line line,ArrayList<WorkHour> hours, int position, String actual, String comment);
+        void saveLine(Line line,ArrayList<WorkHour> hours, int position, String target);
         boolean validateActual(String actual);
         boolean validateComment(String comment, String actual, String target);
         int reportHour(ArrayList<WorkHour>workHours);

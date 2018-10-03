@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Hourly;
 
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -209,6 +210,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         line.setScrap1List(mLine.getScrap1List());
         line.setScrap2List(mLine.getScrap2List());
         line.setScrap3List(mLine.getScrap3List());
+        line.setPassword(mLine.getPassword());
         dbPLines.child(line.getId()).setValue(line);
 
     }
@@ -220,12 +222,14 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void showFb() {
         if (getContext()!=null)
         mFbAdd.setVisibility(View.VISIBLE);
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void hideFb() {
         if (getContext()!=null)

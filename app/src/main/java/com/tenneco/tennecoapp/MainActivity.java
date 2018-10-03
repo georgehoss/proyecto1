@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tenneco.tennecoapp.Configuration.ConfigurationFragment;
@@ -28,6 +29,7 @@ import com.tenneco.tennecoapp.User.UserFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity implements MainActivityContract.View {
     private FirebaseAuth mAuth;
@@ -57,11 +59,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode("en");
         mAuth.useAppLanguage();
+
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -80,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
                 invalidateOptionsMenu();
             }
         };
+
 
     }
 
@@ -116,11 +122,23 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
             launchSplash();
         else {
             launchMain();
+            logUser();
         }
 
         mAuth.addAuthStateListener(mAuthListener);
 
     }
+
+    private void logUser() {
+        // TODO: Use the current user's information
+        // You can call any combination of these three methods
+        Crashlytics.setUserIdentifier(mUser.getUid());
+        if (mUser.getEmail()!=null)
+            Crashlytics.setUserEmail(mUser.getEmail());
+        if (mUser.getDisplayName()!=null)
+            Crashlytics.setUserName(mUser.getDisplayName());
+    }
+
 
 
 

@@ -34,6 +34,7 @@ public class Line {
     private ArrayList<Email> scrap3List;
     private String groupLeaders;
     private String teamLeaders;
+    private String password;
 
     public Line() {
     }
@@ -242,5 +243,13 @@ public class Line {
 
     public void setTeamLeaders(String teamLeaders) {
         this.teamLeaders = teamLeaders;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

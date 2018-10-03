@@ -158,7 +158,9 @@ public class AddLinePresenter implements AddLineContract.Presenter {
     }
 
     @Override
-    public void saveChanges(String name, String id, Shift first, Shift second, Shift third, ArrayList<EmployeePosition> positions, Downtime downtime, ArrayList<Reason> reasons,Line mLine, ArrayList<Employee> employees, ArrayList<Email> emails) {
+    public void saveChanges(String name, String id, Shift first, Shift second, Shift third, ArrayList<EmployeePosition> positions,
+                            Downtime downtime, ArrayList<Reason> reasons,Line mLine, ArrayList<Employee> employees,
+                            ArrayList<Email> emails, String psw) {
         Line line = new Line(name,id,first,second,third,positions);
         line.setDowntime(downtime);
         line.setScrapReasons(reasons);
@@ -263,6 +265,8 @@ public class AddLinePresenter implements AddLineContract.Presenter {
                 mLine.getScrap3List().add(new Email(email1));
             }
         }
+
+        line.setPassword(psw);
 
         mView.saveLine(line);
 

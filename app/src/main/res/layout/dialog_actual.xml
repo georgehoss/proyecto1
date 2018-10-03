@@ -131,6 +131,7 @@
                     android:textColor="@color/colorBlack"
                     android:gravity="center"
                     android:textSize="18sp"
+                    android:id="@+id/tv_target_label"
                     />
                 <EditText
                     android:layout_width="0dp"

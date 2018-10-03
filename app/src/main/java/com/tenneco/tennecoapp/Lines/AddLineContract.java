@@ -56,7 +56,8 @@ public interface AddLineContract {
         void showAddEventDialog(Context context,int reason);
         void getEmails();
         void showEmailList(Context context, ArrayList<Email> list,int position);
-
+        void showPsw();
+        void hidePsw();
 
     }
     interface Presenter extends BasePresenter<View> {
@@ -70,7 +71,8 @@ public interface AddLineContract {
         void onScrapClick(int viewVisibility, int resultVisibility);
         void onEmailClick(int viewVisibility, int resultVisibility);
         StringBuilder getEmailList(ArrayList<Email> emails);
-        void saveChanges(String name,String id, Shift first,Shift second,Shift third,ArrayList<EmployeePosition> positions,Downtime downtime, ArrayList<Reason> reasons, Line line, ArrayList<Employee> employees,ArrayList<Email>emails);
+        void saveChanges(String name,String id, Shift first,Shift second,Shift third,ArrayList<EmployeePosition> positions,Downtime downtime,
+                         ArrayList<Reason> reasons, Line line, ArrayList<Employee> employees,ArrayList<Email>emails, String psw);
         Shift getshift(String sh1,String eh1,String t1,
                        String sh2,String eh2,String t2,
                        String sh3,String eh3,String t3,

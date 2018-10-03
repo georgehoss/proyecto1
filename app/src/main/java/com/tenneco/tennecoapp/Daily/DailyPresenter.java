@@ -127,6 +127,93 @@ public class DailyPresenter implements DailyContract.Presenter {
     }
 
     @Override
+    public void saveLine(Line line, ArrayList<WorkHour> hours, int position, String target) {
+        hours.get(position).setTarget(target);
+
+        line.getFirst().getHours().clear();
+        line.getSecond().getHours().clear();
+        line.getThird().getHours().clear();
+        int cA1=0;
+        int cA2=0;
+        int cA3=0;
+        for (int j=0;j<=23;j++)
+        {
+            int cA=0;
+            if (hours.get(j).getTarget()!=null
+                    && !hours.get(j).getTarget().isEmpty()){
+                if (j!=0 && j!=8 && j!=16 &&
+                        hours.get(j-1).getCumulativePlanned()!=null &&
+                        !hours.get(j-1).getCumulativePlanned().isEmpty())
+                {
+                    cA = Integer.valueOf(hours.get(j).getTarget()) + Integer.valueOf(hours.get(j - 1).getCumulativePlanned());
+                    hours.get(j).setCumulativePlanned(String.valueOf(cA));
+                }
+                else
+                if ( j==0 || j==8 ||j==16)
+                {
+                    hours.get(j).setCumulativePlanned(hours.get(j).getTarget());
+                }
+
+                if (j<=7)
+                {
+                    cA1 = cA1 + Integer.valueOf(hours.get(j).getTarget());
+                }
+                else
+                if (j<=15)
+                {
+                    cA2 = cA2 + Integer.valueOf(hours.get(j).getTarget());
+                }
+                else
+                {
+                    cA3 = cA3 + Integer.valueOf(hours.get(j).getTarget());
+                }
+
+            }
+        }
+
+
+
+        for (int i=0; i<=23; i++)
+        {
+            if (i<=7) {
+                line.getFirst().getHours().add(hours.get(i));
+
+            }
+            else
+            if (i<16)
+                line.getSecond().getHours().add(hours.get(i));
+            else
+            {
+                line.getThird().getHours().add(hours.get(i));
+            }
+
+        }
+
+        if (cA1!=0) {
+            line.getFirst().setCumulativePlanned(String.valueOf(cA1));
+        }
+        else {
+            line.getFirst().setCumulativePlanned("");
+        }
+
+        if (cA2!=0) {
+            line.getSecond().setCumulativePlanned(String.valueOf(cA2));
+        }
+        else
+            line.getSecond().setCumulativePlanned("");
+
+        if (cA3!=0) {
+            line.getThird().setCumulativePlanned(String.valueOf(cA3));
+        }
+        else
+            line.getThird().setCumulativePlanned("");
+
+
+        mView.updateLine(line);
+
+    }
+
+    @Override
     public boolean validateActual(String actual) {
         return actual.isEmpty();
     }

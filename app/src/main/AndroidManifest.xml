@@ -20,6 +20,10 @@
         <activity android:name=".Daily.DailyActivity"
             android:theme="@style/AppTheme.NoActionBar"
             />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="0c552c8fef2e3cf000ee66cd92be99d2d402ac39" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

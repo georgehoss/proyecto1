@@ -174,6 +174,13 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
                         itemInteraction.onOwnerClick(position);
                     }
                 });
+
+                holder.mTvTarget.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        itemInteraction.onTargetEditClick(position);
+                    }
+                });
             }
         }
     }
@@ -211,6 +218,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
 
     public interface ItemInteraction{
         void onTargetClick(int position);
+        void onTargetEditClick(int position);
         void onOwnerClick (int position);
         void showFinishFirst();
         void showFinishSecond();

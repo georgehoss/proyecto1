@@ -87,6 +87,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private Downtime downtime;
     private ProgressDialog progressDialog;
     @BindView(R.id.et_name) EditText mEtName;
+    @BindView(R.id.et_psw) EditText mEtPsw;
     @BindView(R.id.ll_shift1) LinearLayout mLlS1;
     @BindView(R.id.ll_shift2) LinearLayout mLlS2;
     @BindView(R.id.ll_shift3) LinearLayout mLlS3;
@@ -108,6 +109,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @BindView(R.id.cv_sr) CardView mCvSr;
     @BindView(R.id.cv_dt) CardView mCvDt;
     @BindView(R.id.cv_ss) CardView mCvSs;
+    @BindView(R.id.cv_psw) CardView mCvPsw;
     @BindView(R.id.cv_emails) CardView mCvEmail;
     @BindView(R.id.tv_addresses_dwt) TextView mTvDwEmailList;
     @BindView(R.id.tv_addresses_sc1) TextView mTvSc1EmailList;
@@ -246,7 +248,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         if (item.getItemId() == R.id.menu_save)
         {
             if (mPresenter.validName(mEtName.getText().toString().trim()))
-                mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine,mEmployees,mEmails);
+                mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3,
+                        mPositions,downtime,mReasons,mLine,mEmployees,mEmails, mEtPsw.getText().toString().trim());
             else
                 showNameError();
         }
@@ -348,6 +351,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mCvDt.setVisibility(View.GONE);
         mCvSs.setVisibility(View.GONE);
         mCvEmail.setVisibility(View.GONE);
+        hidePsw();
 
     }
 
@@ -360,6 +364,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         mCvDt.setVisibility(View.VISIBLE);
         mCvSs.setVisibility(View.VISIBLE);
         mCvEmail.setVisibility(View.VISIBLE);
+        showPsw();
     }
 
     @Override
@@ -444,6 +449,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                Line line = dataSnapshot.getValue(Line.class);
                 if (line!=null) {
                     mEtName.setText(line.getName());
+                    if (line.getPassword()!=null)
+                    mEtPsw.setText(line.getPassword());
                     setData(line);
                     deletable = true;
                     invalidateOptionsMenu();
@@ -887,7 +894,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
                 if (mPresenter.validName(mEtName.getText().toString().trim()))
-                    mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine,mEmployees,mEmails);
+                    mPresenter.saveChanges(mEtName.getText().toString().trim(),id,shift1,shift2,shift3, mPositions,downtime,mReasons,mLine,mEmployees,mEmails
+                            , mEtPsw.getText().toString().trim());
                 else
                     showNameError();
             }
@@ -1286,6 +1294,16 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             final AlertDialog dialog = alertDialogBuilder.create();
             dialog.show();
         }
+    }
+
+    @Override
+    public void showPsw() {
+        mCvPsw.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hidePsw() {
+        mCvPsw.setVisibility(View.GONE);
     }
 
 

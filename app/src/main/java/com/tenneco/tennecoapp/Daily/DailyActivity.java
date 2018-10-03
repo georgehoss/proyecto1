@@ -437,6 +437,84 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
+    public void showTargetDialog(final WorkHour workHour, Line line, final int position, Context context) {
+        if (!mLine.getDowntime().isSet())
+        {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                    context);
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.dialog_actual, null);
+            alertDialogBuilder.setView(view);
+            alertDialogBuilder.setCancelable(false);
+            //alertDialogBuilder.setTitle(Window.FEATURE_NO_TITLE);
+            TextView mTvName = view.findViewById(R.id.tv_name);
+            mTvName.setText(line.getName());
+            TextView mTvDate = view.findViewById(R.id.tv_date);
+            mTvDate.setText(line.getDate());
+            TextView mTvShift = view.findViewById(R.id.tv_shift);
+            if (position<=7)
+                mTvShift.setText(getString(R.string.add_1st_shift));
+            if (position>=8 && position<=15)
+                mTvShift.setText(getString(R.string.add_2nd_shift));
+            if (position>15)
+                mTvShift.setText(getString(R.string.add_3rd_shift));
+
+            TextView mTvTime = view.findViewById(R.id.tv_time);
+            String time = workHour.getStartHour() + " - " + workHour.getEndHour();
+            mTvTime.setText(time);
+            TextView mTvTarget = view.findViewById(R.id.tv_target);
+            TextView mTvTargetLabel = view.findViewById(R.id.tv_target_label);
+            mTvTargetLabel.setText(R.string.target);
+            mTvTarget.setText(workHour.getTarget());
+            final EditText mEtActual = view.findViewById(R.id.et_actual);
+            mEtActual.setHint("Introduce new Target Value");
+            if (workHour.getTarget()!=null)
+                mEtActual.setText(workHour.getTarget());
+
+            final EditText mEtComments = view.findViewById(R.id.et_comments);
+            mEtComments.setHint("Introduce cell password");
+            Button mBtSave = view.findViewById(R.id.bt_save);
+            Button mBtCancel = view.findViewById(R.id.bt_cancel);
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
+
+            mBtCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                }
+            });
+
+            mBtSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String target = mEtActual.getText().toString().trim();
+                    String psw = mEtComments.getText().toString().trim();
+
+                    if (mPresenter.validateActual(target))
+                    {
+                        mEtActual.setError("Please, introduce the target value!");
+                        mEtActual.requestFocus();
+                    }
+                    else
+                        if (psw.equals(mLine.getPassword())){
+                        mPresenter.saveLine(mLine, mHours, position, target);
+                        dialog.dismiss();
+                        }
+                    else
+                        {
+                            mEtComments.setError("The Password is incorrect!");
+                            mEtComments.requestFocus();
+                        }
+                }
+            });
+        }
+        else
+            showDowntimeDialog(mLine.getDowntime(),this);
+    }
+
+    @Override
     public void showEndShiftDialog(final Line line, final int shift, final Context context, final boolean close) {
         if (!mLine.getDowntime().isSet())
         {
@@ -1156,6 +1234,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @Override
     public void onTargetClick(int position) {
         showActualsDialog(mHours.get(position),mLine,position,this);
+    }
+
+    @Override
+    public void onTargetEditClick(int position) {
+        showTargetDialog(mHours.get(position),mLine,position,this);
     }
 
     @Override
