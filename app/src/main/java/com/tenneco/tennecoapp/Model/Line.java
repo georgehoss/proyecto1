@@ -29,6 +29,7 @@ public class Line {
     private String timeEnd;
     private ArrayList<Scrap> scraps;
     private ArrayList<Email> downtimeList;
+    private ArrayList<Email> leakList;
     private ArrayList<Email> scrap1List;
     private ArrayList<Email> scrap2List;
     private ArrayList<Email> scrap3List;
@@ -251,5 +252,13 @@ public class Line {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public ArrayList<Email> getLeakList() {
+        return leakList;
+    }
+
+    public void setLeakList(ArrayList<Email> leakList) {
+        this.leakList = leakList;
     }
 }

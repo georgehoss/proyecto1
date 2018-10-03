@@ -115,6 +115,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @BindView(R.id.tv_addresses_sc1) TextView mTvSc1EmailList;
     @BindView(R.id.tv_addresses_sc2) TextView mTvSc2EmailList;
     @BindView(R.id.tv_addresses_sc3) TextView mTvSc3EmailList;
+    @BindView(R.id.tv_addresses_leak) TextView mTvLeakEmailList;
 
 
 
@@ -175,6 +176,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @OnClick (R.id.bt_add_dw_sc3) void sc3list(){
         showEmailList(this,mLine.getScrap3List(),3);
+    }
+
+    @OnClick (R.id.bt_add_leak) void leaklist(){
+        showEmailList(this,mLine.getScrap3List(),4);
     }
 
 
@@ -529,7 +534,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             mTvSc3EmailList.setText(mPresenter.getEmailList(line.getScrap3List()).toString());
         }
 
-
+        if (line.getLeakList()!=null && line.getLeakList().size()>0)
+        {
+            mTvLeakEmailList.setText(mPresenter.getEmailList(line.getLeakList()).toString());
+        }
 
 
         mLine.setEmployees(mPresenter.getEmployees(shift1.getEmployees(),shift2.getEmployees(),shift3.getEmployees()));
@@ -1252,6 +1260,16 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         else
             mLine.setScrap3List(mPresenter.verifyEmails(mLine.getScrap3List(),emails));
 
+        if (mLine.getLeakList()==null)
+        {
+            mLine.setLeakList(new ArrayList<Email>());
+            for (Email email: emails)
+                mLine.getLeakList().add(new Email(email));
+        }
+        else
+            mLine.setLeakList(mPresenter.verifyEmails(mLine.getLeakList(),emails));
+
+
         setData(mLine);
     }
 
@@ -1277,6 +1295,9 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                             break;
                         case 3:
                             mLine.setScrap3List(adapter.getEmails());
+                            break;
+                        case 4:
+                            mLine.setLeakList(adapter.getEmails());
                             break;
                         default:
                             mLine.setDowntimeList(adapter.getEmails());

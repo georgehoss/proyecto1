@@ -250,10 +250,3 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         mTvEmail.setEnabled(false);
     }
 }
-
-
-/*
-
-TODO: Moodificar target. con contraseña.
-
-*/

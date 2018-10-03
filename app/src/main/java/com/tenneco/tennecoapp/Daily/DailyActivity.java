@@ -1023,6 +1023,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @Override
     public void showFTQ(final int shift) {
         if (!isShowingLeak) {
+            isShowingLeak = true;
             Context context = DailyActivity.this;
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1060,8 +1061,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             final AlertDialog dialog = alertDialogBuilder.create();
             dialog.show();
 
-            if (!tshift.isLeakReached())
+            if (!tshift.isLeakReached()) {
                 dialog.dismiss();
+                isShowingLeak = false;
+            }
 
             btSave.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1091,7 +1094,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 " \n" +
                                 eTActions.getText().toString();
 
-                        sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine), mPresenter.getEmails(mLine.getDowntimeList(),mLine), subject, body);
+                        sendEmail(mPresenter.getEmails(mLine.getLeakList(),mLine), mPresenter.getCC(mLine.getLeakList(),mLine), subject, body);
                     } else {
                         eTActions.setError("You must introduce the actions taken!");
                         eTActions.requestFocus();

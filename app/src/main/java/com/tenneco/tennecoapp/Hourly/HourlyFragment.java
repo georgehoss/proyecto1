@@ -211,6 +211,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         line.setScrap2List(mLine.getScrap2List());
         line.setScrap3List(mLine.getScrap3List());
         line.setPassword(mLine.getPassword());
+        line.setLeakList(mLine.getLeakList());
         dbPLines.child(line.getId()).setValue(line);
 
     }

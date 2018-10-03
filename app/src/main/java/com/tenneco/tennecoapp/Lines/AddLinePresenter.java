@@ -201,6 +201,8 @@ public class AddLinePresenter implements AddLineContract.Presenter {
         line.setScrap1List(mLine.getScrap1List());
         line.setScrap2List(mLine.getScrap2List());
         line.setScrap3List(mLine.getScrap3List());
+        line.setLeakList(mLine.getLeakList());
+
         if (mLine.getParentId()!=null)
             line.setParentId(mLine.getParentId());
 
@@ -215,6 +217,8 @@ public class AddLinePresenter implements AddLineContract.Presenter {
 
         if (mLine.getScraps()!=null)
             line.setScraps(mLine.getScraps());
+
+
 
 
         if (line.getDowntimeList()==null) {
@@ -263,6 +267,18 @@ public class AddLinePresenter implements AddLineContract.Presenter {
                 email1.setShift2(true);
                 email1.setShift3(true);
                 mLine.getScrap3List().add(new Email(email1));
+            }
+        }
+
+        if (line.getLeakList()==null) {
+            line.setLeakList(new ArrayList<Email>());
+            for (Email email : emails)
+            {
+                Email email1 = new Email(email);
+                email1.setShift1(true);
+                email1.setShift2(true);
+                email1.setShift3(true);
+                line.getLeakList().add(new Email(email1));
             }
         }
 
