@@ -3,11 +3,11 @@ package com.tenneco.tennecoapp.Model.Downtime;
 import android.widget.Adapter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
-/**
- * Created by ghoss on 12/09/2018.
- */
+
 public class Downtime {
+    public static final String DB_DOWNTIMES = "downtimes";
     private ArrayList<Zone> zones;
     private ArrayList<Reason> reasons;
     private String startTime;
@@ -20,10 +20,27 @@ public class Downtime {
     private String zoneValue;
     private String locationValue;
     private String reasonValue;
+    private String name;
+    private String id;
 
 
     public Downtime() {
     }
+
+    public static Comparator<Downtime> NameComparator = new Comparator<Downtime>() {
+
+        public int compare(Downtime us1, Downtime us2) {
+            String name1 = us1.getName().toUpperCase();
+            String name2 = us2.getName().toUpperCase();
+
+            //ascending order
+            return name1.compareTo(name2);
+
+            //descending order
+            //return name2.compareTo(name1);
+        }
+    };
+
 
     public ArrayList<Zone> getZones() {
         return zones;
@@ -119,5 +136,21 @@ public class Downtime {
 
     public void setReasonValue(String reasonValue) {
         this.reasonValue = reasonValue;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

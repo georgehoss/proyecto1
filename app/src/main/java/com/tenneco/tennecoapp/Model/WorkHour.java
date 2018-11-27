@@ -15,6 +15,7 @@ public class WorkHour {
     private String comments;
     private String user;
     private boolean closed;
+    private ReasonDelay reasonDelay;
 
     public WorkHour() {
     }
@@ -112,5 +113,21 @@ public class WorkHour {
 
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public ReasonDelay getReasonDelay() {
+        return reasonDelay;
+    }
+
+    public void setReasonDelay(ReasonDelay reasonDelay) {
+        this.reasonDelay = reasonDelay;
+    }
+
+    public static Comparator<WorkHour> getStartHourComparator() {
+        return StartHourComparator;
+    }
+
+    public static void setStartHourComparator(Comparator<WorkHour> startHourComparator) {
+        StartHourComparator = startHourComparator;
     }
 }

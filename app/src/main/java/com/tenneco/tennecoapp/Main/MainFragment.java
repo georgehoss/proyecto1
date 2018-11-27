@@ -1,9 +1,11 @@
 package com.tenneco.tennecoapp.Main;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,8 +29,11 @@ import com.tenneco.tennecoapp.Adapter.LineAdapter;
 import com.tenneco.tennecoapp.Hourly.HourlyFragment;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.Model.User;
+import com.tenneco.tennecoapp.Plants.PlantsActivity;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import java.util.ArrayList;
 
@@ -49,6 +54,7 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
     @BindView(R.id.tv_slogan) TextView mTvSlogan;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
+    @BindView(R.id.cv_plants) CardView mCvPlants;
     private int admin =0;
 
 
@@ -72,6 +78,10 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
         // Required empty public constructor
     }
 
+    @OnClick(R.id.cv_plants) void showPlantss(){
+        launchPlants();
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,7 +90,8 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.bind(this,view);
         dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_USER);
-        dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+        if (StorageUtils.getPlantId(getContext())!=null)
+        dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new LineAdapter(mLines,this,false);
@@ -176,6 +187,12 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
     @Override
     public void getLines() {
+
+        if (getActivity()!=null && StorageUtils.getPlantId(getActivity())==null) {
+            startActivity(new Intent(main, PlantsActivity.class));
+            main.finish();
+        }
+
         dbLines.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -208,17 +225,6 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     @Override
     public void onPause() {
         super.onPause();
-        ValueEventListener valueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
 
     }
 
@@ -242,6 +248,18 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
             mTvSlogan.setText(R.string.main_come_back_later);
             mTvSlogan.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void showPlants() {
+        mCvPlants.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void launchPlants() {
+        StorageUtils.removePlantId(main);
+        startActivity(new Intent(main,PlantsActivity.class));
+        main.finish();
     }
 
     @Override

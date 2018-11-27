@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Plants.AddEditPlantActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="@string/edit_plant"
+            android:textStyle="bold"
+            android:textSize="28sp"
+            android:textColor="@color/colorBlack"
+            android:id="@+id/tv_title"
+            />
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true"
+                android:layout_margin="10dp"
+                >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bt_rounded"
+                    android:src="@drawable/factory"
+                    android:padding="10dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    tools:ignore="ContentDescription" />
+
+                <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    >
+                   <LinearLayout
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:orientation="vertical"
+                       android:animateLayoutChanges="true"
+                       >
+
+                       <TextView
+                           android:layout_width="match_parent"
+                           android:layout_height="wrap_content"
+                           android:layout_marginStart="10dp"
+                           android:text="@string/plant_code_"
+                           android:textSize="20sp"
+                           />
+                       <EditText
+                           android:id="@+id/et_code"
+                           android:layout_width="match_parent"
+                           android:layout_height="wrap_content"
+                           android:layout_margin="10dp"
+                           android:hint="@string/introduce_plant_code"
+                           android:inputType="numberDecimal"
+                           android:maxLines="1"
+                           android:maxLength="10"
+                           android:background="@drawable/background_rectangle"
+                           android:padding="10dp"
+                           android:textColor="@color/colorPrimary"
+                           android:textColorHint="@color/colorHint"
+                           android:textStyle="bold"
+                           android:nextFocusDown="@id/et_name"
+                           android:textSize="24sp"
+                           />
+
+                   </LinearLayout>
+
+                   <LinearLayout
+                       android:layout_width="0dp"
+                       android:layout_weight="1"
+                       android:layout_height="wrap_content"
+                       android:orientation="vertical"
+                       android:animateLayoutChanges="true"
+                       >
+
+                       <TextView
+                           android:layout_width="match_parent"
+                           android:layout_height="wrap_content"
+                           android:layout_marginStart="10dp"
+                           android:text="@string/add_name"
+                           android:textSize="20sp"
+                           />
+                       <EditText
+                           android:id="@+id/et_name"
+                           android:layout_width="match_parent"
+                           android:layout_height="wrap_content"
+                           android:layout_margin="10dp"
+                           android:hint="@string/introduce_plant_name"
+                           android:inputType="textEmailAddress"
+                           android:background="@drawable/background_rectangle"
+                           android:padding="10dp"
+                           android:textColor="@color/colorPrimary"
+                           android:textColorHint="@color/colorHint"
+                           android:textStyle="bold"
+                           android:maxLines="1"
+                           android:nextFocusDown="@id/et_address"
+                           android:textSize="24sp"
+                           />
+                   </LinearLayout>
+               </LinearLayout>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/address"
+                    android:textSize="20sp"
+                    />
+                <EditText
+                    android:id="@+id/et_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:hint="@string/introduce_plant_address"
+                    android:inputType="textMultiLine"
+                    android:background="@drawable/background_rectangle"
+                    android:padding="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textColorHint="@color/colorHint"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="24sp"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/password"
+                    android:textSize="20sp"
+                    />
+                <EditText
+                    android:id="@+id/et_psw"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:hint="@string/introduce_plant_password"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:maxLength="10"
+                    android:background="@drawable/background_rectangle"
+                    android:padding="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textColorHint="@color/colorHint"
+                    android:textStyle="bold"
+                    android:imeOptions="actionDone"
+                    android:textSize="24sp"
+                    />
+
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+
+
+    </LinearLayout>
+
+</ScrollView>

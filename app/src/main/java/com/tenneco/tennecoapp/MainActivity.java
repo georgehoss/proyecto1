@@ -20,9 +20,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.tenneco.tennecoapp.Configuration.ConfigurationFragment;
 import com.tenneco.tennecoapp.ConfigurationMenu.MenuConfigFragment;
 import com.tenneco.tennecoapp.Emails.EmailFragment;
+import com.tenneco.tennecoapp.Emails.EmailMainFragment;
 import com.tenneco.tennecoapp.Employee.EmployeeFragment;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Main.MainFragment;
+import com.tenneco.tennecoapp.Plants.PlantsActivity;
 import com.tenneco.tennecoapp.Splash.SplashFragment;
 import com.tenneco.tennecoapp.User.UserFragment;
 
@@ -65,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode("en");
         mAuth.useAppLanguage();
-
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -194,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     @Override
     public void launchEmail() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmailFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmailMainFragment()).commit();
     }
 
     @Override

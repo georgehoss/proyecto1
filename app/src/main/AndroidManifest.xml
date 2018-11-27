@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tenneco.tennecoapp">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,13 +23,20 @@
             </intent-filter>
         </activity>
         <activity android:name=".Lines.AddEditLineActivity" />
-        <activity android:name=".Daily.DailyActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
+        <activity
+            android:name=".Daily.DailyActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="0c552c8fef2e3cf000ee66cd92be99d2d402ac39" />
+
+        <activity android:name=".PlantsActivity" />
+        <activity
+            android:name=".Plants.PlantsActivity"
+            android:label="@string/title_activity_plants"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Plants.AddEditPlantActivity"></activity>
     </application>
 
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

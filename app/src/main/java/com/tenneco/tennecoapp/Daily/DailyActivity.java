@@ -1,24 +1,36 @@
 package com.tenneco.tennecoapp.Daily;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.SmsManager;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,14 +56,21 @@ import com.tenneco.tennecoapp.Model.Downtime.Zone;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.Model.Scrap;
 import com.tenneco.tennecoapp.Model.Shift;
+import com.tenneco.tennecoapp.Model.Sms;
+import com.tenneco.tennecoapp.Model.SmsList;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 import com.tenneco.tennecoapp.Utils.Utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import butterknife.BindView;
@@ -59,20 +78,33 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class DailyActivity extends AppCompatActivity implements DailyContract.View,DailyAdapter.ItemInteraction {
-
+    private static final int TEAM =0;
+    private static final int GROUP =1;
     private DailyContract.Presenter mPresenter;
     private DatabaseReference dbLine;
+    private DatabaseReference dbPLine;
     private DatabaseReference dbTeamLd;
     private DatabaseReference dbGroupLd;
+    private DatabaseReference dbOperators;
+    private DatabaseReference dbNumbers;
     private ArrayList<User> mTeam;
     private ArrayList<User> mGroup;
+    private ArrayList<Employee> mOperators;
+    private ArrayList<SmsList> mSmsLists;
     private Line mLine;
+    private Line mPline;
     private DailyAdapter mAdapter;
     private ScrapEventAdapter mAdapterScr;
     private String lineId;
     private ArrayList<WorkHour> mHours;
     private ProgressDialog progressDialog;
     private boolean isShowingLeak = false;
+    private boolean sendReport = false;
+    private boolean sendReport1 = false;
+    private boolean sendReport2 = false;
+    private float mScale = 1f;
+    private ScaleGestureDetector mScaleDetector;
+    GestureDetector gestureDetector;
 
     @BindView(R.id.tv_name)TextView mTvName;
     @BindView(R.id.tv_date)TextView mTvDate;
@@ -158,12 +190,32 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             showEndShiftDialog(mLine,3,this,false);}
 
     @OnClick(R.id.ll_gls) void group(){
-        showUserDialog(mGroup,this,"Group Leaders",1);
+        showUserDialog(mGroup,this,1);
     }
 
     @OnClick(R.id.ll_tls) void team(){
-        showUserDialog(mTeam,this,"Team Leaders",0);
+        showUserDialog(mTeam,this,0);
     }
+
+    @OnClick(R.id.bt_send_sms) void send(){
+        showSendMsgDialog(this);
+    }
+
+  /*  @OnClick(R.id.tv_end_s1) void fe1(){
+        if (!mLine.getFirst().isClosed())
+            showDialogClose(1);
+    }
+
+    @OnClick(R.id.tv_end_s2) void fe2(){
+        if (!mLine.getSecond().isClosed())
+            showDialogClose(2);
+    }
+
+
+    @OnClick(R.id.tv_end_s3) void fe3(){
+        if (!mLine.getThird().isClosed())
+            showDialogClose(3);
+    }*/
 
 
 
@@ -172,9 +224,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily);
         ButterKnife.bind(this);
-        dbLine = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE);
-        dbGroupLd = FirebaseDatabase.getInstance().getReference(User.DB_GROUP);
-        dbTeamLd = FirebaseDatabase.getInstance().getReference(User.DB_TEAM);
+        dbLine = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
+        dbPLine= FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
+        dbGroupLd = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(User.DB_GROUP);
+        dbTeamLd = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(User.DB_TEAM);
+        dbOperators = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
+        dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
         if (mPresenter == null)
             mPresenter = new DailyPresenter(this);
         else
@@ -183,6 +238,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         initAdapter();
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Saving Changes...");
+
+        permissions();
+        setGestureDetector();
     }
 
     @Override
@@ -193,6 +251,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         getLine();
         getGroup();
         getTeam();
+        getOperators();
+        getNumbers();
     }
 
     @Override
@@ -210,6 +270,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mLine = dataSnapshot.getValue(Line.class);
                 if (mLine!=null) {
                     setLine();
+                    getPLine();
                 }
 
             }
@@ -285,6 +346,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mPresenter.showCount(mLine);
         mPresenter.verifyLeaks(mLine);
 
+        if (mLine.getDowntime().isSet())
+        {
+            showDowntimeDialog(mLine.getDowntime(),this);
+        }
+        else
         if (mLine.getScraps()!=null && mLine.getScraps().size()>0)
         {
             showScrap();
@@ -296,8 +362,41 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             hideScrap();
         }
 
-        mPresenter.setTeam(mLine.getTeamLeaders());
-        mPresenter.setGroup(mLine.getGroupLeaders());
+        if (!isShowingLeak && sendReport1) {
+            showDialogEndShift(1);
+            sendReport1=false;
+        }
+
+        if (!isShowingLeak && sendReport2) {
+            showDialogEndShift(2);
+            sendReport2=false;
+        }
+
+        if (!isShowingLeak && sendReport) {
+                showDialogEndShift(3);
+                sendReport=false;
+        }
+
+        mPresenter.setTeam(mLine);
+        mPresenter.setGroup(mLine);
+
+
+        if (mLine.getFirst().isClosed())
+            mPresenter.createCSVShift(this,mLine,1,mLine.getFirst());
+
+        if (mLine.getSecond().isClosed())
+            mPresenter.createCSVShift(this,mLine,2,mLine.getSecond());
+
+        if (mLine.getThird().isClosed())
+            mPresenter.createCSVShift(this,mLine,3,mLine.getThird());
+
+        if (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())
+            try {
+                mPresenter.createCVS(this,mLine);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
     }
 
@@ -338,6 +437,52 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         mTeam.add(user);
                 }
                 Collections.sort(mTeam,User.UserNameComparator);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void getNumbers() {
+        dbNumbers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mSmsLists = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    SmsList smsList = itemSnapshot.getValue(SmsList.class);
+                    if (smsList!=null)
+                        mSmsLists.add(smsList);
+                }
+                Collections.sort(mSmsLists,SmsList.NameComparator);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void getOperators() {
+        dbOperators.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mOperators = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    Employee employee = itemSnapshot.getValue(Employee.class);
+                    if (employee!=null)
+                        mOperators.add(employee);
+                }
+                Collections.sort(mOperators,Employee.EmployeeNameComparator);
 
             }
 
@@ -518,8 +663,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     public void showEndShiftDialog(final Line line, final int shift, final Context context, final boolean close) {
         if (!mLine.getDowntime().isSet())
         {
-            if (mTeam==null || mGroup==null||(mLine.getTeamLeaders()!=null && !mLine.getTeamLeaders().isEmpty()
-                    && mLine.getGroupLeaders()!=null && !mLine.getGroupLeaders().isEmpty())
+            if (mTeam==null || mGroup==null||(mPresenter.getGroups(mLine) && mPresenter.getTeam(mLine))
                     || (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())){
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         context);
@@ -605,7 +749,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
                 RecyclerView recyclerView = view.findViewById(R.id.rv_position);
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
-                final EndShiftPositionAdapter adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),eShitf.getEmployees(),eShitf.isClosed());
+                final EndShiftPositionAdapter adapter;
+                if (mOperators==null || mOperators.size()==0)
+                    adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),eShitf.getEmployees(),eShitf.isClosed());
+                else
+                    adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),mOperators,eShitf.isClosed());
+
                 recyclerView.setAdapter(adapter);
 
 
@@ -614,7 +763,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
                 if (eShitf.isClosed()) {
                     mBtSave.setVisibility(View.GONE);
-                    mBtCancel.setText("OK");
+                    alertDialogBuilder.setCancelable(true);
+                    mBtCancel.setText("Send by Email");
                 }
 
                 final AlertDialog dialog = alertDialogBuilder.create();
@@ -624,6 +774,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
+                        if (mBtSave.getVisibility()==View.GONE)
+                            showDialogEndShift(shift);
                     }
                 });
 
@@ -632,13 +784,20 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     @Override
                     public void onClick(View view) {
                         boolean error = false;
+                        int valid=0;
                         ArrayList<EmployeePosition> employeePositions = adapter.getPositions();
-                        for (EmployeePosition position : employeePositions)
+                        for (EmployeePosition position : employeePositions){
                             if ((position.getOperator()==null || position.getOperator().isEmpty()|| position.getOperator().equals("-Select Operator-")) && !error) {
+                                if (valid==0)
                                 Toast.makeText(context, "Select an operator for position: " + position.getName(), Toast.LENGTH_LONG).show();
                                 error = true;
                             }
-                        if (!error)
+                            else
+                                if (position.getOperator()!=null && !position.getOperator().isEmpty()&& !position.getOperator().equals("-Select Operator-"))
+                                    valid++;
+                        }
+
+                        if (valid>0)
                         {
                             Shift finalShift = new Shift();
                             switch (shift){
@@ -685,17 +844,26 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                             switch (shift){
                                 case 1:
                                     line.setFirst(finalShift);
+                                    if (finalShift.isClosed())
+                                        sendReport1 = true;
                                     break;
                                 case 2:
                                     line.setSecond(finalShift);
+                                    if (finalShift.isClosed())
+                                        sendReport2 = true;
                                     break;
                                 case 3:
                                     line.setThird(finalShift);
                                     break;
                             }
 
+
+                            if (line.getFirst().isClosed() && line.getSecond().isClosed() && line.getThird().isClosed())
+                                sendReport=true;
+
                             updateLine(line);
                             dialog.dismiss();
+
 
                         }
                     }
@@ -703,16 +871,16 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
             }
             else
-                if ((mLine.getGroupLeaders()==null ||mLine.getGroupLeaders().isEmpty())&& mGroup!=null)
+                if (!(mPresenter.getGroups(mLine))&& mGroup!=null)
                 {
                     Toast.makeText(this,"Please select group leaders!",Toast.LENGTH_LONG).show();
-                    showUserDialog(mGroup,this,"Group Leaders",1);
+                    showUserDialog(mGroup,this,1);
                 }
                 else
-                    if((mLine.getTeamLeaders()==null || mLine.getTeamLeaders().isEmpty()) && mTeam!=null)
+                    if(!(mPresenter.getTeam(mLine)) && mTeam!=null)
                     {
                         Toast.makeText(this,"Please select team leaders!",Toast.LENGTH_LONG).show();
-                        showUserDialog(mTeam,this,"Team Leaders",0);
+                        showUserDialog(mTeam,this,0);
                     }
         }
         else
@@ -738,7 +906,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void hideLeakCounter() {
-        mBtCounter.setVisibility(View.GONE);
+        mBtCounter.setText("Send Report");
         mBtDowntime.setVisibility(View.GONE);
         mBtScrap.setVisibility(View.GONE);
         mBtHour.setVisibility(View.GONE);
@@ -842,24 +1010,32 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             }
         });
 
+        Button mBtStart = view.findViewById(R.id.bt_start);
+        Button mBtEnd = view.findViewById(R.id.bt_end);
+        final EditText mTvStart = view.findViewById(R.id.et_start);
+        final EditText mTvEnd = view.findViewById(R.id.et_end);
+        ImageView btClose = view.findViewById(R.id.bt_close);
+        final AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+        String time = Utils.getTimeString();
         if (mLine.getDowntime().isSet())
         {
             spZone.setEnabled(false);
             spLocation.setEnabled(false);
             spReason.setEnabled(false);
+            mTvEnd.setText(time);
         }
 
 
-        Button mBtStart = view.findViewById(R.id.bt_start);
-        Button mBtEnd = view.findViewById(R.id.bt_end);
-        final TextView mTvStart = view.findViewById(R.id.tv_start);
-        final TextView mTvEnd = view.findViewById(R.id.tv_end);
-        ImageView btClose = view.findViewById(R.id.bt_close);
-        final AlertDialog dialog = alertDialogBuilder.create();
-        dialog.show();
 
-        if (downtime.getStartTime()!=null && downtime.isSet())
+
+        if (downtime.getStartTime()!=null && downtime.isSet()) {
             mTvStart.setText(downtime.getStartTime());
+            mTvStart.setEnabled(false);
+        }
+        else
+            mTvStart.setText(time);
+
 
 
         btClose.setOnClickListener(new View.OnClickListener() {
@@ -882,9 +1058,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 if (mLine.getDowntime().getReason()<=0)
                     Toast.makeText(DailyActivity.this,"You must select a Reason",Toast.LENGTH_LONG).show();
                 else {
-                    String time = Utils.getTimeString();
-                    mTvStart.setText(time);
-                    mLine.getDowntime().setStartTime(time);
+                    mLine.getDowntime().setStartTime(mTvStart.getText().toString());
                     mLine.getDowntime().setSet(true);
                     mLine.getDowntime().setDowntime(mPresenter.downtime(mLine.getDowntime().getZoneValue(),
                             mLine.getDowntime().getLocationValue(), mLine.getDowntime().getReasonValue()));
@@ -901,7 +1075,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                             "\nLocation: " +mLine.getDowntime().getLocationValue() +
                             "\nReason: " + mLine.getDowntime().getReasonValue()+
                             "\n\nPlease take immediate action";
-                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body);
+                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body,0);
                 }
             }
         });
@@ -912,8 +1086,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             public void onClick(View view) {
                 if (mLine.getDowntime().isSet()){
                 String time = Utils.getTimeString();
-                mTvEnd.setText(time);
-                mLine.getDowntime().setEndTime(time);
+                mLine.getDowntime().setEndTime(mTvEnd.getText().toString());
                 mLine.getDowntime().setSet(false);
                 mLine.getDowntime().setZone(0);
                 mLine.getDowntime().setLocation(0);
@@ -925,7 +1098,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         "This is a notification that Cell " + mLine.getName()+ " is back to production at " + Utils.getTimeString() +
                         "\nThank you";
 
-                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body);
+                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body,0);
 
                 }
                 else
@@ -949,7 +1122,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             spinner.setAdapter(mAdapter);
             Button mBtReport = view.findViewById(R.id.bt_report);
             final EditText editText = view.findViewById(R.id.et_actions);
-            if (mLine.getScraps() != null && mLine.getScraps().size() >= 3)
+            if (mLine.getScraps() != null && mLine.getScraps().size() >= 2)
                 editText.setVisibility(View.VISIBLE);
 
             final AlertDialog dialog = alertDialogBuilder.create();
@@ -963,7 +1136,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
                     if (reason != null && reason.getName().equals("- Select a Reason -"))
                         Toast.makeText(context, "You must select a reason to make the Report!", Toast.LENGTH_LONG).show();
-                    else if (mLine.getScraps() != null && mLine.getScraps().size() >= 3 && editText.getText().toString().isEmpty()) {
+                    else if (mLine.getScraps() != null && mLine.getScraps().size() >= 2 && editText.getText().toString().isEmpty()) {
                         editText.setError("You must write some actions!");
                         editText.requestFocus();
                         editText.setVisibility(View.VISIBLE);
@@ -972,7 +1145,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         if (mLine.getScraps() == null) {
                             mLine.setScraps(new ArrayList<Scrap>());
                         }
-                        if (mLine.getScraps().size() >= 3)
+                        if (mLine.getScraps().size() >= 2)
                             mLine.getScraps().add(new Scrap(reason.getName() + ". Actions: " + editText.getText().toString(), Utils.getTimeString()));
                         else
                             mLine.getScraps().add(new Scrap(reason.getName(), Utils.getTimeString()));
@@ -989,7 +1162,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                     + " due to: " + reason.getName() +
                                     "\n\nFirst Occurrence";
 
-                            sendEmail(mPresenter.getEmails(mLine.getScrap1List(), mLine), mPresenter.getCC(mLine.getScrap1List(), mLine), subject, body);
+                            sendEmail(mPresenter.getEmails(mLine.getScrap1List(), mLine), mPresenter.getCC(mLine.getScrap1List(), mLine), subject, body,0);
                         } else if (mLine.getScraps().size() == 2) {
                             subject = "Cell " + mLine.getName() + " Produced a Second Scrap Piece due to: " + reason.getName();
                             body = "Hi \n\n" +
@@ -997,7 +1170,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                     + " due to: " + reason.getName() +
                                     "\n\nSecond Occurrence...   Next notification will be send to Group Leaders";
 
-                            sendEmail(mPresenter.getEmails(mLine.getScrap2List(), mLine), mPresenter.getCC(mLine.getScrap2List(), mLine), subject, body);
+                            sendEmail(mPresenter.getEmails(mLine.getScrap2List(), mLine), mPresenter.getCC(mLine.getScrap2List(), mLine), subject, body,0);
                         } else {
                             subject = "Cell " + mLine.getName() + " Produced Scrap Piece #" + String.valueOf(mLine.getScraps().size())
                                     + " due to: " + reason.getName();
@@ -1008,7 +1181,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                     "\n\nActions: " + editText.getText().toString() +
                                     "\n\nScrap piece # " + String.valueOf(mLine.getScraps().size()) + " Next notification will be send to the Management Team";
 
-                            sendEmail(mPresenter.getEmails(mLine.getScrap3List(), mLine), mPresenter.getCC(mLine.getScrap3List(), mLine), subject, body);
+                            sendEmail(mPresenter.getEmails(mLine.getScrap3List(), mLine), mPresenter.getCC(mLine.getScrap3List(), mLine), subject, body,0);
                         }
 
 
@@ -1022,9 +1195,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void showFTQ(final int shift) {
-        if (!isShowingLeak) {
+        Context context = DailyActivity.this;
+        if (!isShowingLeak ) {
             isShowingLeak = true;
-            Context context = DailyActivity.this;
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_leak, null);
@@ -1094,7 +1267,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 " \n" +
                                 eTActions.getText().toString();
 
-                        sendEmail(mPresenter.getEmails(mLine.getLeakList(),mLine), mPresenter.getCC(mLine.getLeakList(),mLine), subject, body);
+                        sendEmail(mPresenter.getEmails(mLine.getLeakList(),mLine), mPresenter.getCC(mLine.getLeakList(),mLine), subject, body,0);
                     } else {
                         eTActions.setError("You must introduce the actions taken!");
                         eTActions.requestFocus();
@@ -1117,18 +1290,53 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
-    public void sendEmail(String[] addresses, String[] ccs, String subject, String body) {
-/*        String[] address = new String[]{"MPope@Tenneco.com","AHarder@Tenneco.com","JBaxter@Tenneco.com","KTaylor3@Tenneco.com","TSmith12@Tenneco.com",
-                "JDugger@Tenneco.com","JPorto@Tenneco.com","DAdams2@Tenneco.com","BRaymond@Tenneco.com","GTompkins@Tenneco.com","MTurnbow@Tenneco.com",
-                "RBeckenbach@Tenneco.com","TButler1@Tenneco.com","MBrady1@Tenneco.com"};
-        String[] cc = new String[]{"RCadena@Tenneco.com","NBuckley@Tenneco.com","MRiddle@Tenneco.com","TSmith12@Tenneco.com"};*/
+    public void sendEmail(String[] addresses, String[] ccs, String subject, String body, int shift) {
 
+        String filename=mLine.getName()+" "+mLine.getDate().replace("/","-")+".csv";
+        String fileshift1=mLine.getName()+" "+mLine.getDate().replace("/","-")+" 1st Shift.csv";
+        String fileshift2=mLine.getName()+" "+mLine.getDate().replace("/","-")+" 2nd Shift.csv";
+        String fileshift3=mLine.getName()+" "+mLine.getDate().replace("/","-")+" 3rd Shift.csv";
+        File filelocation = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Tenneco Report");
+        File cvslocation = new File(filelocation,filename);
+        File cvslocations1 = new File(filelocation,fileshift1);
+        File cvslocations2 = new File(filelocation,fileshift2);
+        File cvslocations3 = new File(filelocation,fileshift3);
+        Uri path = Uri.fromFile(cvslocation);
+        Uri paths1 = Uri.fromFile(cvslocations1);
+        Uri paths2 = Uri.fromFile(cvslocations2);
+        Uri paths3 = Uri.fromFile(cvslocations3);
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:")); // only email apps should handle this
         intent.putExtra(Intent.EXTRA_EMAIL, addresses);
         intent.putExtra(Intent.EXTRA_CC, ccs);
         intent.putExtra(Intent.EXTRA_TEXT, body);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        switch (shift)
+        {
+            default:
+                if (cvslocation.exists())
+                    intent.putExtra(Intent.EXTRA_STREAM, path);
+                break;
+            case  1:
+                if (cvslocations1.exists())
+                    intent.putExtra(Intent.EXTRA_STREAM, paths1);
+                break;
+            case 2:
+                if (cvslocations2.exists())
+                    intent.putExtra(Intent.EXTRA_STREAM, paths2);
+                break;
+            case 3:
+                if (cvslocations3.exists())
+                    intent.putExtra(Intent.EXTRA_STREAM, paths3);
+                break;
+
+        }
+
+
+
+
+
+
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
@@ -1156,7 +1364,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
-    public void showUserDialog(ArrayList<User> users, Context context, String title, final int position) {
+    public void showUserDialog(ArrayList<User> users, Context context, final int position) {
         if (users!=null && users.size()>0 && (!mLine.getFirst().isClosed()|| !mLine.getSecond().isClosed() || !mLine.getThird().isClosed())) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             final UserSelectorAdapter adapter = new UserSelectorAdapter(users,context);
@@ -1164,6 +1372,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
             alertDialogBuilder.setView(recyclerView);
+            String title = "";
+            if (position==GROUP)
+                title = "Group Leaders";
+            else
+                title = "Team Leaders";
             alertDialogBuilder.setTitle(title);
             alertDialogBuilder.setCancelable(false);
             alertDialogBuilder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
@@ -1171,23 +1384,58 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 public void onClick(DialogInterface dialogInterface, int i) {
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append("");
+                    String value="";
                     switch (position) {
-                        case 1:
+                        case GROUP:
                             for (User user : adapter.getUsers())
                                 if (user.isSelected())
-                                stringBuilder.append(user.getName().trim()).append(", ");
+                                    stringBuilder.append(user.getName().trim()).append(", ");
+
                             if (!stringBuilder.toString().isEmpty())
-                                mLine.setGroupLeaders(stringBuilder.toString().substring(0,stringBuilder.toString().length()-2));
+                                value=stringBuilder.toString().substring(0, stringBuilder.toString().length() - 2);
+
+                            if (!mLine.getFirst().isClosed())
+                            {
+                                mLine.getFirst().setGroupLeaders(value);
+                                saveGl(value,1);
+                            }
                             else
-                                mLine.setGroupLeaders("");
+                            if (!mLine.getSecond().isClosed())
+                            {
+                                mLine.getSecond().setGroupLeaders(value);
+                                saveGl(value,2);
+                            }
+                            else if (!mLine.getThird().isClosed())
+                            {
+                                mLine.getThird().setGroupLeaders(value);
+                                saveGl(value,3);
+                            }
+
+
                             break;
                         default:
                             for (User user : adapter.getUsers())
                                 if (user.isSelected())
                                 stringBuilder.append(user.getName().trim()).append(", ");
                             if (!stringBuilder.toString().isEmpty())
-                                mLine.setTeamLeaders(stringBuilder.toString().substring(0,stringBuilder.toString().length()-2));
-                            else mLine.setTeamLeaders("");
+                                value=stringBuilder.toString().substring(0, stringBuilder.toString().length() - 2);
+                            if (!mLine.getFirst().isClosed())
+                            {
+                                mLine.getFirst().setTeamLeaders(value);
+                                saveTl(value,1);
+                            }
+                            else
+                            if (!mLine.getSecond().isClosed())
+                            {
+                                mLine.getSecond().setTeamLeaders(value);
+                                saveTl(value,2);
+                            }
+                            else if (!mLine.getThird().isClosed())
+                            {
+                                mLine.getThird().setTeamLeaders(value);
+                                saveTl(value,3);
+                            }
+
                             break;
                     }
                     updateLine(mLine);
@@ -1235,6 +1483,336 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
+    public void showCellEmailDialog() {
+        sendReport = false;
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setCancelable(false);
+        alert.setTitle("Send Cell Report").
+                setMessage("Would you like to send the report of the cell: "+ mLine.getName()+ "?");
+        alert.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sendCellEmail();
+                dialogInterface.dismiss();
+            }
+        }).setNegativeButton("Later", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alert.create().show();
+    }
+
+    @Override
+    public void sendCellEmail() {
+
+        try {
+            mPresenter.createCVS(this,mLine);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        sendEmail(mPresenter.getEmails(mLine.getCellList(),null),mPresenter.getCC(mLine.getCellList(),null),
+                "Cell Report: "+mLine.getName()+ " "+mLine.getDate(),mPresenter.lineInformation(mLine),0);
+
+
+    }
+
+    @Override
+    public void longClicks() {
+        mBtS1.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showDialogClose(1);
+                return false;
+            }
+        });
+
+        mBtS2.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showDialogClose(2);
+                return false;
+            }
+        });
+
+        mBtS3.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showDialogClose(3);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void showDialogClose(final int position) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setCancelable(false);
+            String title = "";
+            String body = "";
+            switch (position) {
+                default:
+                    title = "End 1st Shift";
+                    body = "Would you like to force the closure of the first shift?";
+                    break;
+                case 2:
+                    title = "End 2nd Shift";
+                    body = "Would you like to force the closure of the second shift?";
+                    break;
+                case 3:
+                    title = "End 3rd Shift";
+                    body = "Would you like to force the closure of the third shift?";
+                    break;
+            }
+            alertDialog.setTitle(title).setMessage(body);
+            alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                    switch (position) {
+                        default:
+                            mLine.getFirst().setClosed(true);
+                            for (WorkHour w : mLine.getFirst().getHours())
+                                w.setClosed(true);
+                            break;
+                        case 2:
+                            mLine.getSecond().setClosed(true);
+                            for (WorkHour w : mLine.getSecond().getHours())
+                                w.setClosed(true);
+                            break;
+                        case 3:
+                            mLine.getThird().setClosed(true);
+                            for (WorkHour w : mLine.getThird().getHours())
+                                w.setClosed(true);
+                            break;
+                    }
+                    dialogInterface.dismiss();
+                    updateLine(mLine);
+                }
+            });
+
+            alertDialog.create().show();
+    }
+
+    @Override
+    public void showDialogEndShift(final int position) {
+        sendReport = false;
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        String title = "";
+        String msg = "";
+        if (position==1) {
+            title = "End 1st Shift Report";
+            msg = " 1st Shift ";
+        }
+        else
+        if (position==2) {
+            title = "End 2nd Shift Report";
+            msg = " 2nd Shift ";
+        }
+        else {
+            title = "End 3rd Shift Report";
+            msg = " 3rd Shift ";
+        }
+
+        alert.setCancelable(false);
+        alert.setTitle(title).
+                setMessage("Would you like to send the report of the cell: "+ mLine.getName()+msg + "?");
+        alert.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sendShiftEmail(position);
+                dialogInterface.dismiss();
+            }
+        }).setNegativeButton("Later", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alert.create().show();
+    }
+
+    @Override
+    public void sendShiftEmail(int position) {
+        String title ="";
+        if (position==1) {
+            title = "End 1st Shift Report";
+            mPresenter.createCSVShift(this,mLine,1,mLine.getFirst());
+        }
+        else
+        if (position==2) {
+            title = "End 2nd Shift Report";
+            mPresenter.createCSVShift(this,mLine,2,mLine.getSecond());
+        }
+        else {
+            title = "End 3rd Shift Report";
+            mPresenter.createCSVShift(this,mLine,3,mLine.getThird());
+        }
+
+
+        sendEmail(mPresenter.getEmails(mLine.getCellList(),null),mPresenter.getCC(mLine.getCellList(),null),
+                title + " Cell: "+mLine.getName()+ " "+mLine.getDate(),mPresenter.shiftInformation(mLine,position),position);
+    }
+
+    @Override
+    public void getPLine() {
+        Query postsQuery;
+        postsQuery = dbPLine.child(mLine.getParentId());
+        postsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mPline = dataSnapshot.getValue(Line.class);
+                if (mPline!=null)
+                {
+                    if (mPline.getFirst().getGroupLeaders()!=null && (mLine.getFirst().getGroupLeaders()==null || mLine.getFirst().getGroupLeaders().isEmpty()))
+                        mLine.getFirst().setGroupLeaders(mPline.getFirst().getGroupLeaders());
+                    if (mPline.getSecond().getGroupLeaders()!=null && (mLine.getSecond().getGroupLeaders()==null || mLine.getSecond().getGroupLeaders().isEmpty()))
+                        mLine.getSecond().setGroupLeaders(mPline.getSecond().getGroupLeaders());
+                    if (mPline.getThird().getGroupLeaders()!=null && (mLine.getThird().getGroupLeaders()==null || mLine.getThird().getGroupLeaders().isEmpty()))
+                        mLine.getThird().setGroupLeaders(mPline.getThird().getGroupLeaders());
+
+                    if (mPline.getFirst().getTeamLeaders()!=null && (mLine.getFirst().getTeamLeaders()==null || mLine.getFirst().getTeamLeaders().isEmpty()))
+                        mLine.getFirst().setTeamLeaders(mPline.getFirst().getTeamLeaders());
+                    if (mPline.getSecond().getTeamLeaders()!=null && (mLine.getSecond().getTeamLeaders()==null || mLine.getSecond().getTeamLeaders().isEmpty()))
+                        mLine.getSecond().setTeamLeaders(mPline.getSecond().getTeamLeaders());
+                    if (mPline.getThird().getTeamLeaders()!=null && (mLine.getThird().getTeamLeaders()==null || mLine.getThird().getTeamLeaders().isEmpty()))
+                        mLine.getThird().setTeamLeaders(mPline.getThird().getTeamLeaders());
+
+                    setLine();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void saveTl(String tl, int shift) {
+       if (mPline!=null)
+       {
+           switch (shift){
+               case 1:
+                   mPline.getFirst().setTeamLeaders(tl);
+                   break;
+               case 2:
+                   mPline.getSecond().setTeamLeaders(tl);
+                   break;
+               case 3:
+                   mPline.getThird().setTeamLeaders(tl);
+                   break;
+           }
+
+           dbPLine.child(mPline.getId()).setValue(mPline);
+       }
+    }
+
+    @Override
+    public void saveGl(String gl, int shift) {
+        if (mPline!=null)
+        {
+            switch (shift){
+                case 1:
+                    mPline.getFirst().setGroupLeaders(gl);
+                    break;
+                case 2:
+                    mPline.getSecond().setGroupLeaders(gl);
+                    break;
+                case 3:
+                    mPline.getThird().setGroupLeaders(gl);
+                    break;
+            }
+
+            dbPLine.child(mPline.getId()).setValue(mPline);
+        }
+    }
+
+    @Override
+    public void sendSms(String number, String message) {
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(number, null, message, null, null);
+
+    }
+
+    @Override
+    public void showSendMsgButton() {
+
+    }
+
+    @Override
+    public void showSendMsgDialog(Context context) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_sms, null);
+        alertDialogBuilder.setView(view);
+        alertDialogBuilder.setCancelable(false);
+        Spinner spList = view.findViewById(R.id.sp_numbers);
+        final ArrayList<SmsList> mList = new ArrayList<>();
+        mList.add(new SmsList("- Select a List -","null"));
+        mList.addAll(mSmsLists);
+        ArrayAdapter<SmsList> mAdapter = new ArrayAdapter<>(context,R.layout.spinner_row,mList);
+        spList.setAdapter(mAdapter);
+        Button mBtSend = view.findViewById(R.id.bt_send);
+        final EditText mEtMsg = view.findViewById(R.id.et_msg);
+        ImageView btClose = view.findViewById(R.id.bt_close);
+        final AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+        String time = Utils.getTimeString();
+        final SmsList mSmsList = new SmsList();
+
+        btClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        spList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                SmsList smsList = (SmsList) adapterView.getItemAtPosition(i);
+                if (!smsList.getName().equals("- Select a List -"))
+                    mSmsList.setSms_numbers(smsList.getSms_numbers());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
+        mBtSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mEtMsg.getText().toString().isEmpty())
+                {
+                    mEtMsg.setError("Introduce a message!");
+                    mEtMsg.requestFocus();
+                }
+                else
+                if (mSmsList.getSms_numbers()!=null ) {
+                    for (Sms sms : mSmsList.getNumbers())
+                        sendSms(sms.getNumber(), mEtMsg.getText().toString());
+                    dialog.dismiss();
+                }
+                else
+                    Toast.makeText(DailyActivity.this, "You must Select a List", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
     public void onTargetClick(int position) {
         showActualsDialog(mHours.get(position),mLine,position,this);
     }
@@ -1262,5 +1840,86 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @Override
     public void showFinishThird() {
         showEndShiftDialog(mLine,3,this,true);
+    }
+
+
+    private void permissions()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(DailyActivity.this,
+                    Arrays.toString(new String[]{
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA,
+                    Manifest.permission.SEND_SMS}))
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(DailyActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA,Manifest.permission.SEND_SMS},
+                        101);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            for (int in = 0; in < grantResults.length - 1; in++)
+                if (!(grantResults.length > 0
+                        && grantResults[in] == PackageManager.PERMISSION_GRANTED)) {
+
+                }
+        }
+    }
+
+    private void setGestureDetector(){
+        gestureDetector = new GestureDetector(this, new GestureListener());
+
+        mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener()
+        {
+
+            @Override
+            public boolean onScale(ScaleGestureDetector detector)
+            {
+                float scale = 1 - detector.getScaleFactor();
+
+                float prevScale = mScale;
+                mScale += scale;
+
+                if (mScale < 0.1f) // Minimum scale condition:
+                    mScale = 0.1f;
+
+                if (mScale > 1) // Maximum scale condition:
+                    mScale = 1;
+                ScaleAnimation scaleAnimation = new ScaleAnimation(1f / prevScale, 1f / mScale, 1f / prevScale, 1f / mScale, detector.getFocusX(), detector.getFocusY());
+                scaleAnimation.setDuration(0);
+                scaleAnimation.setFillAfter(true);
+                ScrollView layout = findViewById(R.id.sv);
+                layout.startAnimation(scaleAnimation);
+                return true;
+            }
+        });
+    }
+
+    // step 3: override dispatchTouchEvent()
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        super.dispatchTouchEvent(event);
+        mScaleDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
+        return gestureDetector.onTouchEvent(event);
+    }
+
+//step 4: add private class GestureListener
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        // event when double tap occurs
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            // double tap fired.
+            return true;
+        }
     }
 }

@@ -74,6 +74,7 @@
     <string name="main_hourly_production">Hourly Production</string>
     <string name="main_select_one_production_line">Select one production line:</string>
     <string name="main_come_back_later">There are no Production Lines scheduled for today, please come back later.</string>
+    <string name="main_plants_come_back_later">There are no Plants available for today, please come back later.</string>
     <string name="line_shift">Shift</string>
     <string name="line_actual">Actual</string>
     <string name="line_1st">1st</string>
@@ -150,6 +151,27 @@
     <string name="group_leads">Group Leaders</string>
     <string name="team_leaders">Team Leaders</string>
     <string name="add_introduce_cell_password">Introduce cell password</string>
+    <string name="title_activity_plants">PlantsActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="plants">Plants</string>
+    <string name="main_plants_on">Select one Plant:</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="downtime">Downtime</string>
+    <string name="notifications">Notifications</string>
+    <string name="plant_code_">Code:</string>
+    <string name="introduce_plant_code">Plant Code</string>
+    <string name="introduce_plant_name">Plant Name</string>
+    <string name="introduce_plant_address">Address</string>
+    <string name="address">Address</string>
+    <string name="introduce_plant_password">Password</string>
+    <string name="edit_plant">Edit Plant</string>
+    <string name="list_of_numbers_to_notify_sms">List of Numbers to notify (SMS)</string>
+    <string name="list_name">List Name:</string>
+    <string name="list_name_">List Name</string>
+    <string name="send_sms">Send SMS</string>
 
 
 </resources>

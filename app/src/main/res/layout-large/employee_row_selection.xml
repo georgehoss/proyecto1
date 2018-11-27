@@ -39,6 +39,7 @@
         android:orientation="horizontal"
         android:background="@drawable/bg_shift2"
         android:gravity="center"
+        android:id="@+id/rg_shift"
         >
 
         <RadioButton

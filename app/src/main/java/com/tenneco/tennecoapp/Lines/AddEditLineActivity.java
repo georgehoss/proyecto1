@@ -10,14 +10,19 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +41,7 @@ import com.tenneco.tennecoapp.Adapter.HourAdapter;
 import com.tenneco.tennecoapp.Adapter.LocationAdapter;
 import com.tenneco.tennecoapp.Adapter.PositionAdapter;
 import com.tenneco.tennecoapp.Adapter.ScrapAdapter;
+import com.tenneco.tennecoapp.Daily.DailyActivity;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
@@ -44,9 +50,11 @@ import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,11 +89,13 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private ArrayList<Zone> mZones;
     private ArrayList<Reason> mReasons;
     private ArrayList<Reason> mDReasons;
-    private ArrayList<Email> mDwtList;
-    private ArrayList<Email> mScr1List;
     private boolean deletable = false;
     private Downtime downtime;
     private ProgressDialog progressDialog;
+    private float mScale = 1f;
+    private ScaleGestureDetector mScaleDetector;
+    GestureDetector gestureDetector;
+
     @BindView(R.id.et_name) EditText mEtName;
     @BindView(R.id.et_psw) EditText mEtPsw;
     @BindView(R.id.ll_shift1) LinearLayout mLlS1;
@@ -116,6 +126,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @BindView(R.id.tv_addresses_sc2) TextView mTvSc2EmailList;
     @BindView(R.id.tv_addresses_sc3) TextView mTvSc3EmailList;
     @BindView(R.id.tv_addresses_leak) TextView mTvLeakEmailList;
+    @BindView(R.id.tv_addresses_cell) TextView mTvCellEmailList;
 
 
 
@@ -182,6 +193,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         showEmailList(this,mLine.getScrap3List(),4);
     }
 
+    @OnClick (R.id.bt_add_cell) void emaillist(){
+        showEmailList(this,mLine.getCellList(),5);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,12 +204,12 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         setContentView(R.layout.activity_add_edit_line);
         ButterKnife.bind(this);
         if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell"))
-            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE);
+            dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
         else
-            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+            dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
 
-        dbEmployees = FirebaseDatabase.getInstance().getReference(Employee.DB);
-        dbEmails = FirebaseDatabase.getInstance().getReference(Email.DB);
+        dbEmployees = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
+        dbEmails = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Email.DB);
         if (mPresenter == null)
             mPresenter = new AddLinePresenter(this);
         else
@@ -220,7 +235,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Saving Changes");
         progressDialog.setMessage("Please Wait.");
-
+        setGestureDetector();
 
     }
 
@@ -537,6 +552,11 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         if (line.getLeakList()!=null && line.getLeakList().size()>0)
         {
             mTvLeakEmailList.setText(mPresenter.getEmailList(line.getLeakList()).toString());
+        }
+
+        if (line.getCellList()!=null && line.getCellList().size()>0)
+        {
+            mTvCellEmailList.setText(mPresenter.getCellEmailList(line.getCellList()).toString());
         }
 
 
@@ -896,7 +916,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     public void showExitDialog(Context context) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setTitle("Save Changes");
-        alertDialogBuilder.setMessage("Do you want to leave without saving the changes of the line:"+mEtName.getText().toString()+" ?");
+        alertDialogBuilder.setMessage("Do you want to save the changes of the line:"+mEtName.getText().toString()+" ?");
         alertDialogBuilder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -908,7 +928,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                     showNameError();
             }
         });
-        alertDialogBuilder.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -1269,6 +1289,15 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         else
             mLine.setLeakList(mPresenter.verifyEmails(mLine.getLeakList(),emails));
 
+        if (mLine.getCellList()==null)
+        {
+            mLine.setCellList(new ArrayList<Email>());
+            for (Email email: emails)
+                mLine.getCellList().add(new Email(email));
+        }
+        else
+            mLine.setCellList(mPresenter.verifyEmails(mLine.getCellList(),emails));
+
 
         setData(mLine);
     }
@@ -1277,7 +1306,10 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     public void showEmailList(Context context, ArrayList<Email> list, final int position) {
         if (list!=null && list.size()>0) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-            final EmailSelectionAdapter adapter = new EmailSelectionAdapter(list);
+            final EmailSelectionAdapter adapter;
+            adapter = new EmailSelectionAdapter(list);
+
+
             RecyclerView recyclerView = new RecyclerView(context);
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -1298,6 +1330,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                             break;
                         case 4:
                             mLine.setLeakList(adapter.getEmails());
+                        case 5:
+                            mLine.setCellList(adapter.getEmails());
                             break;
                         default:
                             mLine.setDowntimeList(adapter.getEmails());
@@ -1397,5 +1431,58 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         if (position==3)
             showShiftDialog(shift3,position,this);
 
+    }
+
+    private void setGestureDetector(){
+        gestureDetector = new GestureDetector(this, new GestureListener());
+
+        mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener()
+        {
+
+            @Override
+            public boolean onScale(ScaleGestureDetector detector)
+            {
+                float scale = 1 - detector.getScaleFactor();
+
+                float prevScale = mScale;
+                mScale += scale;
+
+                if (mScale < 0.1f) // Minimum scale condition:
+                    mScale = 0.1f;
+
+                if (mScale > 1) // Maximum scale condition:
+                    mScale = 1;
+                ScaleAnimation scaleAnimation = new ScaleAnimation(1f / prevScale, 1f / mScale, 1f / prevScale, 1f / mScale, detector.getFocusX(), detector.getFocusY());
+                scaleAnimation.setDuration(0);
+                scaleAnimation.setFillAfter(true);
+                ScrollView layout = findViewById(R.id.sv);
+                layout.startAnimation(scaleAnimation);
+                return true;
+            }
+        });
+    }
+
+    // step 3: override dispatchTouchEvent()
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        super.dispatchTouchEvent(event);
+        mScaleDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
+        return gestureDetector.onTouchEvent(event);
+    }
+
+//step 4: add private class GestureListener
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        // event when double tap occurs
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            // double tap fired.
+            return true;
+        }
     }
 }

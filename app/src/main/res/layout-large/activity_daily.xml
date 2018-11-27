@@ -131,6 +131,7 @@
                 android:text="@string/daily_report_hour"
                 android:id="@+id/bt_hour"
                 android:layout_margin="10dp"
+                android:textSize="17sp"
                 style="@style/AppTheme.Button"
                 />
             <Button
@@ -141,6 +142,7 @@
                 android:text="@string/daily_end_1st_shift"
                 android:id="@+id/bt_end_s1"
                 android:layout_margin="10dp"
+                android:textSize="17sp"
                 style="@style/AppTheme.Button" />
             <Button
                 android:layout_width="0dp"
@@ -150,6 +152,7 @@
                 android:text="@string/dailly_end_2nd_shift"
                 android:id="@+id/bt_end_s2"
                 android:layout_margin="10dp"
+                android:textSize="17sp"
                 style="@style/AppTheme.Button" />
 
             <Button
@@ -160,11 +163,13 @@
                 android:text="@string/daily_end_3rd_shift"
                 android:id="@+id/bt_end_s3"
                 android:layout_margin="10dp"
+                android:textSize="17sp"
                 style="@style/AppTheme.Button" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            >
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -173,6 +178,7 @@
                 android:text="@string/daily_downtime"
                 android:id="@+id/bt_downtime"
                 android:layout_margin="10dp"
+                android:textSize="17sp"
                 style="@style/AppTheme.Button" />
 
             <Button
@@ -183,7 +189,9 @@
                 android:text="@string/daily_leak_failure_counter"
                 android:id="@+id/bt_counter"
                 android:layout_margin="10dp"
-                style="@style/AppTheme.Button" />
+                android:theme="@style/AppTheme.Button"
+                android:textSize="17sp"
+                />
 
             <Button
                 android:layout_width="0dp"
@@ -192,8 +200,21 @@
                 android:gravity="center"
                 android:text="@string/daily_scrap_event"
                 android:id="@+id/bt_event"
+                android:textSize="17sp"
                 android:layout_margin="10dp"
                 style="@style/AppTheme.Button" />
+
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/send_sms"
+                android:id="@+id/bt_send_sms"
+                android:layout_margin="10dp"
+                style="@style/AppTheme.Button" />
+
         </LinearLayout>
 
     </LinearLayout>

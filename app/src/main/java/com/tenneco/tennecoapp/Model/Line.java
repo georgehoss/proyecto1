@@ -12,7 +12,6 @@ import java.util.Comparator;
 public class Line {
     public static final String DB_LINE = "line";
     public static final String DB_PRODUCTION_LINE = "production_line";
-
     private String name;
     private String id;
     private Shift first;
@@ -33,6 +32,7 @@ public class Line {
     private ArrayList<Email> scrap1List;
     private ArrayList<Email> scrap2List;
     private ArrayList<Email> scrap3List;
+    private ArrayList<Email> cellList;
     private String groupLeaders;
     private String teamLeaders;
     private String password;
@@ -261,4 +261,14 @@ public class Line {
     public void setLeakList(ArrayList<Email> leakList) {
         this.leakList = leakList;
     }
+
+    public ArrayList<Email> getCellList() {
+        return cellList;
+    }
+
+    public void setCellList(ArrayList<Email> cellList) {
+        this.cellList = cellList;
+    }
+
+
 }

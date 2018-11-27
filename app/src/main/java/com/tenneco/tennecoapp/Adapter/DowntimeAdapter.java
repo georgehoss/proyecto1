@@ -42,8 +42,8 @@ public class DowntimeAdapter extends  RecyclerView.Adapter<DowntimeAdapter.Downt
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final DowntimeViewHolder holder, int position) {
-        Zone zone = zones.get(position);
+    public void onBindViewHolder(@NonNull final DowntimeViewHolder holder, final int position) {
+        final Zone zone = zones.get(position);
         if (zone!=null)
         {
             holder.mTvName.setText(zone.getName());
@@ -69,6 +69,15 @@ public class DowntimeAdapter extends  RecyclerView.Adapter<DowntimeAdapter.Downt
 
                 holder.mTvInfo.setText(locations.toString());
             }
+
+            holder.mBtDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    zones.remove(zone);
+                    notifyItemRemoved(position);
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 

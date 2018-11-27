@@ -38,7 +38,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Introduce Reason name"
+                    android:hint="Introduce Reason"
                     android:gravity="center"
                     android:id="@+id/et_name"
                     android:inputType="textPersonName"

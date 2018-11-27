@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public class Utils {
     public static String getDateString() {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         return dateFormat.format(new Date());
     }
 
@@ -19,7 +19,6 @@ public class Utils {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
         return dateFormat.format(new Date());
     }
-
 
     public static String converTimeString(String input){
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");

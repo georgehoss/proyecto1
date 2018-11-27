@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:id="@+id/sv"
     tools:context=".Lines.AddEditLineActivity">
 
     <LinearLayout
@@ -420,6 +421,7 @@
                         android:orientation="horizontal"
                         android:gravity="center"
                         android:layout_margin="5dp"
+                        android:visibility="gone"
                         >
 
                         <TextView
@@ -452,7 +454,7 @@
                         android:orientation="vertical"
                         android:background="@drawable/bg_shift"
                         android:layout_margin="5dp"
-
+                        android:visibility="gone"
                         >
                         <LinearLayout
                             android:layout_width="match_parent"

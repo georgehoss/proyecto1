@@ -28,6 +28,50 @@
             android:textColor="@color/colorWhite"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
+            android:text="Cell Report"
+            android:id="@+id/tv_cell"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            style="@style/AppTheme.Button"
+            android:id="@+id/bt_add_cell"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Addresses:"
+        android:textSize="17sp"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:textIsSelectable="true"
+        android:id="@+id/tv_addresses_cell"
+        />
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/colorWhite"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
             android:text="@string/add_downtime"
             android:id="@+id/tv_dw_emails"
             />
@@ -224,7 +268,6 @@
         android:textIsSelectable="true"
         android:id="@+id/tv_addresses_sc3"
         />
-
 
 
 

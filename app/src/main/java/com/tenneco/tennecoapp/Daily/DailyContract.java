@@ -9,9 +9,11 @@ import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -23,6 +25,8 @@ public interface DailyContract {
         void setLine();
         void getGroup();
         void getTeam();
+        void getNumbers();
+        void getOperators();
         void showActualsDialog(WorkHour workHour, Line line,int position, Context context);
         void showTargetDialog(WorkHour workHour,Line line, int position,Context context);
         void showEndShiftDialog(Line line,int shift,Context context,boolean close);
@@ -32,17 +36,29 @@ public interface DailyContract {
         void showDowntimeDialog(Downtime downtime, Context context);
         void showScrapDialog(ArrayList<Reason> reasons, Context context);
         void showFTQ(int shift);
-        void sendEmail(String[] Adresses,String[] CCs,String subject,String body);
+        void sendEmail(String[] Adresses,String[] CCs,String subject,String body,int shift);
         void showScrap();
         void hideScrap();
         void initAdapter();
-        void showUserDialog(ArrayList<User> users,Context context,String title,int position);
+        void showUserDialog(ArrayList<User> users,Context context,int position);
         void showTeam();
         void hideTeam();
         void setTeam(String title);
         void showGroup();
         void hideGroup();
         void setGroup(String title);
+        void showCellEmailDialog();
+        void sendCellEmail();
+        void longClicks();
+        void showDialogClose(int position);
+        void showDialogEndShift(int position);
+        void sendShiftEmail(int position);
+        void getPLine();
+        void saveTl(String tl,int shift);
+        void saveGl(String gl,int shift);
+        void sendSms(String number,String message);
+        void showSendMsgButton();
+        void showSendMsgDialog(Context context);
 
     }
     interface Presenter extends BasePresenter<View>{
@@ -60,7 +76,14 @@ public interface DailyContract {
         void verifyLeaks(Line line);
         String[] getEmails (ArrayList<Email> emails, Line line);
         String[] getCC (ArrayList<Email> emails, Line line);
-        void setTeam(String teams);
-        void setGroup(String group);
+        void setTeam(Line line);
+        void setGroup(Line line);
+        boolean getGroups(Line line);
+        boolean getTeam(Line line);
+        String lineInformation(Line line);
+        String shiftInformation(Line line,int position);
+        void createCVS(Context context,Line line) throws IOException;
+        void createCSVShift(Context context, Line line, int shift, Shift actualShift);
+
     }
 }

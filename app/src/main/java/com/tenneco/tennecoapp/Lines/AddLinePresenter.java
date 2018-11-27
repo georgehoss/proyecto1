@@ -158,6 +158,21 @@ public class AddLinePresenter implements AddLineContract.Presenter {
     }
 
     @Override
+    public StringBuilder getCellEmailList(ArrayList<Email> emails) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\nAddresses:");
+        for (Email email :emails)
+            if (email.isShift1()&& !email.isCc1())
+                stringBuilder.append(" ").append(email.getEmail());
+        stringBuilder.append("\n\nCC:");
+        for (Email email : emails)
+            if (email.isShift1() && email.isCc1())
+                stringBuilder.append(" ").append(email.getEmail());
+
+        return stringBuilder;
+    }
+
+    @Override
     public void saveChanges(String name, String id, Shift first, Shift second, Shift third, ArrayList<EmployeePosition> positions,
                             Downtime downtime, ArrayList<Reason> reasons,Line mLine, ArrayList<Employee> employees,
                             ArrayList<Email> emails, String psw) {
@@ -202,6 +217,7 @@ public class AddLinePresenter implements AddLineContract.Presenter {
         line.setScrap2List(mLine.getScrap2List());
         line.setScrap3List(mLine.getScrap3List());
         line.setLeakList(mLine.getLeakList());
+        line.setCellList(mLine.getCellList());
 
         if (mLine.getParentId()!=null)
             line.setParentId(mLine.getParentId());
@@ -217,70 +233,6 @@ public class AddLinePresenter implements AddLineContract.Presenter {
 
         if (mLine.getScraps()!=null)
             line.setScraps(mLine.getScraps());
-
-
-
-
-        if (line.getDowntimeList()==null) {
-            mLine.setDowntimeList(new ArrayList<Email>());
-            for (Email email : emails)
-            {
-                Email email1 = new Email(email);
-                email1.setShift1(true);
-                email1.setShift2(true);
-                email1.setShift3(true);
-                mLine.getDowntimeList().add(new Email(email1));
-            }
-        }
-
-        if (line.getScrap1List()==null) {
-            mLine.setScrap1List(new ArrayList<Email>());
-            for (Email email : emails)
-            {
-                Email email1 = new Email(email);
-                email1.setShift1(true);
-                email1.setShift2(true);
-                email1.setShift3(true);
-                mLine.getScrap1List().add(new Email(email1));
-            }
-        }
-
-        if (line.getScrap2List()==null) {
-            mLine.setScrap2List(new ArrayList<Email>());
-            for (Email email : emails)
-            {
-                Email email1 = new Email(email);
-                email1.setShift1(true);
-                email1.setShift2(true);
-                email1.setShift3(true);
-                mLine.getScrap2List().add(new Email(email1));
-            }
-        }
-
-
-        if (line.getScrap3List()==null) {
-            mLine.setScrap3List(new ArrayList<Email>());
-            for (Email email : emails)
-            {
-                Email email1 = new Email(email);
-                email1.setShift1(true);
-                email1.setShift2(true);
-                email1.setShift3(true);
-                mLine.getScrap3List().add(new Email(email1));
-            }
-        }
-
-        if (line.getLeakList()==null) {
-            line.setLeakList(new ArrayList<Email>());
-            for (Email email : emails)
-            {
-                Email email1 = new Email(email);
-                email1.setShift1(true);
-                email1.setShift2(true);
-                email1.setShift3(true);
-                line.getLeakList().add(new Email(email1));
-            }
-        }
 
         line.setPassword(psw);
 

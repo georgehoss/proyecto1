@@ -11,8 +11,6 @@ public class Shift {
     private String cell;
     private String date;
     private String shiftName;
-    private String actual;
-    private String target;
     private String cumulativeActual;
     private String cumulativePlanned;
     private ArrayList<EmployeePosition> positions;
@@ -22,6 +20,8 @@ public class Shift {
     private String timeStart;
     private String timeEnd;
     private boolean leakReached;
+    private String groupLeaders;
+    private String teamLeaders;
 
 
     public Shift() {
@@ -98,21 +98,6 @@ public class Shift {
         this.shiftName = shiftName;
     }
 
-    public String getActual() {
-        return actual;
-    }
-
-    public void setActual(String actual) {
-        this.actual = actual;
-    }
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
 
     public ArrayList<EmployeePosition> getPositions() {
         return positions;
@@ -178,4 +163,19 @@ public class Shift {
         this.leakReached = leakReached;
     }
 
+    public String getGroupLeaders() {
+        return groupLeaders;
+    }
+
+    public void setGroupLeaders(String groupLeaders) {
+        this.groupLeaders = groupLeaders;
+    }
+
+    public String getTeamLeaders() {
+        return teamLeaders;
+    }
+
+    public void setTeamLeaders(String teamLeaders) {
+        this.teamLeaders = teamLeaders;
+    }
 }

@@ -22,7 +22,7 @@
                <TextView
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
-                   android:text="@string/add_downtime"
+                   android:text="zz"
                    android:gravity="center"
                    android:textColor="@color/colorWhite"
                    android:textSize="22sp"
@@ -192,7 +192,7 @@
                    android:id="@+id/bt_start"
                    />
 
-               <TextView
+               <EditText
                    android:layout_width="0dp"
                    android:layout_weight="1"
                    android:layout_height="wrap_content"
@@ -202,7 +202,8 @@
                    android:gravity="center"
                    android:textColor="@color/colorPrimaryDark"
                    android:layout_margin="5dp"
-                   android:id="@+id/tv_start"
+                   android:id="@+id/et_start"
+                   android:inputType="time"
                    />
 
            </LinearLayout>
@@ -247,7 +248,7 @@
                    android:id="@+id/bt_end"
                    />
 
-               <TextView
+               <EditText
                    android:layout_width="0dp"
                    android:layout_weight="1"
                    android:layout_height="wrap_content"
@@ -257,7 +258,8 @@
                    android:gravity="center"
                    android:textColor="@color/colorPrimaryDark"
                    android:layout_margin="5dp"
-                   android:id="@+id/tv_end"
+                   android:id="@+id/et_end"
+                   android:inputType="time"
                    />
 
            </LinearLayout>

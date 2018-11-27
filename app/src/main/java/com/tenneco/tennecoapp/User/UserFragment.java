@@ -31,8 +31,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.UserAdapter;
 import com.tenneco.tennecoapp.MainActivity;
+import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,11 +81,11 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         if (getArguments()!=null &&  getArguments().getString("db")!=null) {
             if (Objects.requireNonNull(getArguments().getString("db")).equals(User.DB_GROUP)) {
                 setTitle("Group Leads");
-                dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_GROUP);
+                dbUsers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(User.DB_GROUP);
             }
             else {
                 setTitle("Team Leads");
-                dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_TEAM);
+                dbUsers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(User.DB_TEAM);
             }
 
             showFloatingButton();

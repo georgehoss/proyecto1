@@ -71,6 +71,7 @@ public interface AddLineContract {
         void onScrapClick(int viewVisibility, int resultVisibility);
         void onEmailClick(int viewVisibility, int resultVisibility);
         StringBuilder getEmailList(ArrayList<Email> emails);
+        StringBuilder getCellEmailList(ArrayList<Email> emails);
         void saveChanges(String name,String id, Shift first,Shift second,Shift third,ArrayList<EmployeePosition> positions,Downtime downtime,
                          ArrayList<Reason> reasons, Line line, ArrayList<Employee> employees,ArrayList<Email>emails, String psw);
         Shift getshift(String sh1,String eh1,String t1,

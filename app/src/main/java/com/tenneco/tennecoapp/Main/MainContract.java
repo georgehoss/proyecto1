@@ -13,6 +13,8 @@ public interface MainContract {
         void hideProgress();
         void showPickOne();
         void showNoLines();
+        void showPlants();
+        void launchPlants();
         void launchHourly(String lineId);
     }
     interface Presenter extends BasePresenter<View>{}

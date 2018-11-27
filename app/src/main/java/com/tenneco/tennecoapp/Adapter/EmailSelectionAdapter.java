@@ -24,11 +24,19 @@ import butterknife.ButterKnife;
  */
 public class EmailSelectionAdapter extends RecyclerView.Adapter<EmailSelectionAdapter.EmailViewHolder> {
     private ArrayList<Email> emails;
-
+    private boolean cell;
     public EmailSelectionAdapter(ArrayList<Email> emails) {
         if (emails!=null)
             Collections.sort(emails,Email.EmailNameComparator);
         this.emails = emails;
+        this.cell = false;
+    }
+
+    public EmailSelectionAdapter(ArrayList<Email> emails, boolean cell) {
+        if (emails!=null)
+            Collections.sort(emails,Email.EmailNameComparator);
+        this.emails = emails;
+        this.cell = cell;
     }
 
     @NonNull
@@ -51,6 +59,16 @@ public class EmailSelectionAdapter extends RecyclerView.Adapter<EmailSelectionAd
             holder.mCbCc1.setChecked(email.isCc1());
             holder.mCbCc2.setChecked(email.isCc2());
             holder.mCbCc3.setChecked(email.isCc3());
+
+            if (cell)
+            {
+                holder.mCbS1.setText("Select");
+                holder.mCbS2.setVisibility(View.GONE);
+                holder.mCbS3.setVisibility(View.GONE);
+                holder.mCbCc2.setVisibility(View.GONE);
+                holder.mCbCc3.setVisibility(View.GONE);
+            }
+
 
             holder.mCbCc1.setOnClickListener(new CompoundButton.OnClickListener() {
                 @Override

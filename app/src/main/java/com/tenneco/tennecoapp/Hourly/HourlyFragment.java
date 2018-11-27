@@ -29,7 +29,9 @@ import com.tenneco.tennecoapp.Daily.DailyActivity;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 import com.tenneco.tennecoapp.Utils.Utils;
 
 import java.util.ArrayList;
@@ -95,8 +97,8 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_hourly, container, false);
         ButterKnife.bind(this,view);
-        dbPLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE);
-        dbLine =  FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+        dbPLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_PRODUCTION_LINE);
+        dbLine =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ProductionLineAdapter(mLines,this);
@@ -126,7 +128,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         if (admin>1)
             postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
         else
-            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(1);
+            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(2);
         postsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -212,6 +214,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         line.setScrap3List(mLine.getScrap3List());
         line.setPassword(mLine.getPassword());
         line.setLeakList(mLine.getLeakList());
+        line.setCellList(mLine.getCellList());
         dbPLines.child(line.getId()).setValue(line);
 
     }

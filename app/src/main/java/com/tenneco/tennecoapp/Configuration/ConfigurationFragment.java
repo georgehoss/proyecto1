@@ -25,7 +25,9 @@ import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Lines.AddLineContract;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import java.util.ArrayList;
 
@@ -57,7 +59,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_configuration, container, false);
         ButterKnife.bind(this,view);
-        dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE);
+        dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new LineAdapter(mLines,this,false);
