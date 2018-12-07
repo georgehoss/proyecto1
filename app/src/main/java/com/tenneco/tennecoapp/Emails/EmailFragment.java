@@ -38,8 +38,9 @@ import butterknife.OnClick;
 
 
 public class EmailFragment extends Fragment implements EmailContract.View, EmailAdapter.OnEmailInteraction {
+
     private DatabaseReference dbEmails;
-    private EmailContract.Preseneter mPresenter;
+    private EmailContract.Presenter mPresenter;
     private ArrayList<Email> mEmails;
     private EmailAdapter mAdapter;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
@@ -218,7 +219,7 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
     }
 
     @Override
-    public void bindPresenter(EmailContract.Preseneter presenter) {
+    public void bindPresenter(EmailContract.Presenter presenter) {
         this.mPresenter = presenter;
     }
 

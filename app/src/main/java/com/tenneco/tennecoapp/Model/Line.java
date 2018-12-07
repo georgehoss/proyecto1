@@ -13,6 +13,9 @@ public class Line {
     public static final String DB_LINE = "line";
     public static final String DB_PRODUCTION_LINE = "production_line";
     private String name;
+    private String code;
+    private String description;
+    private ArrayList<Product> products;
     private String id;
     private Shift first;
     private Shift second;
@@ -26,7 +29,7 @@ public class Line {
     private ArrayList<Employee> employees;
     private String timeStart;
     private String timeEnd;
-    private ArrayList<Scrap> scraps;
+    private ArrayList<Reject> rejects;
     private ArrayList<Email> downtimeList;
     private ArrayList<Email> leakList;
     private ArrayList<Email> scrap1List;
@@ -190,12 +193,12 @@ public class Line {
         this.timeEnd = timeEnd;
     }
 
-    public ArrayList<Scrap> getScraps() {
-        return scraps;
+    public ArrayList<Reject> getRejects() {
+        return rejects;
     }
 
-    public void setScraps(ArrayList<Scrap> scraps) {
-        this.scraps = scraps;
+    public void setRejects(ArrayList<Reject> rejects) {
+        this.rejects = rejects;
     }
 
     public ArrayList<Email> getDowntimeList() {
@@ -270,5 +273,27 @@ public class Line {
         this.cellList = cellList;
     }
 
+    public String getCode() {
+        return code;
+    }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public ArrayList<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(ArrayList<Product> products) {
+        this.products = products;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

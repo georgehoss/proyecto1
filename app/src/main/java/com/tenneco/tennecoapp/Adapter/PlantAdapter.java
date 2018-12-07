@@ -23,14 +23,12 @@ import butterknife.ButterKnife;
 public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.LineViewHolder> {
     private ArrayList<Plant> plants;
     private ItemInteraction itemInteraction;
-    private boolean date;
 
-    public PlantAdapter(ArrayList<Plant> plants, ItemInteraction itemInteraction, boolean date) {
+    public PlantAdapter(ArrayList<Plant> plants, ItemInteraction itemInteraction) {
         if (plants !=null)
             Collections.sort(plants,Plant.NameComparator);
         this.plants = plants;
         this.itemInteraction = itemInteraction;
-        this.date = date;
     }
 
     @NonNull
@@ -55,6 +53,16 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.LineViewHold
                     itemInteraction.onItemClick(plant.getId());
                 }
             });
+            if (plant.getAddress()!=null)
+            {
+                holder.mTvLocation.setText(plant.getAddress());
+                holder.mTvLocation.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                holder.mTvLocation.setText("");
+                holder.mTvLocation.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -68,6 +76,7 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.LineViewHold
 
     class LineViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_name) TextView mTvName;
+        @BindView(R.id.tv_location)TextView mTvLocation;
         @BindView(R.id.ll_plant) LinearLayout mLlPlant;
 
 

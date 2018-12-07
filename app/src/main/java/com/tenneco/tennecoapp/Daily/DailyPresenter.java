@@ -1,23 +1,23 @@
 package com.tenneco.tennecoapp.Daily;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Environment;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
-import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
-import com.tenneco.tennecoapp.Model.Scrap;
+import com.tenneco.tennecoapp.Model.ReasonDelay;
+import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.Model.Shift;
+import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.Utils.Utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,11 +45,16 @@ public class DailyPresenter implements DailyContract.Presenter {
     }
 
     @Override
-    public void saveLine(Line line, ArrayList<WorkHour> hours, int position, String actual, String comment) {
+    public void saveLine(Line line, ArrayList<WorkHour> hours, int position, String actual, String comment,ReasonDelay reasonDelay,String owner) {
 
 
         hours.get(position).setActuals(actual);
         hours.get(position).setComments(comment);
+        if (reasonDelay!=null)
+            hours.get(position).setReasonDelay(reasonDelay);
+        if (owner!=null)
+            hours.get(position).setOwner(owner);
+
         line.getFirst().getHours().clear();
         line.getSecond().getHours().clear();
         line.getThird().getHours().clear();
@@ -236,6 +241,31 @@ public class DailyPresenter implements DailyContract.Presenter {
         targ = Integer.valueOf(target);
 
         if (act<targ && comment.isEmpty())
+            return true;
+        else
+            return false;
+    }
+
+    @Override
+    public boolean validateReason(ReasonDelay reasonDelay, String actual, String target) {
+        int act,targ;
+        act = Integer.valueOf(actual);
+        targ = Integer.valueOf(target);
+        String id = reasonDelay.getId();
+
+        if (act<targ && (id==null || id.equals("null")))
+            return true;
+        else
+            return false;
+    }
+
+    @Override
+    public boolean validateReasonSelection(String actual, String target, String reason, String detail) {
+        int act,targ;
+        act = Integer.valueOf(actual);
+        targ = Integer.valueOf(target);
+
+        if (act<targ && reason.equals("Other") && detail.isEmpty())
             return true;
         else
             return false;
@@ -635,10 +665,10 @@ public class DailyPresenter implements DailyContract.Presenter {
         body.append(getShift(line.getSecond()));
         body.append("\n\n3rd Shift");
         body.append(getShift(line.getThird()));
-        if (line.getScraps()!=null && line.getScraps().size()>0) {
-            body.append("\n\nScrap Events:");
-            for (Scrap scrap : line.getScraps())
-                body.append("\n - ").append(scrap.getTime()).append(" ").append(scrap.getReason());
+        if (line.getRejects()!=null && line.getRejects().size()>0) {
+            body.append("\n\nReject Events:");
+            for (Reject reject : line.getRejects())
+                body.append("\n - ").append(reject.getTime()).append(" ").append(reject.getReason());
         }
 
 
@@ -665,10 +695,10 @@ public class DailyPresenter implements DailyContract.Presenter {
             body.append("3rd Shift");
             body.append(getShift(line.getThird()));
         }
-        if (line.getScraps()!=null && line.getScraps().size()>0) {
-            body.append("\n\nScrap Events:");
-            for (Scrap scrap : line.getScraps())
-                body.append("\n - ").append(scrap.getTime()).append(" ").append(scrap.getReason());
+        if (line.getRejects()!=null && line.getRejects().size()>0) {
+            body.append("\n\nReject Events:");
+            for (Reject reject : line.getRejects())
+                body.append("\n - ").append(reject.getTime()).append(" ").append(reject.getReason());
         }
 
 
@@ -716,10 +746,10 @@ public class DailyPresenter implements DailyContract.Presenter {
         }
 
 
-        if (line.getScraps()!=null && line.getScraps().size()>0) {
-            bw.write("\n\n;Time;Scrap Events");
-            for (Scrap scrap : line.getScraps())
-                bw.write("\n ;"+scrap.getTime()+";"+scrap.getReason());
+        if (line.getRejects()!=null && line.getRejects().size()>0) {
+            bw.write("\n\n;Time;Reject Events");
+            for (Reject reject : line.getRejects())
+                bw.write("\n ;"+ reject.getTime()+";"+ reject.getReason());
         }
 
 
@@ -846,6 +876,24 @@ public class DailyPresenter implements DailyContract.Presenter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean validateUser(FirebaseUser user, ArrayList<User> team, ArrayList<User> group) {
+        boolean validate = false;
+
+        if (user!=null && user.getEmail()!=null) {
+
+            for (User us : team)
+                if (user.getEmail().equals(us.getEmail()))
+                    validate = true;
+
+            for (User us : group)
+                if (user.getEmail().equals(us.getEmail()))
+                    validate = true;
+        }
+
+        return validate;
     }
 
     private String getShift(Shift shift){

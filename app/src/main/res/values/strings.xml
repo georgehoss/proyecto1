@@ -114,7 +114,7 @@
     <string name="add_position_name">Position Name:</string>
     <string name="employee_list">Operators List</string>
     <string name="add_actual">Actual</string>
-    <string name="daily_scrap_event">Scrap Event</string>
+    <string name="daily_reject_event">Reject Event</string>
     <string name="daily_leak_failure_counter">Leak Failure Counter</string>
     <string name="daily_downtime">Downtime</string>
     <string name="daily_end_3rd_shift">End 3rd Shift</string>
@@ -125,7 +125,7 @@
     <string name="warning_end_shift">Once you end the shift, you will not be able to edit its values.</string>
     <string name="select_operators">Select Operators:</string>
     <string name="add_downtime">Downtime</string>
-    <string name="scrap_event">Scrap Event</string>
+    <string name="reject_event">Rejects Event</string>
     <string name="downtime_zone">Zone</string>
     <string name="downtime_location">Location</string>
     <string name="downtime_reason">Reason</string>
@@ -172,6 +172,12 @@
     <string name="list_name">List Name:</string>
     <string name="list_name_">List Name</string>
     <string name="send_sms">Send SMS</string>
+    <string name="rejects_report">Rejects Report</string>
+    <string name="report_reject">Report Reject</string>
+    <string name="title_activity_config_line">ConfigLineActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
 
 
 </resources>

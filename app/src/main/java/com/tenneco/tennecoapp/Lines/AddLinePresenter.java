@@ -231,8 +231,8 @@ public class AddLinePresenter implements AddLineContract.Presenter {
         if (mLine.getTeamLeaders()!=null)
             line.setTeamLeaders(mLine.getTeamLeaders());
 
-        if (mLine.getScraps()!=null)
-            line.setScraps(mLine.getScraps());
+        if (mLine.getRejects()!=null)
+            line.setRejects(mLine.getRejects());
 
         line.setPassword(psw);
 
@@ -489,7 +489,7 @@ public class AddLinePresenter implements AddLineContract.Presenter {
         downtimeReasons.add(new Reason("Ribbon/Label replacement"));
         downtimeReasons.add(new Reason("Robot out of sequence"));
         downtimeReasons.add(new Reason("Safety"));
-        downtimeReasons.add(new Reason("Scrap disposal"));
+        downtimeReasons.add(new Reason("Reject disposal"));
         downtimeReasons.add(new Reason("Seal replacement"));
         downtimeReasons.add(new Reason("Sensor"));
         downtimeReasons.add(new Reason("Stuck in tip change"));

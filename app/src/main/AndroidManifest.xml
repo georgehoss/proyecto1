@@ -5,8 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -36,7 +35,17 @@
             android:name=".Plants.PlantsActivity"
             android:label="@string/title_activity_plants"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Plants.AddEditPlantActivity"></activity>
+        <activity android:name=".Plants.AddEditPlantActivity" />
+        <activity
+            android:name=".Lines.ConfigLineActivity"
+            android:label="@string/title_activity_config_line"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tenneco.tennecoapp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

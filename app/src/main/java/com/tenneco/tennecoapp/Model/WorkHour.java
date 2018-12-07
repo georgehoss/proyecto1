@@ -16,6 +16,8 @@ public class WorkHour {
     private String user;
     private boolean closed;
     private ReasonDelay reasonDelay;
+    private String owner;
+    private Product product;
 
     public WorkHour() {
     }
@@ -129,5 +131,21 @@ public class WorkHour {
 
     public static void setStartHourComparator(Comparator<WorkHour> startHourComparator) {
         StartHourComparator = startHourComparator;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }

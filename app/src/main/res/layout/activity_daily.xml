@@ -9,8 +9,8 @@
     android:id="@+id/sv"
 
     >
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
@@ -21,14 +21,20 @@
             android:id="@+id/rv_lines"
             android:visibility="gone"
             />
-        <include layout="@layout/daily_title"/>
+        <include layout="@layout/daily_title"
+            android:id="@+id/layout_title"
+            />
 
-        <include layout="@layout/shift_table"/>
+        <include layout="@layout/shift_table"
+            android:id="@+id/layout"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:baselineAligned="false">
+            android:baselineAligned="false"
+            android:layout_below="@id/layout"
+            >
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -70,7 +76,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/daily_scrap_event"
+                    android:text="@string/daily_reject_event"
                     android:id="@+id/bt_event"
                     android:layout_margin="10dp"
                     style="@style/AppTheme.Button" />
@@ -123,5 +129,5 @@
         </LinearLayout>
 
 
-    </LinearLayout>
+    </RelativeLayout>
 </ScrollView>

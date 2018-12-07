@@ -38,6 +38,8 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,8 +48,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.DailyAdapter;
 import com.tenneco.tennecoapp.Adapter.EndShiftPositionAdapter;
-import com.tenneco.tennecoapp.Adapter.ScrapAdapter;
-import com.tenneco.tennecoapp.Adapter.ScrapEventAdapter;
+import com.tenneco.tennecoapp.Adapter.RejectEventAdapter;
 import com.tenneco.tennecoapp.Adapter.UserSelectorAdapter;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
@@ -57,7 +58,8 @@ import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Plant;
-import com.tenneco.tennecoapp.Model.Scrap;
+import com.tenneco.tennecoapp.Model.ReasonDelay;
+import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.Sms;
 import com.tenneco.tennecoapp.Model.SmsList;
@@ -87,14 +89,16 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DatabaseReference dbGroupLd;
     private DatabaseReference dbOperators;
     private DatabaseReference dbNumbers;
+    private DatabaseReference dbReasons;
     private ArrayList<User> mTeam;
     private ArrayList<User> mGroup;
     private ArrayList<Employee> mOperators;
     private ArrayList<SmsList> mSmsLists;
+    private ArrayList<ReasonDelay> mReasons;
     private Line mLine;
     private Line mPline;
     private DailyAdapter mAdapter;
-    private ScrapEventAdapter mAdapterScr;
+    private RejectEventAdapter mAdapterScr;
     private String lineId;
     private ArrayList<WorkHour> mHours;
     private ProgressDialog progressDialog;
@@ -177,7 +181,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @OnClick(R.id.bt_event) void scrap(){
-        showScrapDialog(mLine.getScrapReasons(),this);
+        showRejectDialog(mLine.getScrapReasons(),this);
     }
 
     @OnClick(R.id.tv_shift1) void shf1(){
@@ -229,6 +233,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         dbGroupLd = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(User.DB_GROUP);
         dbTeamLd = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(User.DB_TEAM);
         dbOperators = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
+        dbReasons= FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(ReasonDelay.DB_DELAY_REASONS);
         dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
         if (mPresenter == null)
             mPresenter = new DailyPresenter(this);
@@ -253,6 +258,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         getTeam();
         getOperators();
         getNumbers();
+        getReasons();
     }
 
     @Override
@@ -345,21 +351,32 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mAdapter.notifyDataSetChanged();
         mPresenter.showCount(mLine);
         mPresenter.verifyLeaks(mLine);
+        ArrayList<Reject> rejects = new ArrayList<>();
+        if (mLine.getFirst().getRejects()!=null)
+        rejects.addAll(mLine.getFirst().getRejects());
+        if (mLine.getSecond().getRejects()!=null)
+            rejects.addAll(mLine.getSecond().getRejects());
+        if (mLine.getThird().getRejects()!=null)
+            rejects.addAll(mLine.getThird().getRejects());
+        if (mLine.getRejects()!=null)
+            rejects.addAll(mLine.getRejects());
+
 
         if (mLine.getDowntime().isSet())
         {
             showDowntimeDialog(mLine.getDowntime(),this);
         }
-        else
-        if (mLine.getScraps()!=null && mLine.getScraps().size()>0)
+
+
+        if (rejects.size()>0)
         {
-            showScrap();
-            mAdapterScr.setScraps(mLine.getScraps());
+            showReject();
+            mAdapterScr.setRejects(rejects);
             mAdapterScr.notifyDataSetChanged();
         }
         else
         {
-            hideScrap();
+            hideReject();
         }
 
         if (!isShowingLeak && sendReport1) {
@@ -494,6 +511,29 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
+    public void getReasons() {
+        dbReasons.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mReasons = new ArrayList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    ReasonDelay reason = itemSnapshot.getValue(ReasonDelay.class);
+                    if (reason!=null)
+                        mReasons.add(reason);
+                }
+                Collections.sort(mReasons,ReasonDelay.NameComparator);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
     public void showActualsDialog(final WorkHour workHour, Line line, final int position, Context context) {
 
         if (!mLine.getDowntime().isSet())
@@ -533,6 +573,33 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             final AlertDialog dialog = alertDialogBuilder.create();
             dialog.show();
 
+            final LinearLayout mLlReason = view.findViewById(R.id.ll_reason);
+            Spinner spReason = view.findViewById(R.id.sp_reason);
+            final EditText etReason = view.findViewById(R.id.et_reason);
+            final ArrayList<ReasonDelay> mList = new ArrayList<>();
+            mList.add(new ReasonDelay("- Select a Reason -","null"));
+            mList.addAll(mReasons);
+            mList.add(new ReasonDelay("Other","0"));
+            ArrayAdapter<ReasonDelay> mAdapter = new ArrayAdapter<>(context,R.layout.spinner_row,mList);
+            spReason.setAdapter(mAdapter);
+            final ReasonDelay reasonDelay = new ReasonDelay();
+
+            spReason.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    ReasonDelay reas = (ReasonDelay) adapterView.getItemAtPosition(i);
+                    if (reas!=null) {
+                        reasonDelay.setName(reas.getName());
+                        reasonDelay.setId(reas.getId());
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+
             mBtCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -568,8 +635,23 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         mEtActual.setTextColor(getResources().getColor(R.color.colorRed));
                         Toast.makeText(DailyActivity.this, "Actual value is below target!", Toast.LENGTH_SHORT).show();
                     }
+                    else
+                    if (mPresenter.validateReason(reasonDelay,actual,workHour.getTarget()))
+                    {
+                        mLlReason.setVisibility(View.VISIBLE);
+                        Toast.makeText(DailyActivity.this, "Please select a Reason!", Toast.LENGTH_SHORT).show();
+
+                    }
+                    else
+                        if(mPresenter.validateReasonSelection(actual,workHour.getTarget(),reasonDelay.getName(), etReason.getText().toString())){
+                            etReason.setVisibility(View.VISIBLE);
+                            etReason.setError("You must describe the reason!");
+                            etReason.requestFocus();
+                        }
                     else {
-                        mPresenter.saveLine(mLine, mHours, position, actual, comment);
+                        if (etReason.getVisibility()==View.VISIBLE)
+                            reasonDelay.setReason(etReason.getText().toString());
+                        mPresenter.saveLine(mLine, mHours, position, actual, comment,reasonDelay,workHour.getOwner());
                         dialog.dismiss();
                     }
                 }
@@ -657,6 +739,76 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         }
         else
             showDowntimeDialog(mLine.getDowntime(),this);
+    }
+
+    @Override
+    public void showOwnerDialog(final WorkHour workHour, Line line, final int position, Context context) {
+        if (!mLine.getDowntime().isSet())
+        {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                    context);
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.dialog_actual, null);
+            alertDialogBuilder.setView(view);
+            alertDialogBuilder.setCancelable(false);
+            //alertDialogBuilder.setTitle(Window.FEATURE_NO_TITLE);
+            TextView mTvName = view.findViewById(R.id.tv_name);
+            mTvName.setText(line.getName());
+            TextView mTvDate = view.findViewById(R.id.tv_date);
+            mTvDate.setText(line.getDate());
+            TextView mTvShift = view.findViewById(R.id.tv_shift);
+            if (position<=7)
+                mTvShift.setText(getString(R.string.add_1st_shift));
+            if (position>=8 && position<=15)
+                mTvShift.setText(getString(R.string.add_2nd_shift));
+            if (position>15)
+                mTvShift.setText(getString(R.string.add_3rd_shift));
+            TextView mTvTime = view.findViewById(R.id.tv_time);
+            final String time = workHour.getStartHour() + " - " + workHour.getEndHour();
+            mTvTime.setText(time);
+            TextView mTvTarget = view.findViewById(R.id.tv_target);
+            mTvTarget.setText(workHour.getTarget());
+            final EditText mEtActual = view.findViewById(R.id.et_actual);
+            if (workHour.getActuals()!=null)
+                mEtActual.setText(workHour.getActuals());
+            final EditText mEtComments = view.findViewById(R.id.et_comments);
+            if (workHour.getComments()!=null)
+                mEtComments.setText(workHour.getComments());
+            Button mBtSave = view.findViewById(R.id.bt_save);
+            mBtSave.setText("Validate");
+            Button mBtCancel = view.findViewById(R.id.bt_cancel);
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
+
+            mEtActual.setEnabled(false);
+            mEtComments.setEnabled(false);
+
+
+            final FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+
+            if (!mPresenter.validateUser(mUser,mTeam,mGroup))
+                  mBtSave.setVisibility(View.GONE);
+
+                mBtCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                }
+            });
+
+            mBtSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String owner = mUser.getEmail();
+                        mPresenter.saveLine(mLine, mHours, position, workHour.getActuals(), workHour.getComments(),workHour.getReasonDelay(),owner);
+                        dialog.dismiss();
+                }
+            });
+        }
+        else
+            showDowntimeDialog(mLine.getDowntime(),this);
+
     }
 
     @Override
@@ -833,6 +985,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 }
                                 finalShift.setClosed(true);
                                 finalShift.setHours(hours);
+                                finalShift.setRejects(mLine.getRejects());
+                                line.setRejects(new ArrayList<Reject>());
                             }
 
                             if (finalStart && !mBtSave.getText().toString().equals("Save"))
@@ -1108,7 +1262,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
-    public void showScrapDialog(ArrayList<Reason> reasons, final Context context) {
+    public void showRejectDialog(ArrayList<Reason> reasons, final Context context) {
         if (!mLine.getFirst().isClosed() || !mLine.getSecond().isClosed() || !mLine.getThird().isClosed()) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1122,7 +1276,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             spinner.setAdapter(mAdapter);
             Button mBtReport = view.findViewById(R.id.bt_report);
             final EditText editText = view.findViewById(R.id.et_actions);
-            if (mLine.getScraps() != null && mLine.getScraps().size() >= 2)
+            if (mLine.getRejects() != null && mLine.getRejects().size() >= 2)
                 editText.setVisibility(View.VISIBLE);
 
             final AlertDialog dialog = alertDialogBuilder.create();
@@ -1136,50 +1290,50 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
                     if (reason != null && reason.getName().equals("- Select a Reason -"))
                         Toast.makeText(context, "You must select a reason to make the Report!", Toast.LENGTH_LONG).show();
-                    else if (mLine.getScraps() != null && mLine.getScraps().size() >= 2 && editText.getText().toString().isEmpty()) {
+                    else if (mLine.getRejects() != null && mLine.getRejects().size() >= 2 && editText.getText().toString().isEmpty()) {
                         editText.setError("You must write some actions!");
                         editText.requestFocus();
                         editText.setVisibility(View.VISIBLE);
                     } else if (reason != null) {
 
-                        if (mLine.getScraps() == null) {
-                            mLine.setScraps(new ArrayList<Scrap>());
+                        if (mLine.getRejects() == null) {
+                            mLine.setRejects(new ArrayList<Reject>());
                         }
-                        if (mLine.getScraps().size() >= 2)
-                            mLine.getScraps().add(new Scrap(reason.getName() + ". Actions: " + editText.getText().toString(), Utils.getTimeString()));
+                        if (mLine.getRejects().size() >= 2)
+                            mLine.getRejects().add(new Reject(reason.getName(), Utils.getTimeString(),editText.getText().toString()));
                         else
-                            mLine.getScraps().add(new Scrap(reason.getName(), Utils.getTimeString()));
+                            mLine.getRejects().add(new Reject(reason.getName(), Utils.getTimeString()));
                         dialog.dismiss();
                         updateLine(mLine);
 
                         String subject = "";
                         String body = "";
 
-                        if (mLine.getScraps().size() == 1) {
-                            subject = "Cell " + mLine.getName() + " Produced a First Scrap Piece due to: " + reason.getName();
+                        if (mLine.getRejects().size() == 1) {
+                            subject = "Cell " + mLine.getName() + " Produced a First Rejected Piece due to: " + reason.getName();
                             body = "Hi \n\n" +
-                                    "This is a notification that Cell " + mLine.getName() + " Produced a First Scrap Piece at " + Utils.getTimeString()
+                                    "This is a notification that Cell " + mLine.getName() + " Produced a First Reject Piece at " + Utils.getTimeString()
                                     + " due to: " + reason.getName() +
                                     "\n\nFirst Occurrence";
 
                             sendEmail(mPresenter.getEmails(mLine.getScrap1List(), mLine), mPresenter.getCC(mLine.getScrap1List(), mLine), subject, body,0);
-                        } else if (mLine.getScraps().size() == 2) {
-                            subject = "Cell " + mLine.getName() + " Produced a Second Scrap Piece due to: " + reason.getName();
+                        } else if (mLine.getRejects().size() == 2) {
+                            subject = "Cell " + mLine.getName() + " Produced a Second Rejected Piece due to: " + reason.getName();
                             body = "Hi \n\n" +
-                                    "This is a notification that Cell " + mLine.getName() + " Produced a Second Scrap Piece at " + Utils.getTimeString()
+                                    "This is a notification that Cell " + mLine.getName() + " Produced a Second Rejected Piece at " + Utils.getTimeString()
                                     + " due to: " + reason.getName() +
                                     "\n\nSecond Occurrence...   Next notification will be send to Group Leaders";
 
                             sendEmail(mPresenter.getEmails(mLine.getScrap2List(), mLine), mPresenter.getCC(mLine.getScrap2List(), mLine), subject, body,0);
                         } else {
-                            subject = "Cell " + mLine.getName() + " Produced Scrap Piece #" + String.valueOf(mLine.getScraps().size())
+                            subject = "Cell " + mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
                                     + " due to: " + reason.getName();
                             body = "Hi \n\n" +
-                                    "This is a notification that Cell " + mLine.getName() + " Produced Scrap Piece #" + String.valueOf(mLine.getScraps().size())
+                                    "This is a notification that Cell " + mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
                                     + " at " + Utils.getTimeString()
                                     + " due to: " + reason.getName() +
                                     "\n\nActions: " + editText.getText().toString() +
-                                    "\n\nScrap piece # " + String.valueOf(mLine.getScraps().size()) + " Next notification will be send to the Management Team";
+                                    "\n\nRejected piece # " + String.valueOf(mLine.getRejects().size()) + " Next notification will be send to the Management Team";
 
                             sendEmail(mPresenter.getEmails(mLine.getScrap3List(), mLine), mPresenter.getCC(mLine.getScrap3List(), mLine), subject, body,0);
                         }
@@ -1343,12 +1497,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
-    public void showScrap() {
+    public void showReject() {
         mLlScrap.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void hideScrap() {
+    public void hideReject() {
         mLlScrap.setVisibility(View.GONE);
     }
 
@@ -1359,7 +1513,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mAdapter = new DailyAdapter(mHours,this);
         mRvLine.setAdapter(mAdapter);
         mRvScrap.setLayoutManager(new LinearLayoutManager(this));
-        mAdapterScr = new ScrapEventAdapter(null);
+        mAdapterScr = new RejectEventAdapter(null);
         mRvScrap.setAdapter(mAdapterScr);
     }
 
@@ -1770,6 +1924,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         String time = Utils.getTimeString();
         final SmsList mSmsList = new SmsList();
 
+
         btClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1812,6 +1967,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         });
     }
 
+
     @Override
     public void onTargetClick(int position) {
         showActualsDialog(mHours.get(position),mLine,position,this);
@@ -1824,7 +1980,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void onOwnerClick(int position) {
-
+        showOwnerDialog(mHours.get(position),mLine,position,this);
     }
 
     @Override

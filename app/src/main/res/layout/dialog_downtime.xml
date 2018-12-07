@@ -22,7 +22,7 @@
                <TextView
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
-                   android:text="zz"
+                   android:text="@string/add_downtime"
                    android:gravity="center"
                    android:textColor="@color/colorWhite"
                    android:textSize="22sp"

@@ -22,6 +22,8 @@ public class Shift {
     private boolean leakReached;
     private String groupLeaders;
     private String teamLeaders;
+    private ArrayList<Reject> rejects;
+
 
 
     public Shift() {
@@ -177,5 +179,13 @@ public class Shift {
 
     public void setTeamLeaders(String teamLeaders) {
         this.teamLeaders = teamLeaders;
+    }
+
+    public ArrayList<Reject> getRejects() {
+        return rejects;
+    }
+
+    public void setRejects(ArrayList<Reject> rejects) {
+        this.rejects = rejects;
     }
 }

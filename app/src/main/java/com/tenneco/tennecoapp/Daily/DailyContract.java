@@ -3,12 +3,15 @@ package com.tenneco.tennecoapp.Daily;
 import android.app.AlertDialog;
 import android.content.Context;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.tenneco.tennecoapp.BasePresenter;
 import com.tenneco.tennecoapp.BaseView;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Email;
+import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.ReasonDelay;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
@@ -27,18 +30,20 @@ public interface DailyContract {
         void getTeam();
         void getNumbers();
         void getOperators();
+        void getReasons();
         void showActualsDialog(WorkHour workHour, Line line,int position, Context context);
         void showTargetDialog(WorkHour workHour,Line line, int position,Context context);
+        void showOwnerDialog(WorkHour workHour, Line line,int position, Context context);
         void showEndShiftDialog(Line line,int shift,Context context,boolean close);
         void updateLine(Line line);
         void hideLeakCounter();
         void setCount(int count);
         void showDowntimeDialog(Downtime downtime, Context context);
-        void showScrapDialog(ArrayList<Reason> reasons, Context context);
+        void showRejectDialog(ArrayList<Reason> reasons, Context context);
         void showFTQ(int shift);
         void sendEmail(String[] Adresses,String[] CCs,String subject,String body,int shift);
-        void showScrap();
-        void hideScrap();
+        void showReject();
+        void hideReject();
         void initAdapter();
         void showUserDialog(ArrayList<User> users,Context context,int position);
         void showTeam();
@@ -60,12 +65,15 @@ public interface DailyContract {
         void showSendMsgButton();
         void showSendMsgDialog(Context context);
 
+
     }
     interface Presenter extends BasePresenter<View>{
-        void saveLine(Line line,ArrayList<WorkHour> hours, int position, String actual, String comment);
+        void saveLine(Line line,ArrayList<WorkHour> hours, int position, String actual, String comment,ReasonDelay reasonDelay,String owner);
         void saveLine(Line line,ArrayList<WorkHour> hours, int position, String target);
         boolean validateActual(String actual);
         boolean validateComment(String comment, String actual, String target);
+        boolean validateReason(ReasonDelay reasonDelay, String actual, String target);
+        boolean validateReasonSelection(String actual,String target,String reason, String detail);
         int reportHour(ArrayList<WorkHour>workHours);
         void showCount(Line line);
         void incrementCount(Line line);
@@ -84,6 +92,7 @@ public interface DailyContract {
         String shiftInformation(Line line,int position);
         void createCVS(Context context,Line line) throws IOException;
         void createCSVShift(Context context, Line line, int shift, Shift actualShift);
+        boolean validateUser(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group);
 
     }
 }

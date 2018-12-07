@@ -9,6 +9,7 @@ public class ReasonDelay {
     public static final String DB_DELAY_REASONS = "delay_reasons";
     private String name;
     private String id;
+    private String reason;
 
     public ReasonDelay() {
     }
@@ -54,5 +55,13 @@ public class ReasonDelay {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

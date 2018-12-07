@@ -11,6 +11,7 @@ public interface ConfigurationContract {
         void getLines();
         void launchAddActivity();
         void hideProgressBar();
+        void launchProducts();
     }
     interface Presenter extends BasePresenter<View>{}
 }

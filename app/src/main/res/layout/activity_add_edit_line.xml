@@ -638,7 +638,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/scrap_event"
+                    android:text="@string/reject_event"
                     android:gravity="center"
                     android:textColor="@color/colorWhite"
                     android:background="@color/colorPrimary"

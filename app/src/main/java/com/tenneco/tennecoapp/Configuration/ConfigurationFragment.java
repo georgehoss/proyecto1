@@ -23,9 +23,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.LineAdapter;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Lines.AddLineContract;
+import com.tenneco.tennecoapp.Lines.ConfigLineActivity;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Plant;
+import com.tenneco.tennecoapp.Product.ProductFragment;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Utils.StorageUtils;
 
@@ -46,7 +48,13 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
 
-    @OnClick(R.id.fb_add) void onAdd(){ launchAddActivity();}
+    @OnClick(R.id.fb_add) void onAdd(){
+        launchAddActivity();
+    }
+
+    @OnClick(R.id.bt_products) void showProducts(){
+        launchProducts();
+    }
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -82,6 +90,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         main = (MainActivity) getActivity();
         getLines();
         if (main!=null) {
+            main.showMenu();
             main.restoreButtons();
             main.setConfiguration();
         }
@@ -94,7 +103,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
 
     @Override
     public void onItemClick(String lineId) {
-        Intent intent = new Intent(getContext(), AddEditLineActivity.class);
+        Intent intent = new Intent(getContext(), ConfigLineActivity.class);
         intent.putExtra("id",lineId);
         startActivity(intent);
     }
@@ -127,7 +136,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
 
     @Override
     public void launchAddActivity() {
-        startActivity(new Intent(main, AddEditLineActivity.class));
+        startActivity(new Intent(main, ConfigLineActivity.class));
     }
 
     @Override
@@ -136,5 +145,10 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
             mPbLoading.setVisibility(View.GONE);
             mFbAdd.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void launchProducts() {
+        main.getSupportFragmentManager().beginTransaction().replace(R.id.container, new ProductFragment()).addToBackStack(null).commit();
     }
 }

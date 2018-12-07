@@ -73,7 +73,7 @@ public class PlantMainFragment extends Fragment implements PlantMainContract.Vie
         dbPlants = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS);
         mPlants = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = new PlantAdapter(mPlants,this,false);
+        mAdapter = new PlantAdapter(mPlants,this);
         mRvLines.setAdapter(mAdapter);
         return view;
     }

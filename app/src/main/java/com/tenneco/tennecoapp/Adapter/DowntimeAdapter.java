@@ -83,7 +83,9 @@ public class DowntimeAdapter extends  RecyclerView.Adapter<DowntimeAdapter.Downt
 
     @Override
     public int getItemCount() {
-        return zones.size();
+        if (zones!=null)
+            return zones.size();
+        return 0;
     }
 
     public ArrayList<Zone> getZones() {

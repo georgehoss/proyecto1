@@ -10,7 +10,7 @@ import com.tenneco.tennecoapp.Model.Email;
  * Created by ghoss on 26/09/2018.
  */
 public interface EmailContract {
-    interface View extends BaseView<Preseneter> {
+    interface View extends BaseView<Presenter> {
         void hideProgressBar();
         void showFloatingButton();
         void getEmails();
@@ -21,7 +21,7 @@ public interface EmailContract {
         void deleteDialog(Email email);
 
     }
-    interface Preseneter extends BasePresenter<View> {
+    interface Presenter extends BasePresenter<View> {
 
     }
 }

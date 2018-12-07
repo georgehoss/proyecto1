@@ -150,6 +150,10 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             holder.mTvTarget.setText(hour.getTarget());
             holder.mTvCActual.setText(hour.getCumulativeActual());
             holder.mTvComments.setText(hour.getComments());
+            if (hour.getOwner()!=null)
+                holder.mTvOwner.setText(hour.getOwner());
+            else
+                holder.mTvOwner.setText("");
 
             //holder.mTvOwner.setText(hour.getComments());
 

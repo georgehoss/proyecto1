@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.tenneco.tennecoapp.Model.Scrap;
+import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.R;
 
 import java.util.ArrayList;
@@ -18,11 +18,11 @@ import butterknife.ButterKnife;
 /**
  * Created by ghoss on 01/10/2018.
  */
-public class ScrapEventAdapter extends  RecyclerView.Adapter<ScrapEventAdapter.ScrapViewHolder> {
-    private ArrayList<Scrap> scraps;
+public class RejectEventAdapter extends  RecyclerView.Adapter<RejectEventAdapter.ScrapViewHolder> {
+    private ArrayList<Reject> rejects;
 
-    public ScrapEventAdapter(ArrayList<Scrap> scraps) {
-        this.scraps = scraps;
+    public RejectEventAdapter(ArrayList<Reject> rejects) {
+        this.rejects = rejects;
     }
 
     @NonNull
@@ -34,28 +34,33 @@ public class ScrapEventAdapter extends  RecyclerView.Adapter<ScrapEventAdapter.S
 
     @Override
     public void onBindViewHolder(@NonNull ScrapViewHolder holder, int position) {
-        Scrap scrap = scraps.get(position);
-        if (scrap!=null)
+        Reject reject = rejects.get(position);
+        if (reject !=null)
         {
-            holder.mTvTime.setText(scrap.getTime());
-            holder.mTvEvent.setText(scrap.getReason());
+            holder.mTvTime.setText(reject.getTime());
+            if (reject.getActions()==null  || reject.getActions().isEmpty())
+                holder.mTvEvent.setText(reject.getReason());
+            else {
+                String actions = reject.getReason() + " Actions: " + reject.getActions();
+                holder.mTvEvent.setText(actions);
+            }
         }
 
     }
 
     @Override
     public int getItemCount() {
-        if (scraps!=null && scraps.size()>0)
-            return scraps.size();
+        if (rejects !=null && rejects.size()>0)
+            return rejects.size();
         return 0;
     }
 
-    public ArrayList<Scrap> getScraps() {
-        return scraps;
+    public ArrayList<Reject> getRejects() {
+        return rejects;
     }
 
-    public void setScraps(ArrayList<Scrap> scraps) {
-        this.scraps = scraps;
+    public void setRejects(ArrayList<Reject> rejects) {
+        this.rejects = rejects;
     }
 
     class ScrapViewHolder extends RecyclerView.ViewHolder {

@@ -129,7 +129,7 @@ public class DowntimeFragment extends Fragment implements DowntimeListAdapter.On
 
     public void showDeleteDialog(Context context, final Downtime downtime) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder.setTitle("Delete production Line");
+        alertDialogBuilder.setTitle("Delete Downtime List");
         alertDialogBuilder.setMessage(getString(R.string.delete_question)+ " "+downtime.getName()+" ?");
         alertDialogBuilder.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
             @Override

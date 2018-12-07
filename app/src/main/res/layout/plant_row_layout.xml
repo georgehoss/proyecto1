@@ -24,11 +24,23 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_name"
                 android:textSize="30sp"
-                android:padding="10dp"
+                android:padding="5dp"
                 android:layout_margin="10dp"
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
                 android:drawableStart="@drawable/factory"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_location"
+                android:textSize="20sp"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:drawablePadding="10dp"
+                android:textColor="@color/colorWhite"
+                android:drawableStart="@drawable/location_icon"
                 />
         </LinearLayout>
 
