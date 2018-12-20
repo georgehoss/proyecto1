@@ -11,6 +11,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Product;
 import com.tenneco.tennecoapp.Model.ReasonDelay;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.User;
@@ -31,6 +32,7 @@ public interface DailyContract {
         void getNumbers();
         void getOperators();
         void getReasons();
+        void getTemplates();
         void showActualsDialog(WorkHour workHour, Line line,int position, Context context);
         void showTargetDialog(WorkHour workHour,Line line, int position,Context context);
         void showOwnerDialog(WorkHour workHour, Line line,int position, Context context);
@@ -61,15 +63,19 @@ public interface DailyContract {
         void getPLine();
         void saveTl(String tl,int shift);
         void saveGl(String gl,int shift);
+        void saveProduct(Product lastProduct);
         void sendSms(String number,String message);
         void showSendMsgButton();
         void showSendMsgDialog(Context context);
+        void showProductListDialog(ArrayList<Product> products,Context context);
+        void setLeakReached(int shift);
 
 
     }
     interface Presenter extends BasePresenter<View>{
-        void saveLine(Line line,ArrayList<WorkHour> hours, int position, String actual, String comment,ReasonDelay reasonDelay,String owner);
+        void saveLine(Line line,ArrayList<WorkHour> hours, int position, String actual, String comment,ReasonDelay reasonDelay,String owner,String ftq);
         void saveLine(Line line,ArrayList<WorkHour> hours, int position, String target);
+        void setProduct(Line line,Product product);
         boolean validateActual(String actual);
         boolean validateComment(String comment, String actual, String target);
         boolean validateReason(ReasonDelay reasonDelay, String actual, String target);
@@ -93,6 +99,6 @@ public interface DailyContract {
         void createCVS(Context context,Line line) throws IOException;
         void createCSVShift(Context context, Line line, int shift, Shift actualShift);
         boolean validateUser(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group);
-
+        void validateFQT(Line line);
     }
 }

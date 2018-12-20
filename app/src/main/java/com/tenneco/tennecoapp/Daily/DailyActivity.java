@@ -48,6 +48,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.DailyAdapter;
 import com.tenneco.tennecoapp.Adapter.EndShiftPositionAdapter;
+import com.tenneco.tennecoapp.Adapter.ProductAdapter;
 import com.tenneco.tennecoapp.Adapter.RejectEventAdapter;
 import com.tenneco.tennecoapp.Adapter.UserSelectorAdapter;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
@@ -58,11 +59,14 @@ import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Plant;
+import com.tenneco.tennecoapp.Model.Product;
 import com.tenneco.tennecoapp.Model.ReasonDelay;
 import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.Sms;
 import com.tenneco.tennecoapp.Model.SmsList;
+import com.tenneco.tennecoapp.Model.Template;
+import com.tenneco.tennecoapp.Model.Templates;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.R;
@@ -79,7 +83,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class DailyActivity extends AppCompatActivity implements DailyContract.View,DailyAdapter.ItemInteraction {
+public class DailyActivity extends AppCompatActivity implements DailyContract.View,DailyAdapter.ItemInteraction, ProductAdapter.OnItemClick {
     private static final int TEAM =0;
     private static final int GROUP =1;
     private DailyContract.Presenter mPresenter;
@@ -90,6 +94,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DatabaseReference dbOperators;
     private DatabaseReference dbNumbers;
     private DatabaseReference dbReasons;
+    private DatabaseReference dbTemplates;
+    private Templates templates;
+
     private ArrayList<User> mTeam;
     private ArrayList<User> mGroup;
     private ArrayList<Employee> mOperators;
@@ -106,8 +113,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private boolean sendReport = false;
     private boolean sendReport1 = false;
     private boolean sendReport2 = false;
+    private AlertDialog dialog;
+    private AlertDialog ftqDialog;
+    private AlertDialog downtimeDialog;
     private float mScale = 1f;
     private ScaleGestureDetector mScaleDetector;
+    private Product lastProduct;
     GestureDetector gestureDetector;
 
     @BindView(R.id.tv_name)TextView mTvName;
@@ -171,8 +182,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @OnClick(R.id.bt_counter) void count(){
-        mPresenter.incrementCount(mLine);
+       // mPresenter.incrementCount(mLine);
         //progressDialog.show();
+        showProductListDialog(mLine.getProducts(),this);
     }
 
     @OnClick(R.id.bt_downtime) void down(){
@@ -235,6 +247,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         dbOperators = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
         dbReasons= FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(ReasonDelay.DB_DELAY_REASONS);
         dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
+        dbTemplates = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Template.DB_TEMPLATE);
         if (mPresenter == null)
             mPresenter = new DailyPresenter(this);
         else
@@ -259,6 +272,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         getOperators();
         getNumbers();
         getReasons();
+        getTemplates();
     }
 
     @Override
@@ -290,131 +304,158 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void setLine() {
-        mTvName.setText(mLine.getName());
-        mTvDate.setText(mLine.getDate());
-        mTvActS1.setText(mLine.getFirst().getCumulativeActual());
-        mTvTS1.setText(mLine.getFirst().getCumulativePlanned());
-        mTvActS2.setText(mLine.getSecond().getCumulativeActual());
-        mTvTS2.setText(mLine.getSecond().getCumulativePlanned());
-        mTvActS3.setText(mLine.getThird().getCumulativeActual());
-        mTvTS3.setText(mLine.getThird().getCumulativePlanned());
-        if (mLine.getFirst().getTimeStart()!=null && !mLine.getFirst().getTimeStart().isEmpty()) {
-            mTvStartS1.setText(mLine.getFirst().getTimeStart());
-            if (mLine.getFirst().getTimeEnd()==null || mLine.getFirst().getTimeEnd().isEmpty())
-                mBtS1.setText(R.string.daily_end_1st_shift);
-            else
-                mBtS1.setText(R.string.add_1st_shift);
-        }
-        else
-            mBtS1.setText(R.string.start_1st_shift);
+        if (lastProduct==null)
+            showProductListDialog(mLine.getProducts(),this);
+        else {
+            if (dialog.isShowing())
+                dialog.dismiss();
+            mTvName.setText(mLine.getName());
+            mTvDate.setText(mLine.getDate());
+            mTvActS1.setText(mLine.getFirst().getCumulativeActual());
+            mTvTS1.setText(mLine.getFirst().getCumulativePlanned());
+            mTvActS2.setText(mLine.getSecond().getCumulativeActual());
+            mTvTS2.setText(mLine.getSecond().getCumulativePlanned());
+            mTvActS3.setText(mLine.getThird().getCumulativeActual());
+            mTvTS3.setText(mLine.getThird().getCumulativePlanned());
+            if (mLine.getFirst().getTimeStart() != null && !mLine.getFirst().getTimeStart().isEmpty()) {
+                mTvStartS1.setText(mLine.getFirst().getTimeStart());
+                if (mLine.getFirst().getTimeEnd() == null || mLine.getFirst().getTimeEnd().isEmpty())
+                    mBtS1.setText(R.string.daily_end_1st_shift);
+                else
+                    mBtS1.setText(R.string.add_1st_shift);
+            } else
+                mBtS1.setText(R.string.start_1st_shift);
 
-        if (mLine.getSecond().getTimeStart()!=null && !mLine.getSecond().getTimeStart().isEmpty()) {
-            mTvStartS2.setText(mLine.getSecond().getTimeStart());
-            if (mLine.getSecond().getTimeEnd()==null || mLine.getSecond().getTimeEnd().isEmpty())
-                mBtS2.setText(R.string.dailly_end_2nd_shift);
-            else
-                mBtS2.setText(R.string.add_2nd_shift);
+            if (mLine.getSecond().getTimeStart() != null && !mLine.getSecond().getTimeStart().isEmpty()) {
+                mTvStartS2.setText(mLine.getSecond().getTimeStart());
+                if (mLine.getSecond().getTimeEnd() == null || mLine.getSecond().getTimeEnd().isEmpty())
+                    mBtS2.setText(R.string.dailly_end_2nd_shift);
+                else
+                    mBtS2.setText(R.string.add_2nd_shift);
 
-        }
-        else
-            mBtS2.setText(R.string.star_2nd_shift);
+            } else
+                mBtS2.setText(R.string.star_2nd_shift);
 
-        if (mLine.getThird().getTimeStart()!=null && !mLine.getThird().getTimeStart().isEmpty()) {
-            mTvStartS3.setText(mLine.getThird().getTimeStart());
-            if (mLine.getThird().getTimeEnd()==null || mLine.getThird().getTimeEnd().isEmpty())
-                mBtS3.setText(R.string.daily_end_3rd_shift);
-            else
-                mBtS3.setText(R.string.add_3rd_shift);
+            if (mLine.getThird().getTimeStart() != null && !mLine.getThird().getTimeStart().isEmpty()) {
+                mTvStartS3.setText(mLine.getThird().getTimeStart());
+                if (mLine.getThird().getTimeEnd() == null || mLine.getThird().getTimeEnd().isEmpty())
+                    mBtS3.setText(R.string.daily_end_3rd_shift);
+                else
+                    mBtS3.setText(R.string.add_3rd_shift);
 
-        }
-        else
-            mBtS3.setText(R.string.start_3rd_shift);
+            } else
+                mBtS3.setText(R.string.start_3rd_shift);
 
-        if (mLine.getFirst().getTimeEnd()!=null)
-            mTvEndS1.setText(mLine.getFirst().getTimeEnd());
+            if (mLine.getFirst().getTimeEnd() != null)
+                mTvEndS1.setText(mLine.getFirst().getTimeEnd());
 
-        if (mLine.getSecond().getTimeEnd()!=null)
-            mTvEndS2.setText(mLine.getSecond().getTimeEnd());
+            if (mLine.getSecond().getTimeEnd() != null)
+                mTvEndS2.setText(mLine.getSecond().getTimeEnd());
 
-        if (mLine.getThird().getTimeEnd()!=null)
-            mTvEndS3.setText(mLine.getThird().getTimeEnd());
+            if (mLine.getThird().getTimeEnd() != null)
+                mTvEndS3.setText(mLine.getThird().getTimeEnd());
 
-        mTvLeakS1.setText(String.valueOf(mLine.getFirst().getLfCounter()));
-        mTvLeakS2.setText(String.valueOf(mLine.getSecond().getLfCounter()));
-        mTvLeakS3.setText(String.valueOf(mLine.getThird().getLfCounter()));
+            mTvLeakS1.setText(mLine.getFirst().getCumulativeFTQ());
+            mTvLeakS2.setText(mLine.getSecond().getCumulativeFTQ());
+            mTvLeakS3.setText(mLine.getThird().getCumulativeFTQ());
 
-        mHours = new ArrayList<>();
-        mHours.addAll(mLine.getFirst().getHours());
-        mHours.addAll(mLine.getSecond().getHours());
-        mHours.addAll(mLine.getThird().getHours());
-        mAdapter.setHours(mHours);
-        mAdapter.notifyDataSetChanged();
-        mPresenter.showCount(mLine);
-        mPresenter.verifyLeaks(mLine);
-        ArrayList<Reject> rejects = new ArrayList<>();
-        if (mLine.getFirst().getRejects()!=null)
-        rejects.addAll(mLine.getFirst().getRejects());
-        if (mLine.getSecond().getRejects()!=null)
-            rejects.addAll(mLine.getSecond().getRejects());
-        if (mLine.getThird().getRejects()!=null)
-            rejects.addAll(mLine.getThird().getRejects());
-        if (mLine.getRejects()!=null)
-            rejects.addAll(mLine.getRejects());
-
-
-        if (mLine.getDowntime().isSet())
-        {
-            showDowntimeDialog(mLine.getDowntime(),this);
-        }
+            mHours = new ArrayList<>();
+            mHours.addAll(mLine.getFirst().getHours());
+            mHours.addAll(mLine.getSecond().getHours());
+            mHours.addAll(mLine.getThird().getHours());
+            mAdapter.setHours(mHours);
+            mAdapter.notifyDataSetChanged();
+            mPresenter.showCount(mLine);
+            mPresenter.verifyLeaks(mLine);
+            ArrayList<Reject> rejects = new ArrayList<>();
+            if (mLine.getFirst().getRejects() != null)
+                rejects.addAll(mLine.getFirst().getRejects());
+            if (mLine.getSecond().getRejects() != null)
+                rejects.addAll(mLine.getSecond().getRejects());
+            if (mLine.getThird().getRejects() != null)
+                rejects.addAll(mLine.getThird().getRejects());
+            if (mLine.getRejects() != null)
+                rejects.addAll(mLine.getRejects());
 
 
-        if (rejects.size()>0)
-        {
-            showReject();
-            mAdapterScr.setRejects(rejects);
-            mAdapterScr.notifyDataSetChanged();
-        }
-        else
-        {
-            hideReject();
-        }
-
-        if (!isShowingLeak && sendReport1) {
-            showDialogEndShift(1);
-            sendReport1=false;
-        }
-
-        if (!isShowingLeak && sendReport2) {
-            showDialogEndShift(2);
-            sendReport2=false;
-        }
-
-        if (!isShowingLeak && sendReport) {
-                showDialogEndShift(3);
-                sendReport=false;
-        }
-
-        mPresenter.setTeam(mLine);
-        mPresenter.setGroup(mLine);
-
-
-        if (mLine.getFirst().isClosed())
-            mPresenter.createCSVShift(this,mLine,1,mLine.getFirst());
-
-        if (mLine.getSecond().isClosed())
-            mPresenter.createCSVShift(this,mLine,2,mLine.getSecond());
-
-        if (mLine.getThird().isClosed())
-            mPresenter.createCSVShift(this,mLine,3,mLine.getThird());
-
-        if (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())
-            try {
-                mPresenter.createCVS(this,mLine);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (mLine.getDowntime().isSet()) {
+                showDowntimeDialog(mLine.getDowntime(), this);
             }
 
 
+            if (rejects.size() > 0) {
+                showReject();
+                mAdapterScr.setRejects(rejects);
+                mAdapterScr.notifyDataSetChanged();
+            } else {
+                hideReject();
+            }
+
+            if (!isShowingLeak && sendReport1) {
+                showDialogEndShift(1);
+                sendReport1 = false;
+            }
+
+            if (!isShowingLeak && sendReport2) {
+                showDialogEndShift(2);
+                sendReport2 = false;
+            }
+
+            if (!isShowingLeak && sendReport) {
+                showDialogEndShift(3);
+                sendReport = false;
+            }
+
+            mPresenter.setTeam(mLine);
+            mPresenter.setGroup(mLine);
+
+
+            if (!mLine.getFirst().isClosed())
+            {
+                mLine.setDowntimeEmailList(mLine.getFirst().getDowntimeList());
+                mLine.setLineList(mLine.getFirst().getLineList());
+                mLine.setScrap1EmailList(mLine.getFirst().getScrap1List());
+                mLine.setScrap2EmailList(mLine.getFirst().getScrap2List());
+                mLine.setScrap3EmailList(mLine.getFirst().getScrap3List());
+                mLine.setLeakEmailList(mLine.getFirst().getLeakList());
+            }
+            else
+            if ( mLine.getFirst().isClosed() && !mLine.getFirst().isClosed())
+            {
+                mLine.setDowntimeEmailList(mLine.getSecond().getDowntimeList());
+                mLine.setLineList(mLine.getSecond().getLineList());
+                mLine.setScrap1EmailList(mLine.getSecond().getScrap1List());
+                mLine.setScrap2EmailList(mLine.getSecond().getScrap2List());
+                mLine.setScrap3EmailList(mLine.getSecond().getScrap3List());
+                mLine.setLeakEmailList(mLine.getSecond().getLeakList());
+            }
+            else
+            {
+                mLine.setDowntimeEmailList(mLine.getThird().getDowntimeList());
+                mLine.setLineList(mLine.getThird().getLineList());
+                mLine.setScrap1EmailList(mLine.getThird().getScrap1List());
+                mLine.setScrap2EmailList(mLine.getThird().getScrap2List());
+                mLine.setScrap3EmailList(mLine.getThird().getScrap3List());
+                mLine.setLeakEmailList(mLine.getThird().getLeakList());
+            }
+
+            if (mLine.getFirst().isClosed())
+                mPresenter.createCSVShift(this, mLine, 1, mLine.getFirst());
+
+            if (mLine.getSecond().isClosed())
+                mPresenter.createCSVShift(this, mLine, 2, mLine.getSecond());
+
+            if (mLine.getThird().isClosed())
+                mPresenter.createCSVShift(this, mLine, 3, mLine.getThird());
+
+            if (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())
+                try {
+                    mPresenter.createCVS(this, mLine);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+        }
     }
 
     @Override
@@ -534,6 +575,23 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
+    public void getTemplates() {
+        Query postsQuery;
+        postsQuery = dbTemplates.child(Templates.ID);
+        postsQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                templates = dataSnapshot.getValue(Templates.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                finish();
+            }
+        });
+    }
+
+    @Override
     public void showActualsDialog(final WorkHour workHour, Line line, final int position, Context context) {
 
         if (!mLine.getDowntime().isSet())
@@ -563,8 +621,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             TextView mTvTarget = view.findViewById(R.id.tv_target);
             mTvTarget.setText(workHour.getTarget());
             final EditText mEtActual = view.findViewById(R.id.et_actual);
+            final EditText mEtFtq = view.findViewById(R.id.et_ftq);
+            if (workHour.getLeak()!=null)
+                mEtFtq.setText(workHour.getLeak());
             if (workHour.getActuals()!=null)
                 mEtActual.setText(workHour.getActuals());
+            if (workHour.getLeak()!=null && !workHour.getLeak().isEmpty())
+                mEtFtq.setText(workHour.getLeak());
+            else
+                mEtFtq.setText("0");
             final EditText mEtComments = view.findViewById(R.id.et_comments);
             if (workHour.getComments()!=null)
                 mEtComments.setText(workHour.getComments());
@@ -612,6 +677,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 public void onClick(View view) {
                     String actual = mEtActual.getText().toString().trim();
                     String comment = mEtComments.getText().toString().trim();
+                    String leak = mEtFtq.getText().toString().trim();
 
                     if (position==0 && (mLine.getFirst().getTimeStart()==null || mLine.getFirst().getTimeStart().isEmpty()))
                         mLine.getFirst().setTimeStart(Utils.getTimeString());
@@ -626,6 +692,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     {
                         mEtActual.setError("Please, introduce the actual value!");
                         mEtActual.requestFocus();
+                    }
+                    else
+                    if (mPresenter.validateActual(leak))
+                    {
+                        mEtFtq.setError("Please, introduce a leak value!");
+                        mEtFtq.requestFocus();
                     }
                     else
                     if (mPresenter.validateComment(comment,actual,workHour.getTarget()))
@@ -651,7 +723,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     else {
                         if (etReason.getVisibility()==View.VISIBLE)
                             reasonDelay.setReason(etReason.getText().toString());
-                        mPresenter.saveLine(mLine, mHours, position, actual, comment,reasonDelay,workHour.getOwner());
+                        mPresenter.saveLine(mLine, mHours, position, actual, comment,reasonDelay,workHour.getOwner(),leak);
                         dialog.dismiss();
                     }
                 }
@@ -686,6 +758,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mTvShift.setText(getString(R.string.add_2nd_shift));
             if (position>15)
                 mTvShift.setText(getString(R.string.add_3rd_shift));
+
+            final EditText mEtFtq = view.findViewById(R.id.et_ftq);
+            mEtFtq.setEnabled(false);
 
             TextView mTvTime = view.findViewById(R.id.tv_time);
             String time = workHour.getStartHour() + " - " + workHour.getEndHour();
@@ -758,6 +833,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             TextView mTvDate = view.findViewById(R.id.tv_date);
             mTvDate.setText(line.getDate());
             TextView mTvShift = view.findViewById(R.id.tv_shift);
+            final EditText mEtFtq = view.findViewById(R.id.et_ftq);
+            if (workHour.getLeak()!=null)
+                mEtFtq.setText(workHour.getLeak());
+            mEtFtq.setEnabled(false);
             if (position<=7)
                 mTvShift.setText(getString(R.string.add_1st_shift));
             if (position>=8 && position<=15)
@@ -801,8 +880,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 @Override
                 public void onClick(View view) {
                     String owner = mUser.getEmail();
-                        mPresenter.saveLine(mLine, mHours, position, workHour.getActuals(), workHour.getComments(),workHour.getReasonDelay(),owner);
-                        dialog.dismiss();
+                    mPresenter.saveLine(mLine, mHours, position, workHour.getActuals(), workHour.getComments(),workHour.getReasonDelay(),owner,null);
+                    dialog.dismiss();
+                    mPresenter.validateFQT(mLine);
                 }
             });
         }
@@ -1060,7 +1140,6 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void hideLeakCounter() {
-        mBtCounter.setText("Send Report");
         mBtDowntime.setVisibility(View.GONE);
         mBtScrap.setVisibility(View.GONE);
         mBtHour.setVisibility(View.GONE);
@@ -1074,20 +1153,20 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         if(count>0)
             title = title + " " + count;
 
-        mBtCounter.setText(title);
+        //mBtCounter.setText(title);
     }
 
     @Override
     public void showDowntimeDialog(final Downtime downtime, final Context context) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        int zone=0,location=0,reason=0;
-        if (downtime.getZone()>0)
-            zone=downtime.getZone();
-        if (downtime.getLocation()>0)
-            location=downtime.getLocation();
-        if (downtime.getReason()>0)
-            reason=downtime.getReason();
+        int zone = 0, location = 0, reason = 0;
+        if (downtime.getZone() > 0)
+            zone = downtime.getZone();
+        if (downtime.getLocation() > 0)
+            location = downtime.getLocation();
+        if (downtime.getReason() > 0)
+            reason = downtime.getReason();
         View view = inflater.inflate(R.layout.dialog_downtime, null);
         alertDialogBuilder.setView(view);
         alertDialogBuilder.setCancelable(false);
@@ -1097,13 +1176,13 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         final ArrayList<Reason> mReasons = new ArrayList<>();
         mReasons.add(new Reason("- Select a Reason -"));
         mReasons.addAll(downtime.getReasons());
-        ArrayAdapter<Reason> mAdapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_item,mReasons);
+        ArrayAdapter<Reason> mAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, mReasons);
         spReason.setAdapter(mAdapter);
         spReason.setSelection(reason);
         ArrayList<Zone> mZones = new ArrayList<>();
-        mZones.add(new Zone("- Select a Zone -",null));
+        mZones.add(new Zone("- Select a Zone -", null));
         mZones.addAll(downtime.getZones());
-        ArrayAdapter<Zone> mAdapterZone = new ArrayAdapter<>(context,android.R.layout.simple_spinner_item,mZones);
+        ArrayAdapter<Zone> mAdapterZone = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, mZones);
         spZone.setAdapter(mAdapterZone);
         spZone.setSelection(zone);
 
@@ -1113,7 +1192,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Zone zone = (Zone) adapterView.getItemAtPosition(i);
-                if (zone!=null && zone.getLocations()!=null) {
+                if (zone != null && zone.getLocations() != null) {
                     ArrayList<Location> mLocations = new ArrayList<>();
                     mLocations.add(new Location("- Select a Location -"));
                     mLocations.addAll(zone.getLocations());
@@ -1135,8 +1214,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Location location = (Location) adapterView.getItemAtPosition(i);
-                if (location!=null)
-                {
+                if (location != null) {
                     mLine.getDowntime().setLocation(i);
                     mLine.getDowntime().setLocationValue(location.getName());
                 }
@@ -1152,7 +1230,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Reason reason = (Reason) adapterView.getItemAtPosition(i);
-                if (reason!=null) {
+                if (reason != null) {
                     mLine.getDowntime().setReason(i);
                     mLine.getDowntime().setReasonValue(reason.getName());
                 }
@@ -1169,8 +1247,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         final EditText mTvStart = view.findViewById(R.id.et_start);
         final EditText mTvEnd = view.findViewById(R.id.et_end);
         ImageView btClose = view.findViewById(R.id.bt_close);
-        final AlertDialog dialog = alertDialogBuilder.create();
-        dialog.show();
+        if (downtimeDialog == null || !downtimeDialog.isShowing()){
+            downtimeDialog = alertDialogBuilder.create();
+            downtimeDialog.show();
+        }
         String time = Utils.getTimeString();
         if (mLine.getDowntime().isSet())
         {
@@ -1195,7 +1275,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         btClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.dismiss();
+                downtimeDialog.dismiss();
             }
         });
 
@@ -1217,19 +1297,36 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     mLine.getDowntime().setDowntime(mPresenter.downtime(mLine.getDowntime().getZoneValue(),
                             mLine.getDowntime().getLocationValue(), mLine.getDowntime().getReasonValue()));
                     updateLine(mLine);
-                    dialog.dismiss();
-                    String subject =" Cell "+ mLine.getName() + " is in DOWNTIME due to: " +
-                            mLine.getDowntime().getZoneValue()+
-                            ", "+ mLine.getDowntime().getLocationValue()+
-                            ", "+ mLine.getDowntime().getReasonValue();
+                    downtimeDialog.dismiss();
+                    String subject,body;
+                    if (templates==null || templates.getDowntimeStart()==null) {
+                        subject = " Cell " + mLine.getName() + " is in DOWNTIME due to: " +
+                                mLine.getDowntime().getZoneValue() +
+                                ", " + mLine.getDowntime().getLocationValue() +
+                                ", " + mLine.getDowntime().getReasonValue();
 
-                    String body =  "Hi \n \n"+
-                            "This is a notification that Cell " + mLine.getName()+ " is in Downtime at " + mLine.getDowntime().getStartTime() +
-                            "\nZone:  " + mLine.getDowntime().getZoneValue()+
-                            "\nLocation: " +mLine.getDowntime().getLocationValue() +
-                            "\nReason: " + mLine.getDowntime().getReasonValue()+
-                            "\n\nPlease take immediate action";
-                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body,0);
+                        body = "Hi \n \n" +
+                                "This is a notification that Cell " + mLine.getName() + " is in Downtime at " + mLine.getDowntime().getStartTime() +
+                                "\nZone:  " + mLine.getDowntime().getZoneValue() +
+                                "\nLocation: " + mLine.getDowntime().getLocationValue() +
+                                "\nReason: " + mLine.getDowntime().getReasonValue() +
+                                "\n\nPlease take immediate action";
+                    }
+                    else
+                    {
+                        subject = "Cell "+mLine.getName() + " " + templates.getDowntimeStart().getSubject() +" "+
+                        mLine.getDowntime().getZoneValue() +
+                                ", " + mLine.getDowntime().getLocationValue() +
+                                ", " + mLine.getDowntime().getReasonValue();
+
+                        body = templates.getDowntimeStart().getBody1()+ " " + mLine.getName() + " is in Downtime at " + mLine.getDowntime().getStartTime() +
+                                "\nZone:  " + mLine.getDowntime().getZoneValue() +
+                                "\nLocation: " + mLine.getDowntime().getLocationValue() +
+                                "\nReason: " + mLine.getDowntime().getReasonValue() +  "\n\n" + templates.getDowntimeStart().getBody2();
+
+                    }
+
+                    sendEmail(mPresenter.getEmails(mLine.getDowntimeEmailList().getEmails(),mLine),mPresenter.getCC(mLine.getDowntimeEmailList().getEmails(),mLine),subject,body,0);
                 }
             }
         });
@@ -1247,12 +1344,23 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mLine.getDowntime().setReason(0);
                 mPresenter.setDowntime(mLine,mLine.getDowntime());
                 dialog.dismiss();
-                String subject =  "Cell  " + mLine.getName()+ "  is back to production at " + Utils.getTimeString() ;
-                String body =  "Hi \n \n"+
-                        "This is a notification that Cell " + mLine.getName()+ " is back to production at " + Utils.getTimeString() +
-                        "\nThank you";
+                String subject,body;
+                if (templates== null || templates.getDowntimeEnd()==null) {
+                    subject = "Cell  " + mLine.getName() + "  is back to production at " + Utils.getTimeString();
+                    body = "Hi \n \n" +
+                            "This is a notification that Cell " + mLine.getName() + " is back to production at " + Utils.getTimeString() +
+                            "\nThank you";
+                }
+                else
+                {
+                    subject = "Cell "+mLine.getName() + " " + templates.getDowntimeEnd().getSubject() +" at "+ Utils.getTimeString();
 
-                    sendEmail(mPresenter.getEmails(mLine.getDowntimeList(),mLine),mPresenter.getCC(mLine.getDowntimeList(),mLine),subject,body,0);
+                    body = templates.getDowntimeEnd().getBody1()+ " " + mLine.getName() + " is back to production at " + mLine.getDowntime().getEndTime() +
+                              "\n\n" + templates.getDowntimeStart().getBody2();
+
+                }
+
+                    sendEmail(mPresenter.getEmails(mLine.getDowntimeEmailList().getEmails(),mLine),mPresenter.getCC(mLine.getDowntimeEmailList().getEmails(),mLine),subject,body,0);
 
                 }
                 else
@@ -1310,32 +1418,63 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         String body = "";
 
                         if (mLine.getRejects().size() == 1) {
-                            subject = "Cell " + mLine.getName() + " Produced a First Rejected Piece due to: " + reason.getName();
-                            body = "Hi \n\n" +
-                                    "This is a notification that Cell " + mLine.getName() + " Produced a First Reject Piece at " + Utils.getTimeString()
-                                    + " due to: " + reason.getName() +
-                                    "\n\nFirst Occurrence";
+                            if (templates==null || templates.getReject1()==null) {
+                                subject = "Cell " + mLine.getName() + " Produced a First Rejected Piece due to: " + reason.getName();
+                                body = "Hi \n\n" +
+                                        "This is a notification that Cell " + mLine.getName() + " Produced a First Reject Piece at " + Utils.getTimeString()
+                                        + " due to: " + reason.getName() +
+                                        "\n\nFirst Occurrence";
+                            }
+                            else
+                            {
+                                subject = "Cell " + mLine.getName() + " "+ templates.getReject1().getSubject()+ " "+ reason.getName();
+                                body = templates.getReject1().getBody1() + " "+ mLine.getName() + " Produced a First Reject Piece at " + Utils.getTimeString()
+                                        + " due to: " + reason.getName() +
+                                        "\n\n" + templates.getReject1().getBody2();
+                            }
 
-                            sendEmail(mPresenter.getEmails(mLine.getScrap1List(), mLine), mPresenter.getCC(mLine.getScrap1List(), mLine), subject, body,0);
+                            sendEmail(mPresenter.getEmails(mLine.getScrap1EmailList().getEmails(), mLine), mPresenter.getCC(mLine.getScrap1EmailList().getEmails(), mLine), subject, body,0);
                         } else if (mLine.getRejects().size() == 2) {
-                            subject = "Cell " + mLine.getName() + " Produced a Second Rejected Piece due to: " + reason.getName();
-                            body = "Hi \n\n" +
-                                    "This is a notification that Cell " + mLine.getName() + " Produced a Second Rejected Piece at " + Utils.getTimeString()
-                                    + " due to: " + reason.getName() +
-                                    "\n\nSecond Occurrence...   Next notification will be send to Group Leaders";
+                            if (templates==null || templates.getReject2()==null) {
+                                subject = "Cell " + mLine.getName() + " Produced a Second Rejected Piece due to: " + reason.getName();
+                                body = "Hi \n\n" +
+                                        "This is a notification that Cell " + mLine.getName() + " Produced a Second Rejected Piece at " + Utils.getTimeString()
+                                        + " due to: " + reason.getName() +
+                                        "\n\nSecond Occurrence...   Next notification will be send to Group Leaders";
+                            }
+                            else
+                            {
+                                subject = "Cell " + mLine.getName() + " "+ templates.getReject2().getSubject()+ " "+ reason.getName();
+                                body = templates.getReject2().getBody1() + " "+ mLine.getName() + " Produced a Second Rejected Piece at " + Utils.getTimeString()
+                                        + " due to: " + reason.getName() +
+                                        "\n\n" + templates.getReject2().getBody2();
+                            }
 
-                            sendEmail(mPresenter.getEmails(mLine.getScrap2List(), mLine), mPresenter.getCC(mLine.getScrap2List(), mLine), subject, body,0);
+                            sendEmail(mPresenter.getEmails(mLine.getScrap2EmailList().getEmails(), mLine), mPresenter.getCC(mLine.getScrap2EmailList().getEmails(), mLine), subject, body,0);
                         } else {
-                            subject = "Cell " + mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
-                                    + " due to: " + reason.getName();
-                            body = "Hi \n\n" +
-                                    "This is a notification that Cell " + mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
-                                    + " at " + Utils.getTimeString()
-                                    + " due to: " + reason.getName() +
-                                    "\n\nActions: " + editText.getText().toString() +
-                                    "\n\nRejected piece # " + String.valueOf(mLine.getRejects().size()) + " Next notification will be send to the Management Team";
 
-                            sendEmail(mPresenter.getEmails(mLine.getScrap3List(), mLine), mPresenter.getCC(mLine.getScrap3List(), mLine), subject, body,0);
+                            if (templates==null || templates.getReject3()==null) {
+                                subject = "Cell " + mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
+                                        + " due to: " + reason.getName();
+                                body = "Hi \n\n" +
+                                        "This is a notification that Cell " + mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
+                                        + " at " + Utils.getTimeString()
+                                        + " due to: " + reason.getName() +
+                                        "\n\nActions: " + editText.getText().toString() +
+                                        "\n\nRejected piece # " + String.valueOf(mLine.getRejects().size()) + " Next notification will be send to the Management Team";
+                            }
+                            else
+                            {
+                                subject = "Cell " + mLine.getName() + " "+ templates.getReject3().getSubject()+ " #"+ String.valueOf(mLine.getRejects().size())
+                                        + " due to: " + reason.getName();
+                                body = templates.getReject3().getBody1() + " "+ mLine.getName() + " Produced Rejected Piece #" + String.valueOf(mLine.getRejects().size())
+                                        + " at " + Utils.getTimeString()
+                                        + " due to: " + reason.getName() +
+                                        "\n\nActions: " + editText.getText().toString() +
+                                        "\n\nRejected piece # " + String.valueOf(mLine.getRejects().size()) +
+                                        "\n\n" + templates.getReject3().getBody2();
+                            }
+                            sendEmail(mPresenter.getEmails(mLine.getScrap3EmailList().getEmails(), mLine), mPresenter.getCC(mLine.getScrap3EmailList().getEmails(), mLine), subject, body,0);
                         }
 
 
@@ -1349,9 +1488,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void showFTQ(final int shift) {
+
         Context context = DailyActivity.this;
-        if (!isShowingLeak ) {
-            isShowingLeak = true;
+        if ( dialog!=null && !dialog.isShowing() ) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_leak, null);
@@ -1382,14 +1521,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
             mTvShift.setText(stilte);
             mTvActual.setText(tshift.getCumulativeActual());
-            mTvLeak.setText(String.valueOf(tshift.getLfCounter()));
+            mTvLeak.setText(tshift.getCumulativeFTQ());
 
-
-            final AlertDialog dialog = alertDialogBuilder.create();
-            dialog.show();
+            if (ftqDialog==null || !ftqDialog.isShowing()) {
+                ftqDialog = alertDialogBuilder.create();
+                ftqDialog.show();
+            }
 
             if (!tshift.isLeakReached()) {
-                dialog.dismiss();
+                ftqDialog.dismiss();
                 isShowingLeak = false;
             }
 
@@ -1411,17 +1551,26 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 break;
                         }
                         updateLine(mLine);
-                        dialog.dismiss();
-                        isShowingLeak = false;
-                        String subject = "Cell " + mLine.getName() + "  FTQ over 10% Escalation and Actions";
-                        String body = "Hi\n" +
-                                " \n" +
-                                "Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on Cell " +
-                                mLine.getName() + "\n" +
-                                " \n" +
-                                eTActions.getText().toString();
+                        ftqDialog.dismiss();
+                        String subject,body;
+                        if (templates== null || templates.getFtqs()==null) {
+                            subject = "Cell " + mLine.getName() + "  FTQ over 10% Escalation and Actions";
+                            body = "Hi\n" +
+                                    " \n" +
+                                    "Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on Cell " +
+                                    mLine.getName() + "\n" +
+                                    " \n" +
+                                    eTActions.getText().toString();
+                        }
+                        else
+                        {
+                            subject = "Cell " + mLine.getName() +" "+ templates.getFtqs().getSubject();
+                            body = templates.getFtqs().getBody1()+ mLine.getName() + "\n" +
+                                    " \n" +
+                                    eTActions.getText().toString();
+                        }
 
-                        sendEmail(mPresenter.getEmails(mLine.getLeakList(),mLine), mPresenter.getCC(mLine.getLeakList(),mLine), subject, body,0);
+                        sendEmail(mPresenter.getEmails(mLine.getLeakEmailList().getEmails(),mLine), mPresenter.getCC(mLine.getLeakEmailList().getEmails(),mLine), subject, body,0);
                     } else {
                         eTActions.setError("You must introduce the actions taken!");
                         eTActions.requestFocus();
@@ -1434,8 +1583,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             btCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dialog.dismiss();
-                    isShowingLeak = false;
+                    ftqDialog.dismiss();
 
                 }
             });
@@ -1667,7 +1815,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             e.printStackTrace();
         }
 
-        sendEmail(mPresenter.getEmails(mLine.getCellList(),null),mPresenter.getCC(mLine.getCellList(),null),
+        sendEmail(mPresenter.getEmails(mLine.getLineList().getEmails(),null),mPresenter.getCC(mLine.getLineList().getEmails(),null),
                 "Cell Report: "+mLine.getName()+ " "+mLine.getDate(),mPresenter.lineInformation(mLine),0);
 
 
@@ -1812,7 +1960,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         }
 
 
-        sendEmail(mPresenter.getEmails(mLine.getCellList(),null),mPresenter.getCC(mLine.getCellList(),null),
+        sendEmail(mPresenter.getEmails(mLine.getLineList().getEmails(),null),mPresenter.getCC(mLine.getLineList().getEmails(),null),
                 title + " Cell: "+mLine.getName()+ " "+mLine.getDate(),mPresenter.shiftInformation(mLine,position),position);
     }
 
@@ -1839,6 +1987,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         mLine.getSecond().setTeamLeaders(mPline.getSecond().getTeamLeaders());
                     if (mPline.getThird().getTeamLeaders()!=null && (mLine.getThird().getTeamLeaders()==null || mLine.getThird().getTeamLeaders().isEmpty()))
                         mLine.getThird().setTeamLeaders(mPline.getThird().getTeamLeaders());
+
+                    lastProduct = mPline.getLastProduct();
 
                     setLine();
                 }
@@ -1887,6 +2037,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     break;
             }
 
+            dbPLine.child(mPline.getId()).setValue(mPline);
+        }
+    }
+
+    @Override
+    public void saveProduct(Product lastProduct) {
+        if (mPline!=null)
+        {
+            mPline.setLastProduct(lastProduct);
             dbPLine.child(mPline.getId()).setValue(mPline);
         }
     }
@@ -1966,6 +2125,53 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             }
         });
     }
+
+    @Override
+    public void showProductListDialog(ArrayList<Product> products, Context context) {
+        if (context!=null && products!=null && products.size()>=0) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            final ProductAdapter adapter = new ProductAdapter(products, this);
+            RecyclerView recyclerView = new RecyclerView(context);
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            alertDialogBuilder.setView(recyclerView);
+            String title = "Select a Product";
+            alertDialogBuilder.setTitle(title);
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            dialog = alertDialogBuilder.create();
+            dialog.show();
+        }
+
+
+
+    }
+
+    @Override
+    public void setLeakReached(int shift) {
+        if (shift==2)
+            mLine.getSecond().setLeakReached(true);
+        else
+        if (shift==3)
+            mLine.getThird().setLeakReached(true);
+        else
+            mLine.getFirst().setLeakReached(true);
+
+    }
+
+    @Override
+    public void productClick(Product product) {
+        dialog.dismiss();
+        lastProduct = product;
+        saveProduct(lastProduct);
+        mPresenter.setProduct(mLine,lastProduct);
+    }
+
 
 
     @Override
@@ -2062,6 +2268,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mScaleDetector.onTouchEvent(event);
         gestureDetector.onTouchEvent(event);
         return gestureDetector.onTouchEvent(event);
+    }
+
+
+    @Override
+    public void onDelete(Product product) {
+
     }
 
 //step 4: add private class GestureListener

@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Emails;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -18,6 +19,7 @@ import com.tenneco.tennecoapp.Plants.PlantsActivity;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Reasons.ReasonsFragment;
 import com.tenneco.tennecoapp.SMS.SmsListFragment;
+import com.tenneco.tennecoapp.Templates.TemplatesActivity;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -45,6 +47,14 @@ public class EmailMainFragment extends Fragment {
 
     @OnClick(R.id.tv_reason) void launchReason(){
         main.getSupportFragmentManager().beginTransaction().replace(R.id.container, new ReasonsFragment()).addToBackStack(null).commit();
+    }
+
+    @OnClick(R.id.tv_email_lists) void launchEmailList(){
+        main.getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmailListFragment()).addToBackStack(null).commit();
+    }
+
+    @OnClick(R.id.tv_templates) void launchTemplates(){
+        startActivity(new Intent(main, TemplatesActivity.class));
     }
 
     @Override

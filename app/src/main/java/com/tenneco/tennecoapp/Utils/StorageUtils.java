@@ -30,4 +30,17 @@ public class StorageUtils {
         editor.clear();
         editor.commit();
     }
+
+    public static void saveUserPermissions(Context context, int type)
+    {
+        SharedPreferences pref = getSharedPref(context);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("user_permissions", type);
+        editor.commit();
+    }
+
+    public static int getUserPermissions(Context context) {
+        SharedPreferences pref = getSharedPref(context);
+        return pref.getInt("user_permissions", 0);
+    }
 }

@@ -115,9 +115,9 @@ public class DowntimeFragment extends Fragment implements DowntimeListAdapter.On
     }
 
     @Override
-    public void DowntimeClick(String id) {
-        if (id!=null) {
-            EditCreateDowntimeFragment editCreateDowntimeFragment = EditCreateDowntimeFragment.newInstance(id);
+    public void DowntimeClick(Downtime downtime) {
+        if (downtime!=null) {
+            EditCreateDowntimeFragment editCreateDowntimeFragment = EditCreateDowntimeFragment.newInstance(downtime.getId());
             main.getSupportFragmentManager().beginTransaction().replace(R.id.container, editCreateDowntimeFragment).addToBackStack(null).commit();
         }
     }

@@ -40,7 +40,17 @@
             android:name=".Lines.ConfigLineActivity"
             android:label="@string/title_activity_config_line"
             android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tenneco.tennecoapp.MainActivity" />
+        </activity>
+        <activity android:name=".Report.ReportActivity" />
+        <activity
+            android:name=".Templates.TemplatesActivity"
+            android:label="@string/title_activity_templates"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

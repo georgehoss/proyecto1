@@ -20,7 +20,7 @@ public class Email {
     public Email() {
     }
 
-    public static Comparator<Email> EmailNameComparator = new Comparator<Email>() {
+    public static Comparator<Email> NameComparator = new Comparator<Email>() {
 
         public int compare(Email us1, Email us2) {
             String user1 = us1.getName().toUpperCase();

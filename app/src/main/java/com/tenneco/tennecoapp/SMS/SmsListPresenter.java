@@ -9,10 +9,12 @@ import android.widget.ProgressBar;
 import com.google.firebase.database.DatabaseReference;
 import com.tenneco.tennecoapp.Adapter.SmsListAdapter;
 import com.tenneco.tennecoapp.MainActivity;
+import com.tenneco.tennecoapp.Model.Sms;
 import com.tenneco.tennecoapp.Model.SmsList;
 import com.tenneco.tennecoapp.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import butterknife.BindView;
 
@@ -55,6 +57,8 @@ public class SmsListPresenter implements SmsListContract.Presenter {
 
         if (validName(name)) {
             smsList.setName(name);
+            if (smsList.getSms_numbers()==null)
+            smsList.setSms_numbers(new HashMap<String, Sms>());
             mView.saveData(smsList);
         }
         else mView.showNameEmptyError();

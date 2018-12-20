@@ -25,8 +25,10 @@ import com.tenneco.tennecoapp.Employee.EmployeeFragment;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Main.MainFragment;
 import com.tenneco.tennecoapp.Plants.PlantsActivity;
+import com.tenneco.tennecoapp.Report.ReportActivity;
 import com.tenneco.tennecoapp.Splash.SplashFragment;
 import com.tenneco.tennecoapp.User.UserFragment;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -90,19 +92,32 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     }
 
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
         MenuItem item = menu.findItem(R.id.menu_signout);
+        MenuItem item1 = menu.findItem(R.id.menu_report);
+        MenuItem item2 = menu.findItem(R.id.menu_plants);
+
 
         if (mUser!=null){
            item.setVisible(true);
+           item2.setVisible(true);
+           if (StorageUtils.getUserPermissions(this)>0)
+               item1.setVisible(true);
+           else
+               item1.setVisible(false);
+
         }
             else
         {
             item.setVisible(false);
+            item1.setVisible(false);
+            item2.setVisible(false);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -112,6 +127,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()==R.id.menu_signout)
             signOut();
+        if (item.getItemId()==R.id.menu_plants)
+            launchPlants();
+        if (item.getItemId()==R.id.menu_report)
+            launchReport();
         return super.onOptionsItemSelected(item);
     }
 
@@ -201,16 +220,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @Override
     public void showMenu() {
         mMenu.setVisibility(View.VISIBLE);
+        invalidateOptionsMenu();
     }
 
     @Override
     public void hideMenu() {
         mMenu.setVisibility(View.GONE);
+        invalidateOptionsMenu();
     }
 
     @Override
     public void signOut() {
         mAuth.signOut();
+        StorageUtils.saveUserPermissions(this,0);
     }
 
 
@@ -249,5 +271,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     public void setEmail() {
         mTvEmail.setBackground(getResources().getDrawable(R.drawable.email_blue_icon));
         mTvEmail.setEnabled(false);
+    }
+
+    public void launchPlants() {
+        StorageUtils.savePlantId(this,null);
+        startActivity(new Intent(this,PlantsActivity.class));
+        finish();
+    }
+    public void launchReport() {
+        startActivity(new Intent(this,ReportActivity.class));
     }
 }

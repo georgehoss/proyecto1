@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.tenneco.tennecoapp.Main.MainFragment;
 import com.tenneco.tennecoapp.R;
+import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 public class PlantsActivity extends AppCompatActivity {
 
@@ -29,6 +30,7 @@ public class PlantsActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
+    private static int type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,25 +44,10 @@ public class PlantsActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
         mTabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        type = StorageUtils.getUserPermissions(this);
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_plants, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
     public static class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -76,15 +63,19 @@ public class PlantsActivity extends AppCompatActivity {
                default:
                    return new PlantMainFragment();
                case 1:
+                   if (type>1)
                    return new PlantConfigurationFragment();
+                   else
+                       return new PlantMainFragment();
            }
 
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+
             return 2;
+
         }
 
     }

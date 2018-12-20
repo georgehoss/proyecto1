@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<item
-    android:title="@string/sign_out"
-    app:showAsAction="never"
-    android:id="@+id/menu_signout"
-    />
+    <item
+        android:title="@string/plants"
+        app:showAsAction="always"
+        android:id="@+id/menu_plants"
+        android:icon="@drawable/factory"
+        />
+    <item
+        android:title="@string/daily_report"
+        app:showAsAction="always"
+        android:icon="@drawable/analytics"
+        android:id="@+id/menu_report"
+        />
+    <item
+        android:title="@string/sign_out"
+        app:showAsAction="never"
+        android:id="@+id/menu_signout"
+        />
+
 </menu>

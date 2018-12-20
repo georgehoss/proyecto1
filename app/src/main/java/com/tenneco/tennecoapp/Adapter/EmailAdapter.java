@@ -26,7 +26,7 @@ public class EmailAdapter extends RecyclerView.Adapter<EmailAdapter.EmailViewHol
 
     public EmailAdapter(ArrayList<Email> emails, OnEmailInteraction onEmailInteraction) {
         if (emails!=null)
-            Collections.sort(emails,Email.EmailNameComparator);
+            Collections.sort(emails,Email.NameComparator);
         this.emails = emails;
         this.onEmailInteraction = onEmailInteraction;
     }

@@ -105,7 +105,7 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
                     if (email!=null)
                         mEmails.add(email);
                 }
-                Collections.sort(mEmails,Email.EmailNameComparator);
+                Collections.sort(mEmails,Email.NameComparator);
                 mAdapter.setEmails(mEmails);
                 mAdapter.notifyDataSetChanged();
             }

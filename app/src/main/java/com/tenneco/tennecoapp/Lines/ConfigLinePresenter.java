@@ -10,6 +10,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Zone;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Product;
 import com.tenneco.tennecoapp.Model.Shift;
 import com.tenneco.tennecoapp.Model.WorkHour;
 import com.tenneco.tennecoapp.R;
@@ -108,7 +109,9 @@ public class ConfigLinePresenter implements ConfigLineContract.Presenter{
         locations5.add(new Location("Operator"));
         ArrayList<Location>locations6 = new ArrayList<>();
         locations6.add(new Location("Other"));
-        ArrayList<Zone>zones = new ArrayList<>();
+
+
+        /*ArrayList<Zone>zones = new ArrayList<>();
         zones.add(new Zone("Gauge",locations));
         zones.add(new Zone("Lift assist",locations1));
         zones.add(new Zone("Load side",locations2));
@@ -163,10 +166,10 @@ public class ConfigLinePresenter implements ConfigLineContract.Presenter{
         downtimeReasons.add(new Reason("Weld adjustment"));
         downtimeReasons.add(new Reason("Weld Issue"));
         downtimeReasons.add(new Reason("Wire change"));
-        downtimeReasons.add(new Reason("Wire feed/Birdnest"));
+        downtimeReasons.add(new Reason("Wire feed/Birdnest"));*/
         Downtime downtime = new Downtime();
-        downtime.setZones(zones);
-        downtime.setReasons(downtimeReasons);
+        downtime.setZones(new ArrayList<Zone>());
+        downtime.setReasons(new ArrayList<Reason>());
         ArrayList<Reason> reasons = new ArrayList<>();
         reasons.add(new Reason("Burn Thru at muffler"));
         reasons.add(new Reason("Burn thru at Collector"));
@@ -188,7 +191,22 @@ public class ConfigLinePresenter implements ConfigLineContract.Presenter{
         line.setPositions(positions);
         ArrayList<Employee> employees = new ArrayList<>();
         line.setEmployees(employees);
+        line.setProducts(new ArrayList<Product>());
         mView.setData(line);
+    }
+
+    @Override
+    public void saveLine(Line line) {
+        if (validName(line.getName()) && validCode(line.getCode())
+                && validOperators(line.getPositions())
+                && validProduct(line)
+                && validDowntime(line.getDowntime())
+                && validReasons(line.getScrapReasons())
+                && validEmails(line)
+                )
+            mView.saveLine(line);
+        else
+            mView.hideProgressBar();
     }
 
     @Override
@@ -214,14 +232,107 @@ public class ConfigLinePresenter implements ConfigLineContract.Presenter{
 
     @Override
     public boolean validDowntime(Downtime downtime) {
-        if (downtime.getZones()==null || downtime.getZones().size()==0)
-            mView.showDowntimeZoneError();
+        boolean valid = true;
+        if (downtime==null|| downtime.getZones()==null || downtime.getReasons()==null)
+            valid = false;
         else
-            if (downtime.getReasons()==null || downtime.getReasons().size()==0)
-                mView.showDowntimeReasonError();
+        if ( downtime.getZones().size()==0)
+            valid = false;
+        else
+            if (downtime.getReasons().size()==0)
+                valid = false;
 
-        return (!(downtime.getZones()==null || downtime.getZones().size()==0) &&
-                !(downtime.getReasons()==null || downtime.getReasons().size()==0));
+        if (!valid)
+            mView.showDowntimeZoneError();
+
+        return valid;
+    }
+
+    @Override
+    public boolean validReasons(ArrayList<Reason> scrapReasons) {
+        if (scrapReasons==null || scrapReasons.size()==0)
+            mView.showRejectReasonError();
+
+        return !(scrapReasons==null || scrapReasons.size()==0);
+    }
+
+    @Override
+    public boolean validEmails(Line line) {
+        boolean valid=true;
+        if (line.getFirst().getDowntimeList()==null || line.getFirst().getDowntimeList().getEmails()==null &&
+                line.getFirst().getDowntimeList().getEmails().size()==0)
+            valid = false;
+        if (line.getSecond().getDowntimeList()==null || line.getSecond().getDowntimeList().getEmails()==null &&
+                line.getSecond().getDowntimeList().getEmails().size()==0)
+            valid = false;
+        if (line.getThird().getDowntimeList()==null || line.getThird().getDowntimeList().getEmails()==null &&
+                line.getThird().getDowntimeList().getEmails().size()==0)
+            valid = false;
+
+
+        if (line.getFirst().getLineList()==null || line.getFirst().getLineList().getEmails()==null &&
+                line.getFirst().getLineList().getEmails().size()==0)
+            valid = false;
+        if (line.getSecond().getLineList()==null || line.getSecond().getLineList().getEmails()==null &&
+                line.getSecond().getLineList().getEmails().size()==0)
+            valid = false;
+        if (line.getThird().getLineList()==null || line.getThird().getLineList().getEmails()==null &&
+                line.getThird().getLineList().getEmails().size()==0)
+            valid = false;
+
+        if (line.getFirst().getLeakList()==null || line.getFirst().getLeakList().getEmails()==null &&
+                line.getFirst().getLeakList().getEmails().size()==0)
+            valid = false;
+        if (line.getSecond().getLeakList()==null || line.getSecond().getLeakList().getEmails()==null &&
+                line.getSecond().getLeakList().getEmails().size()==0)
+            valid = false;
+        if (line.getThird().getLeakList()==null || line.getThird().getLeakList().getEmails()==null &&
+                line.getThird().getLeakList().getEmails().size()==0)
+            valid = false;
+
+        if (line.getFirst().getScrap1List()==null || line.getFirst().getScrap1List().getEmails()==null &&
+                line.getFirst().getScrap1List().getEmails().size()==0)
+            valid = false;
+        if (line.getSecond().getScrap1List()==null || line.getSecond().getScrap1List().getEmails()==null &&
+                line.getSecond().getScrap1List().getEmails().size()==0)
+            valid = false;
+        if (line.getThird().getScrap1List()==null || line.getThird().getScrap1List().getEmails()==null &&
+                line.getThird().getScrap1List().getEmails().size()==0)
+            valid = false;
+
+        if (line.getFirst().getScrap2List()==null || line.getFirst().getScrap2List().getEmails()==null &&
+                line.getFirst().getScrap2List().getEmails().size()==0)
+            valid = false;
+        if (line.getSecond().getScrap2List()==null || line.getSecond().getScrap2List().getEmails()==null &&
+                line.getSecond().getScrap2List().getEmails().size()==0)
+            valid = false;
+        if (line.getThird().getScrap2List()==null || line.getThird().getScrap2List().getEmails()==null &&
+                line.getThird().getScrap2List().getEmails().size()==0)
+            valid = false;
+
+
+        if (line.getFirst().getScrap3List()==null || line.getFirst().getScrap3List().getEmails()==null &&
+                line.getFirst().getScrap3List().getEmails().size()==0)
+            valid = false;
+        if (line.getSecond().getScrap3List()==null || line.getSecond().getScrap3List().getEmails()==null &&
+                line.getSecond().getScrap3List().getEmails().size()==0)
+            valid = false;
+        if (line.getThird().getScrap3List()==null || line.getThird().getScrap3List().getEmails()==null &&
+                line.getThird().getScrap3List().getEmails().size()==0)
+            valid = false;
+
+        if (!valid)
+            mView.showEmailError();
+
+        return valid;
+    }
+
+    @Override
+    public boolean validProduct(Line line) {
+        if (line.getProducts()==null || line.getProducts().size()==0)
+            mView.showProductError();
+
+        return !(line.getProducts()==null || line.getProducts().size()==0);
     }
 
     @Override

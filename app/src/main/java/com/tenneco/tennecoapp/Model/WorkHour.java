@@ -18,6 +18,8 @@ public class WorkHour {
     private ReasonDelay reasonDelay;
     private String owner;
     private Product product;
+    private String leak;
+
 
     public WorkHour() {
     }
@@ -147,5 +149,13 @@ public class WorkHour {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String getLeak() {
+        return leak;
+    }
+
+    public void setLeak(String leak) {
+        this.leak = leak;
     }
 }

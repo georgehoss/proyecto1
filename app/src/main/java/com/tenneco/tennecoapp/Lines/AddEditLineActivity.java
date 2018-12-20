@@ -41,12 +41,12 @@ import com.tenneco.tennecoapp.Adapter.HourAdapter;
 import com.tenneco.tennecoapp.Adapter.LocationAdapter;
 import com.tenneco.tennecoapp.Adapter.PositionAdapter;
 import com.tenneco.tennecoapp.Adapter.ScrapAdapter;
-import com.tenneco.tennecoapp.Daily.DailyActivity;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
 import com.tenneco.tennecoapp.Model.Email;
+import com.tenneco.tennecoapp.Model.EmailList;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
@@ -173,28 +173,28 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @OnClick (R.id.bt_add_scrap) void scrr () {showAddEventDialog(this,EVENT);}
 
-    @OnClick (R.id.bt_add_dw_email) void dwlist(){
-        showEmailList(this,mLine.getDowntimeList(),0);
+    @OnClick (R.id.bt_add_dw) void dwlist(){
+        showEmailList(this,mLine.getDowntimeEmailList().getEmails(),0);
     }
 
     @OnClick (R.id.bt_add_dw_sc1) void sc1list(){
-        showEmailList(this,mLine.getScrap1List(),1);
+        showEmailList(this,mLine.getScrap1EmailList().getEmails(),1);
     }
 
     @OnClick (R.id.bt_add_dw_sc2) void sc2list(){
-        showEmailList(this,mLine.getScrap2List(),2);
+        showEmailList(this,mLine.getScrap2EmailList().getEmails(),2);
     }
 
     @OnClick (R.id.bt_add_dw_sc3) void sc3list(){
-        showEmailList(this,mLine.getScrap3List(),3);
+        showEmailList(this,mLine.getScrap3EmailList().getEmails(),3);
     }
 
     @OnClick (R.id.bt_add_leak) void leaklist(){
-        showEmailList(this,mLine.getScrap3List(),4);
+        showEmailList(this,mLine.getScrap3EmailList().getEmails(),4);
     }
 
     @OnClick (R.id.bt_add_cell) void emaillist(){
-        showEmailList(this,mLine.getCellList(),5);
+        showEmailList(this,mLine.getLineList().getEmails(),5);
     }
 
 
@@ -528,35 +528,35 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
             mReasons.addAll(line.getScrapReasons());
         }
 
-        if(mLine.getDowntimeList()!=null && mLine.getDowntimeList().size()>0)
+        if(mLine.getDowntimeEmailList()!=null && mLine.getDowntimeEmailList().getEmails().size()>0)
         {
-            mTvDwEmailList.setText(mPresenter.getEmailList(mLine.getDowntimeList()).toString());
+            mTvDwEmailList.setText(mPresenter.getEmailList(mLine.getDowntimeEmailList().getEmails()).toString());
         }
 
-        if(line.getScrap1List()!=null && line.getScrap1List().size()>0)
+        if(line.getScrap1EmailList()!=null && line.getScrap1EmailList().getEmails().size()>0)
         {
 
-            mTvSc1EmailList.setText(mPresenter.getEmailList(line.getScrap1List()).toString());
+            mTvSc1EmailList.setText(mPresenter.getEmailList(line.getScrap1EmailList().getEmails()).toString());
         }
 
-        if(line.getScrap2List()!=null && line.getScrap2List().size()>0)
+        if(line.getScrap2EmailList()!=null && line.getScrap2EmailList().getEmails().size()>0)
         {
-            mTvSc2EmailList.setText(mPresenter.getEmailList(line.getScrap2List()).toString());
+            mTvSc2EmailList.setText(mPresenter.getEmailList(line.getScrap2EmailList().getEmails()).toString());
         }
 
-        if(line.getScrap3List()!=null && line.getScrap3List().size()>0)
+        if(line.getScrap3EmailList()!=null && line.getScrap3EmailList().getEmails().size()>0)
         {
-            mTvSc3EmailList.setText(mPresenter.getEmailList(line.getScrap3List()).toString());
+            mTvSc3EmailList.setText(mPresenter.getEmailList(line.getScrap3EmailList().getEmails()).toString());
         }
 
-        if (line.getLeakList()!=null && line.getLeakList().size()>0)
+        if (line.getLeakEmailList()!=null && line.getLeakEmailList().getEmails().size()>0)
         {
-            mTvLeakEmailList.setText(mPresenter.getEmailList(line.getLeakList()).toString());
+            mTvLeakEmailList.setText(mPresenter.getEmailList(line.getLeakEmailList().getEmails()).toString());
         }
 
-        if (line.getCellList()!=null && line.getCellList().size()>0)
+        if (line.getLineList()!=null && line.getLineList().getEmails().size()>0)
         {
-            mTvCellEmailList.setText(mPresenter.getCellEmailList(line.getCellList()).toString());
+            mTvCellEmailList.setText(mPresenter.getCellEmailList(line.getLineList().getEmails()).toString());
         }
 
 
@@ -1245,58 +1245,58 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
         mEmails = new ArrayList<>(emails);
 
-        if (mLine.getDowntimeList()==null) {
-            mLine.setDowntimeList(new ArrayList<Email>());
+        if (mLine.getDowntimeEmailList()==null) {
+            mLine.setDowntimeEmailList(new EmailList());
            for (Email email: emails)
-               mLine.getDowntimeList().add(new Email(email));
+               mLine.getDowntimeEmailList().getEmails().add(new Email(email));
         }
-        else
-            mLine.setDowntimeList(mPresenter.verifyEmails(mLine.getDowntimeList(),emails));
+        //else
+          //  mLine.setDowntimeEmailList(new EmailList().setEmails(mPresenter.verifyEmails(mLine.getDowntimeEmailList().getEmails(),emails)););
 
-        if (mLine.getScrap1List()==null) {
-            mLine.setScrap1List(new ArrayList<Email>());
+        if (mLine.getScrap1EmailList()==null) {
+            mLine.setScrap1EmailList(new EmailList());
             for (Email email: emails) {
-                mLine.getScrap1List().add(new Email(email));
+                mLine.getScrap1EmailList().getEmails().add(new Email(email));
 
             }
         }
-        else
-            mLine.setScrap1List(mPresenter.verifyEmails(mLine.getScrap1List(),emails));
+        //else
+            //mLine.setScrap1EmailList(new EmailList().setEmails(mPresenter.verifyEmails(mLine.getScrap1EmailList().getEmails(),emails)));
 
-        if (mLine.getScrap2List()==null){
-            mLine.setScrap2List(new ArrayList<Email>());
+        if (mLine.getScrap2EmailList()==null){
+            mLine.setScrap2EmailList(new EmailList());
             for (Email email: emails)
-                mLine.getScrap2List().add(new Email(email));
+                mLine.getScrap2EmailList().getEmails().add(new Email(email));
         }
-        else
-            mLine.setScrap2List(mPresenter.verifyEmails(mLine.getScrap2List(),emails));
+        //else
+          //  mLine.setScrap2EmailList(mPresenter.verifyEmails(mLine.getScrap2EmailList().getEmails(),emails));
 
-        if (mLine.getScrap3List()==null)
+        if (mLine.getScrap3EmailList()==null)
         {
-            mLine.setScrap3List(new ArrayList<Email>());
+            mLine.setScrap3EmailList(new EmailList());
             for (Email email: emails)
-                mLine.getScrap3List().add(new Email(email));
+                mLine.getScrap3EmailList().getEmails().add(new Email(email));
         }
-        else
-            mLine.setScrap3List(mPresenter.verifyEmails(mLine.getScrap3List(),emails));
+        //else
+          //  mLine.setScrap3EmailList(mPresenter.verifyEmails(mLine.getScrap3EmailList(),emails));
 
-        if (mLine.getLeakList()==null)
+        if (mLine.getLeakEmailList()==null)
         {
-            mLine.setLeakList(new ArrayList<Email>());
+            mLine.setLeakEmailList(new EmailList());
             for (Email email: emails)
-                mLine.getLeakList().add(new Email(email));
+                mLine.getLeakEmailList().getEmails().add(new Email(email));
         }
-        else
-            mLine.setLeakList(mPresenter.verifyEmails(mLine.getLeakList(),emails));
+        //else
+            //mLine.setLeakEmailList(mPresenter.verifyEmails(mLine.getLeakEmailList(),emails));
 
-        if (mLine.getCellList()==null)
+        if (mLine.getLineList()==null)
         {
-            mLine.setCellList(new ArrayList<Email>());
+            mLine.setLineList(new EmailList());
             for (Email email: emails)
-                mLine.getCellList().add(new Email(email));
+                mLine.getLineList().getEmails().add(new Email(email));
         }
-        else
-            mLine.setCellList(mPresenter.verifyEmails(mLine.getCellList(),emails));
+        //else
+            //mLine.setCellList(mPresenter.verifyEmails(mLine.getCellList(),emails));
 
 
         setData(mLine);
@@ -1320,21 +1320,22 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
                 public void onClick(DialogInterface dialogInterface, int i) {
                     switch (position) {
                         case 1:
-                            mLine.setScrap1List(adapter.getEmails());
+                            mLine.getScrap1EmailList().setEmails(adapter.getEmails());
                             break;
                         case 2:
-                            mLine.setScrap2List(adapter.getEmails());
+                            mLine.getScrap2EmailList().setEmails((adapter.getEmails()));
                             break;
                         case 3:
-                            mLine.setScrap3List(adapter.getEmails());
+                            mLine.getScrap3EmailList().setEmails((adapter.getEmails()));
                             break;
                         case 4:
-                            mLine.setLeakList(adapter.getEmails());
+                            mLine.getLeakEmailList().setEmails((adapter.getEmails()));
+                            break;
                         case 5:
-                            mLine.setCellList(adapter.getEmails());
+                            mLine.getDowntimeEmailList().setEmails((adapter.getEmails()));
                             break;
                         default:
-                            mLine.setDowntimeList(adapter.getEmails());
+                            mLine.getLineList().setEmails((adapter.getEmails()));
                             break;
                     }
                     setData(mLine);

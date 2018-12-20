@@ -155,6 +155,18 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             else
                 holder.mTvOwner.setText("");
 
+            if (hour.getProduct()!=null)
+                holder.mTvProduct.setText(hour.getProduct().getName());
+            else
+                holder.mTvProduct.setText("");
+
+
+            if (hour.getLeak()!=null && !hour.getLeak().isEmpty())
+                holder.mTvFTQ.setText(hour.getLeak());
+            else
+                holder.mTvFTQ.setText("0");
+
+
             //holder.mTvOwner.setText(hour.getComments());
 
             if (!hour.isClosed()) {
@@ -213,6 +225,8 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
         @BindView(R.id.tv_owner) TextView mTvOwner;
         @BindView(R.id.tv_cActual) TextView mTvCActual;
         @BindView(R.id.tv_cPlanned) TextView mTvCPlanned;
+        @BindView(R.id.tv_ftq) TextView mTvFTQ;
+        @BindView(R.id.tv_product) TextView mTvProduct;
 
         DailyViewHolder(@NonNull View itemView) {
             super(itemView);

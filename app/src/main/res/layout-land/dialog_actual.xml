@@ -144,6 +144,41 @@
                     android:textSize="20sp"
                     />
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                >
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ftqs"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:id="@+id/tv_ftq_label"
+                    />
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLength="4"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id="@+id/et_ftq"
+                    android:inputType="number"
+                    android:hint="0"
+                    android:padding="5dp"
+                    android:layout_marginStart="13dp"
+                    android:layout_marginEnd="13dp"
+                    android:background="@drawable/background_rectangle"
+                    android:textColor="@color/colorBlueLine"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    />
+            </LinearLayout>
             <EditText
                 android:layout_margin="10dp"
                 android:layout_width="match_parent"

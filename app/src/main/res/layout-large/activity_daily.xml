@@ -103,10 +103,34 @@
                     android:textColor="@color/colorBlueLine"
                     android:textStyle="bold"
                     android:background="@drawable/daily_title"
+                    android:text="@string/ftqs"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:visibility="visible"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/colorBlueLine"
+                    android:textStyle="bold"
+                    android:background="@drawable/daily_title"
+                    android:text="@string/product"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:visibility="visible"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/colorBlueLine"
+                    android:textStyle="bold"
+                    android:background="@drawable/daily_title"
                     android:text="@string/daily_owner"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     />
             </LinearLayout>
 
@@ -186,10 +210,10 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/daily_leak_failure_counter"
+                android:text="@string/select_product"
                 android:id="@+id/bt_counter"
                 android:layout_margin="10dp"
-                android:theme="@style/AppTheme.Button"
+                style="@style/AppTheme.Button"
                 android:textSize="17sp"
                 />
 

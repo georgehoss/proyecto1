@@ -12,7 +12,6 @@ import java.util.Map;
 public class SmsList  {
     public static final String DB_SMS_LIST = "smslists";
     private String name;
-    @SerializedName(Sms.DB_SMS)
     private Map<String, Sms> sms_numbers;
     private String id;
 

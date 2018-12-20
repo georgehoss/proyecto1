@@ -26,9 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class LineConfigFragment extends Fragment implements LineConfigContract.View, PositionAdapter.OnItemClick {
     private LineConfigContract.Presenter mPresenter;
     private PositionAdapter mAdapterPos;
@@ -86,7 +84,7 @@ public class LineConfigFragment extends Fragment implements LineConfigContract.V
         {
             if (main.mLine.getName()!=null)
                 mEtName.setText(main.mLine.getName());
-            if (main.mLine.getCellList()!=null)
+            if (main.mLine.getLineList()!=null)
                 mEtCode.setText(main.mLine.getCode());
             if (main.mLine.getDescription()!=null)
                 mEtDescription.setText(main.mLine.getDescription());
@@ -109,7 +107,7 @@ public class LineConfigFragment extends Fragment implements LineConfigContract.V
 
     @Override
     public void getData() {
-        if (main!=null) {
+        if (main!=null && main.mLine!=null) {
             if (!mEtName.getText().toString().isEmpty())
                 main.mLine.setName(mEtName.getText().toString().trim());
             if (!mEtCode.getText().toString().isEmpty())

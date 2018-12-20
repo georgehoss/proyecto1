@@ -96,6 +96,8 @@ public class Product {
         this.third = third;
     }
 
-
-
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

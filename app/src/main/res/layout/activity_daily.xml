@@ -66,10 +66,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/daily_leak_failure_counter"
+                    android:text="@string/select_product"
                     android:id="@+id/bt_counter"
                     android:layout_margin="10dp"
-                    android:theme="@style/AppTheme.Button"
+                    style="@style/AppTheme.Button"
                     />
 
                 <Button

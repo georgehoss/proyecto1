@@ -23,10 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.tenneco.tennecoapp.Adapter.LineAdapter;
 import com.tenneco.tennecoapp.Adapter.ProductionLineAdapter;
 import com.tenneco.tennecoapp.Daily.DailyActivity;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
+import com.tenneco.tennecoapp.Lines.ConfigLineActivity;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Plant;
@@ -35,7 +35,6 @@ import com.tenneco.tennecoapp.Utils.StorageUtils;
 import com.tenneco.tennecoapp.Utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -114,7 +113,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     @Override
     public void onLongClick(String lineId) {
         if (admin==3) {
-            Intent intent = new Intent(main, AddEditLineActivity.class);
+            Intent intent = new Intent(main, ConfigLineActivity.class);
             intent.putExtra("cell", true);
             intent.putExtra("id", lineId);
             startActivity(intent);
@@ -206,15 +205,13 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     public void addNewLine() {
         Line line = new Line(mLine);
         line.setId(dbPLines.push().getKey());
+        line.setCode(mLine.getCode());
+        line.setDescription(mLine.getDescription());
         line.setDate(Utils.getDateString());
         line.setParentId(lineId);
-        line.setDowntimeList(mLine.getDowntimeList());
-        line.setScrap1List(mLine.getScrap1List());
-        line.setScrap2List(mLine.getScrap2List());
-        line.setScrap3List(mLine.getScrap3List());
         line.setPassword(mLine.getPassword());
-        line.setLeakList(mLine.getLeakList());
-        line.setCellList(mLine.getCellList());
+        line.setProducts(mLine.getProducts());
+
         dbPLines.child(line.getId()).setValue(line);
 
     }

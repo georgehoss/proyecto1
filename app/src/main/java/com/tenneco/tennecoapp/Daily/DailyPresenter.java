@@ -9,6 +9,7 @@ import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
+import com.tenneco.tennecoapp.Model.Product;
 import com.tenneco.tennecoapp.Model.ReasonDelay;
 import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.Model.Shift;
@@ -45,7 +46,7 @@ public class DailyPresenter implements DailyContract.Presenter {
     }
 
     @Override
-    public void saveLine(Line line, ArrayList<WorkHour> hours, int position, String actual, String comment,ReasonDelay reasonDelay,String owner) {
+    public void saveLine(Line line, ArrayList<WorkHour> hours, int position, String actual, String comment,ReasonDelay reasonDelay,String owner,String ftq) {
 
 
         hours.get(position).setActuals(actual);
@@ -54,6 +55,8 @@ public class DailyPresenter implements DailyContract.Presenter {
             hours.get(position).setReasonDelay(reasonDelay);
         if (owner!=null)
             hours.get(position).setOwner(owner);
+        if (ftq!=null)
+            hours.get(position).setLeak(ftq);
 
         line.getFirst().getHours().clear();
         line.getSecond().getHours().clear();
@@ -61,11 +64,22 @@ public class DailyPresenter implements DailyContract.Presenter {
         int cA1=0;
         int cA2=0;
         int cA3=0;
+        int cL1=0;
+        int cL2=0;
+        int cL3=0;
+
         for (int j=0;j<=23;j++)
         {
             int cA=0;
             if (hours.get(j).getActuals()!=null
                     && !hours.get(j).getActuals().isEmpty()){
+
+                if (hours.get(j).getLeak()!=null && hours.get(j).getLeak().isEmpty())
+                    hours.get(j).setLeak("0");
+                else
+                    if (hours.get(j).getLeak()==null)
+                        hours.get(j).setLeak("0");
+
                 if (j!=0 && j!=8 && j!=16 &&
                         hours.get(j-1).getCumulativeActual()!=null &&
                         !hours.get(j-1).getCumulativeActual().isEmpty())
@@ -82,15 +96,18 @@ public class DailyPresenter implements DailyContract.Presenter {
                 if (j<=7)
                 {
                     cA1 = cA1 + Integer.valueOf(hours.get(j).getActuals());
+                    cL1 = cL1 + Integer.valueOf(hours.get(j).getLeak());
                 }
                 else
                 if (j<=15)
                 {
                     cA2 = cA2 + Integer.valueOf(hours.get(j).getActuals());
+                    cL2 = cL2 + Integer.valueOf(hours.get(j).getLeak());
                 }
                 else
                 {
                     cA3 = cA3 + Integer.valueOf(hours.get(j).getActuals());
+                    cL3 = cL3 + Integer.valueOf(hours.get(j).getLeak());
                 }
 
             }
@@ -113,6 +130,13 @@ public class DailyPresenter implements DailyContract.Presenter {
             }
 
         }
+
+        line.getFirst().setCumulativeFTQ(String.valueOf(cL1));
+        line.getSecond().setCumulativeFTQ(String.valueOf(cL2));
+        line.getThird().setCumulativeFTQ(String.valueOf(cL3));
+        line.getFirst().setLfCounter(cL1);
+        line.getFirst().setLfCounter(cL2);
+        line.getFirst().setLfCounter(cL3);
 
         if (cA1!=0) {
             line.getFirst().setCumulativeActual(String.valueOf(cA1));
@@ -227,6 +251,91 @@ public class DailyPresenter implements DailyContract.Presenter {
 
         mView.updateLine(line);
 
+    }
+
+    @Override
+    public void setProduct(Line line, Product product) {
+        int cA=0;
+        int cA2=0;
+        int cA3=0;
+        for (int i=0;i<=7;i++) {
+            if (!line.getFirst().getHours().get(i).isClosed() &&(
+                    line.getFirst().getHours().get(i).getActuals()==null
+                    ||line.getFirst().getHours().get(i).getActuals().isEmpty())) {
+                line.getFirst().getHours().get(i).setTarget(product.getFirst().getHours().get(i).getTarget());
+                line.getFirst().getHours().get(i).setStartHour(product.getFirst().getHours().get(i).getStartHour());
+                line.getFirst().getHours().get(i).setEndHour(product.getFirst().getHours().get(i).getEndHour());
+                line.getFirst().getHours().get(i).setProduct(product);
+
+            }
+
+            if (i!=0 &&
+                    line.getFirst().getHours().get(i-1).getCumulativePlanned()!=null &&
+                    !line.getFirst().getHours().get(i-1).getCumulativePlanned().isEmpty())
+            {
+                cA = Integer.valueOf(line.getFirst().getHours().get(i).getTarget()) + Integer.valueOf(line.getFirst().getHours().get(i-1).getCumulativePlanned());
+                line.getFirst().getHours().get(i).setCumulativePlanned(String.valueOf(cA));
+            }
+            else
+            if (i==0)
+            {
+                line.getFirst().getHours().get(i).setCumulativePlanned(line.getFirst().getHours().get(i).getTarget());
+            }
+
+            if (i!=0 &&
+                    line.getSecond().getHours().get(i-1).getCumulativePlanned()!=null &&
+                    !line.getSecond().getHours().get(i-1).getCumulativePlanned().isEmpty())
+            {
+                cA2 = Integer.valueOf(line.getSecond().getHours().get(i).getTarget()) + Integer.valueOf(line.getSecond().getHours().get(i-1).getCumulativePlanned());
+                line.getSecond().getHours().get(i).setCumulativePlanned(String.valueOf(cA2));
+            }
+            else
+            if (i==0)
+            {
+                line.getSecond().getHours().get(i).setCumulativePlanned(line.getSecond().getHours().get(i).getTarget());
+            }
+
+            if (i!=0 &&
+                    line.getThird().getHours().get(i-1).getCumulativePlanned()!=null &&
+                    !line.getThird().getHours().get(i-1).getCumulativePlanned().isEmpty())
+            {
+                cA3 = Integer.valueOf(line.getThird().getHours().get(i).getTarget()) + Integer.valueOf(line.getThird().getHours().get(i-1).getCumulativePlanned());
+                line.getThird().getHours().get(i).setCumulativePlanned(String.valueOf(cA3));
+            }
+            else
+            if (i==0)
+            {
+                line.getThird().getHours().get(i).setCumulativePlanned(line.getThird().getHours().get(i).getTarget());
+            }
+
+
+
+            if (!line.getSecond().getHours().get(i).isClosed() &&(
+                    line.getSecond().getHours().get(i).getActuals()==null
+                            ||line.getSecond().getHours().get(i).getActuals().isEmpty())) {
+                line.getSecond().getHours().get(i).setTarget(product.getSecond().getHours().get(i).getTarget());
+                line.getSecond().getHours().get(i).setCumulativePlanned(product.getSecond().getHours().get(i).getCumulativePlanned());
+                line.getSecond().getHours().get(i).setStartHour(product.getSecond().getHours().get(i).getStartHour());
+                line.getSecond().getHours().get(i).setEndHour(product.getSecond().getHours().get(i).getEndHour());
+                line.getSecond().getHours().get(i).setProduct(product);
+            }
+
+            if (!line.getThird().getHours().get(i).isClosed() &&(
+                    line.getThird().getHours().get(i).getActuals()==null
+                            ||line.getThird().getHours().get(i).getActuals().isEmpty())) {
+                line.getThird().getHours().get(i).setTarget(product.getThird().getHours().get(i).getTarget());
+                line.getThird().getHours().get(i).setCumulativePlanned(product.getThird().getHours().get(i).getCumulativePlanned());
+                line.getThird().getHours().get(i).setStartHour(product.getThird().getHours().get(i).getStartHour());
+                line.getThird().getHours().get(i).setEndHour(product.getThird().getHours().get(i).getEndHour());
+                line.getThird().getHours().get(i).setProduct(product);
+            }
+        }
+
+        line.getFirst().setCumulativePlanned(String.valueOf(cA));
+        line.getSecond().setCumulativePlanned(String.valueOf(cA2));
+        line.getThird().setCumulativePlanned(String.valueOf(cA3));
+
+        mView.updateLine(line);
     }
 
     @Override
@@ -377,6 +486,15 @@ public class DailyPresenter implements DailyContract.Presenter {
                 }
 
         line.setDowntime(downtime);
+        ArrayList<Downtime> downtimes;
+        if (line.getDowntimes()==null)
+            downtimes = new ArrayList<>();
+        else
+            downtimes = new ArrayList<>(line.getDowntimes());
+
+        downtimes.add(downtime);
+
+        line.setDowntimes(downtimes);
 
         mView.updateLine(line);
 
@@ -479,32 +597,32 @@ public class DailyPresenter implements DailyContract.Presenter {
 
     @Override
     public void verifyLeaks(Line line) {
-        if (line.getFirst().isLeakReached() &&
-                line.getFirst().getHours().get(0).getActuals()!=null &&
-                !line.getFirst().getHours().get(0).getActuals().isEmpty()
+        /*if (line.getFirst().isLeakReached() &&
+                line.getFirst().getLines().get(0).getActuals()!=null &&
+                !line.getFirst().getLines().get(0).getActuals().isEmpty()
                 )
             mView.showFTQ(1);
         else
         if (line.getSecond().isLeakReached()&&
-                line.getSecond().getHours().get(0).getActuals()!=null &&
-                !line.getSecond().getHours().get(0).getActuals().isEmpty())
+                line.getSecond().getLines().get(0).getActuals()!=null &&
+                !line.getSecond().getLines().get(0).getActuals().isEmpty())
             mView.showFTQ(2);
         else
         if (line.getThird().isLeakReached()&&
-                line.getSecond().getHours().get(0).getActuals()!=null &&
-                !line.getSecond().getHours().get(0).getActuals().isEmpty())
-            mView.showFTQ(3);
+                line.getSecond().getLines().get(0).getActuals()!=null &&
+                !line.getSecond().getLines().get(0).getActuals().isEmpty())
+            mView.showFTQ(3);*/
     }
 
     @Override
     public String[] getEmails(ArrayList<Email> emails, Line line) {
         ArrayList<Email> list = new ArrayList<>();
 
-        if (line==null) {
-            for (Email email : emails)
-                if (email.isShift1())
-                    list.add(new Email(email));
-        }
+        //if (line==null) {
+        for (Email email : emails)
+            if (email.isShift1())
+                list.add(new Email(email));
+        /*}
         else
         if (!line.getFirst().isClosed())
         {
@@ -525,7 +643,7 @@ public class DailyPresenter implements DailyContract.Presenter {
             for (Email email : emails)
                 if (email.isShift3())
                     list.add(new Email(email));
-        }
+        }*/
         String [] em = new String[list.size()];
         for (int i=0; i<list.size(); i++)
             em[i]= list.get(i).toString();
@@ -536,11 +654,12 @@ public class DailyPresenter implements DailyContract.Presenter {
     public String[] getCC(ArrayList<Email> emails, Line line) {
         ArrayList<Email> list = new ArrayList<>();
 
-        if (line==null) {
-            for (Email email : emails)
-                if (email.isCc1())
-                    list.add(new Email(email));
-        }
+        //if (line==null) {
+        for (Email email : emails)
+            if (email.isCc1())
+                list.add(new Email(email));
+
+        /*}
         else
         if (!line.getFirst().isClosed())
         {
@@ -561,7 +680,7 @@ public class DailyPresenter implements DailyContract.Presenter {
             for (Email email : emails)
                 if (email.isCc3())
                     list.add(new Email(email));
-        }
+        }*/
 
         String [] em = new String[list.size()];
         for (int i=0; i<list.size(); i++)
@@ -894,6 +1013,39 @@ public class DailyPresenter implements DailyContract.Presenter {
         }
 
         return validate;
+    }
+
+    @Override
+    public void validateFQT(Line line) {
+
+        int cA1 = 0;
+        int cA2 = 0;
+        int cA3 = 0;
+
+        if (line.getFirst().getCumulativeActual()!=null && !line.getFirst().getCumulativeActual().isEmpty())
+            cA1 = Integer.valueOf(line.getFirst().getCumulativeActual());
+
+        if (line.getSecond().getCumulativeActual()!=null && !line.getSecond().getCumulativeActual().isEmpty())
+            cA2 = Integer.valueOf(line.getSecond().getCumulativeActual());
+
+        if (line.getThird().getCumulativeActual()!=null && !line.getThird().getCumulativeActual().isEmpty())
+            cA3 = Integer.valueOf(line.getThird().getCumulativeActual());
+
+
+        if (cA1>0 && Integer.valueOf(line.getFirst().getCumulativeFTQ())>=(0.10*cA1)&& !line.getFirst().isClosed()) {
+            mView.setLeakReached(1);
+            mView.showFTQ(1);
+        }
+        else
+        if (cA2>0 && Integer.valueOf(line.getSecond().getCumulativeFTQ())>=(0.10*cA2)&& !line.getSecond().isClosed()) {
+            mView.setLeakReached(2);
+                mView.showFTQ(2);
+            }
+        else
+        if (cA3>0 && Integer.valueOf(line.getThird().getCumulativeFTQ())>=(0.10*cA3)&& !line.getThird().isClosed()) {
+            mView.setLeakReached(3);
+            mView.showFTQ(3);
+            }
     }
 
     private String getShift(Shift shift){

@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -47,6 +48,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
+    @BindView(R.id.bt_products) Button mBtProducts;
 
     @OnClick(R.id.fb_add) void onAdd(){
         launchAddActivity();
@@ -144,6 +146,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         if (getContext()!=null) {
             mPbLoading.setVisibility(View.GONE);
             mFbAdd.setVisibility(View.VISIBLE);
+            mBtProducts.setVisibility(View.VISIBLE);
         }
     }
 

@@ -25,6 +25,7 @@ import butterknife.ButterKnife;
 public class DowntimeListAdapter extends  RecyclerView.Adapter<DowntimeListAdapter.DowntimeViewHolder> {
     private ArrayList<Downtime> downtimes;
     private OnItemClick onItemClick;
+    private boolean hideDelete;
 
     public DowntimeListAdapter(ArrayList<Downtime> downtimes, OnItemClick onItemClick) {
         if (downtimes !=null)
@@ -32,6 +33,15 @@ public class DowntimeListAdapter extends  RecyclerView.Adapter<DowntimeListAdapt
 
         this.downtimes = downtimes;
         this.onItemClick = onItemClick;
+        this.hideDelete=false;
+    }
+
+    public DowntimeListAdapter(ArrayList<Downtime> downtimes, OnItemClick onItemClick, boolean hideDelete) {
+        if (downtimes !=null)
+            Collections.sort(downtimes,Downtime.NameComparator);
+        this.downtimes = downtimes;
+        this.onItemClick = onItemClick;
+        this.hideDelete = hideDelete;
     }
 
     @NonNull
@@ -50,9 +60,15 @@ public class DowntimeListAdapter extends  RecyclerView.Adapter<DowntimeListAdapt
             holder.mLl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onItemClick.DowntimeClick(downtime.getId());
+                    onItemClick.DowntimeClick(downtime);
                 }
             });
+
+            if (hideDelete)
+                holder.mBtDelete.setVisibility(View.GONE);
+            else
+                holder.mBtDelete.setVisibility(View.VISIBLE);
+
             holder.mBtDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -86,7 +102,7 @@ public class DowntimeListAdapter extends  RecyclerView.Adapter<DowntimeListAdapt
     }
 
     public interface OnItemClick{
-        void DowntimeClick(String id);
+        void DowntimeClick(Downtime downtime);
         void onDelete(Downtime downtime);
     }
 }

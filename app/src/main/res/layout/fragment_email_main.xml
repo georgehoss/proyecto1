@@ -1,90 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Emails.EmailMainFragment"
-    android:animateLayoutChanges="true"
-    android:orientation="vertical">
+    android:animateLayoutChanges="true">
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="25sp"
+        android:text="Notification Lists"
+        android:textColor="@color/colorPrimaryDark"
+        android:id="@+id/tv_title"
+        />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="25sp"
-            android:text="Notification Lists"
-            android:textColor="@color/colorPrimaryDark"
-            android:id="@+id/tv_title"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/tv_downtime"
+            android:background="@drawable/bt_rounded"
+            android:text="Downtime"
+            android:padding="8dp"
+            android:layout_margin="5dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/tv_email"
+            android:background="@drawable/bt_rounded"
+            android:layout_margin="5dp"
+            android:text="@string/emails"
+            android:padding="8dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/tv_email_lists"
+            android:background="@drawable/bt_rounded"
+            android:layout_margin="5dp"
+            android:text="Email Lists"
+            android:padding="8dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/tv_reason"
+            android:text="Reasons"
+            android:background="@drawable/bt_rounded"
+            android:layout_margin="5dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/tv_sms"
+            android:text="SMS"
+            android:background="@drawable/bt_rounded"
+            android:layout_margin="5dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/tv_templates"
+            android:background="@drawable/bt_rounded"
+            android:layout_margin="5dp"
+            android:text="Templates"
+            android:padding="8dp"
             />
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textSize="25sp"
-                android:textColor="@color/colorWhite"
-                android:id="@+id/tv_downtime"
-                android:background="@drawable/bt_rounded"
-                android:text="Downtime"
-                android:padding="8dp"
-                android:layout_margin="5dp"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textSize="25sp"
-                android:textColor="@color/colorWhite"
-                android:id="@+id/tv_email"
-                android:background="@drawable/bt_rounded"
-                android:layout_margin="5dp"
-                android:text="@string/emails"
-                android:padding="8dp"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textSize="25sp"
-                android:textColor="@color/colorWhite"
-                android:id="@+id/tv_reason"
-                android:text="Reasons"
-                android:background="@drawable/bt_rounded"
-                android:layout_margin="5dp"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textSize="25sp"
-                android:textColor="@color/colorWhite"
-                android:id="@+id/tv_sms"
-                android:text="SMS"
-                android:background="@drawable/bt_rounded"
-                android:layout_margin="5dp"
-                />
-
-
-        </LinearLayout>
-
+    </LinearLayout>
 </LinearLayout>
+
+</ScrollView>

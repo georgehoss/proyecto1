@@ -178,6 +178,41 @@
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="tab_text_3">Tab 3</string>
-
-
+    <string name="addresses">Please select an Email List, this cannot be empty.</string>
+    <string name="select_list">Select List</string>
+    <string name="leak_ftq">Leak FTQ</string>
+    <string name="_1st_scrap_event">1st Reject Event</string>
+    <string name="_2nd_scrap_event">2nd Reject Event</string>
+    <string name="next_scrap_events">Next Reject Events</string>
+    <string name="line_report">Line Report</string>
+    <string name="select_product">Select Product</string>
+    <string name="add_product">Add Product</string>
+    <string name="ftqs">FTQs</string>
+    <string name="product">Product</string>
+    <string name="daily_report">Daily Report</string>
+    <string name="subject_">Subject:</string>
+    <string name="subject">Subject</string>
+    <string name="body_">Body:</string>
+    <string name="body">Body</string>
+    <string name="email_templates">Email Templates</string>
+    <string name="title_activity_templates">TemplatesActivity</string>
+    <string name="rejects">Rejects</string>
+    <string name="report">Report</string>
+    <string name="please_take_inmidiate_action">Please take immediate action</string>
+    <string name="downtime_subject">is in DOWNTIME due to :</string>
+    <string name="this_is_a_notification_that">This is a notification that</string>
+    <string name="line_name_is_in_downtime">Line Name is in Downtime</string>
+    <string name="line_name_is_back_to_production">Line Name is back to production</string>
+    <string name="is_back_to_production"> is back to production</string>
+    <string name="line_name">Line Name +</string>
+    <string name="ftq_subject">FTQ over 10% Escalation and Actions</string>
+    <string name="thank_you">Thank you.</string>
+    <string name="please_see_below_the_actions_taken_to_solve_ftq_leak_issues_faced_on_current_shift_on">Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on</string>
+    <string name="produced_a_first_rejected_piece_due_to">Produced a First Rejected Piece due to:</string>
+    <string name="first_occurrence">First Occurrence</string>
+    <string name="produced_a_second_rejected_piece_due_to">Produced a Second Rejected Piece due to:</string>
+    <string name="second_occurrence_next_notification_will_be_send_to_group_leaders">Second Occurrence... Next notification will be send to Group Leaders</string>
+    <string name="produced_rejected_piece">Produced Rejected Piece</string>
+    <string name="next_notification_will_be_send_to_group_leaders">Next notification will be send to Group Leaders</string>
+    <string name="this_is_the_report_of_all_the_lines_of_today">This is the report of all the lines of today</string>
 </resources>

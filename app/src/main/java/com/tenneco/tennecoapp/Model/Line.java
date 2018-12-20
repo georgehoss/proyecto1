@@ -30,15 +30,17 @@ public class Line {
     private String timeStart;
     private String timeEnd;
     private ArrayList<Reject> rejects;
-    private ArrayList<Email> downtimeList;
-    private ArrayList<Email> leakList;
-    private ArrayList<Email> scrap1List;
-    private ArrayList<Email> scrap2List;
-    private ArrayList<Email> scrap3List;
-    private ArrayList<Email> cellList;
+    private ArrayList<Downtime> downtimes;
+    private EmailList lineList;
+    private EmailList downtimeEmailList;
+    private EmailList leakEmailList;
+    private EmailList scrap1EmailList;
+    private EmailList scrap2EmailList;
+    private EmailList scrap3EmailList;
     private String groupLeaders;
     private String teamLeaders;
     private String password;
+    private Product lastProduct;
 
     public Line() {
     }
@@ -201,37 +203,6 @@ public class Line {
         this.rejects = rejects;
     }
 
-    public ArrayList<Email> getDowntimeList() {
-        return downtimeList;
-    }
-
-    public void setDowntimeList(ArrayList<Email> downtimeList) {
-        this.downtimeList = downtimeList;
-    }
-
-    public ArrayList<Email> getScrap1List() {
-        return scrap1List;
-    }
-
-    public void setScrap1List(ArrayList<Email> scrap1List) {
-        this.scrap1List = scrap1List;
-    }
-
-    public ArrayList<Email> getScrap2List() {
-        return scrap2List;
-    }
-
-    public void setScrap2List(ArrayList<Email> scrap2List) {
-        this.scrap2List = scrap2List;
-    }
-
-    public ArrayList<Email> getScrap3List() {
-        return scrap3List;
-    }
-
-    public void setScrap3List(ArrayList<Email> scrap3List) {
-        this.scrap3List = scrap3List;
-    }
 
     public String getGroupLeaders() {
         return groupLeaders;
@@ -257,22 +228,6 @@ public class Line {
         this.password = password;
     }
 
-    public ArrayList<Email> getLeakList() {
-        return leakList;
-    }
-
-    public void setLeakList(ArrayList<Email> leakList) {
-        this.leakList = leakList;
-    }
-
-    public ArrayList<Email> getCellList() {
-        return cellList;
-    }
-
-    public void setCellList(ArrayList<Email> cellList) {
-        this.cellList = cellList;
-    }
-
     public String getCode() {
         return code;
     }
@@ -295,5 +250,69 @@ public class Line {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public EmailList getLineList() {
+        return lineList;
+    }
+
+    public void setLineList(EmailList lineList) {
+        this.lineList = lineList;
+    }
+
+    public EmailList getDowntimeEmailList() {
+        return downtimeEmailList;
+    }
+
+    public void setDowntimeEmailList(EmailList downtimeEmailList) {
+        this.downtimeEmailList = downtimeEmailList;
+    }
+
+    public EmailList getLeakEmailList() {
+        return leakEmailList;
+    }
+
+    public void setLeakEmailList(EmailList leakEmailList) {
+        this.leakEmailList = leakEmailList;
+    }
+
+    public EmailList getScrap1EmailList() {
+        return scrap1EmailList;
+    }
+
+    public void setScrap1EmailList(EmailList scrap1EmailList) {
+        this.scrap1EmailList = scrap1EmailList;
+    }
+
+    public EmailList getScrap2EmailList() {
+        return scrap2EmailList;
+    }
+
+    public void setScrap2EmailList(EmailList scrap2EmailList) {
+        this.scrap2EmailList = scrap2EmailList;
+    }
+
+    public EmailList getScrap3EmailList() {
+        return scrap3EmailList;
+    }
+
+    public void setScrap3EmailList(EmailList scrap3EmailList) {
+        this.scrap3EmailList = scrap3EmailList;
+    }
+
+    public Product getLastProduct() {
+        return lastProduct;
+    }
+
+    public void setLastProduct(Product lastProduct) {
+        this.lastProduct = lastProduct;
+    }
+
+    public ArrayList<Downtime> getDowntimes() {
+        return downtimes;
+    }
+
+    public void setDowntimes(ArrayList<Downtime> downtimes) {
+        this.downtimes = downtimes;
     }
 }

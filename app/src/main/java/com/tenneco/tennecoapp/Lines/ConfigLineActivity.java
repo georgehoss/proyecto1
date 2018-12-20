@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import android.view.View;
 import android.view.animation.ScaleAnimation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,13 +40,18 @@ import com.tenneco.tennecoapp.Lines.Emails.LineEmailFragment;
 import com.tenneco.tennecoapp.Lines.Main.LineConfigFragment;
 import com.tenneco.tennecoapp.Lines.Product.LineProductFragment;
 import com.tenneco.tennecoapp.Lines.Rejects.LineRejectFragment;
+import com.tenneco.tennecoapp.Model.Downtime.Downtime;
+import com.tenneco.tennecoapp.Model.EmailList;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Plant;
+import com.tenneco.tennecoapp.Model.Product;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ConfigLineActivity extends AppCompatActivity implements ConfigLineContract.View{
     private static final int INFO = 0;
@@ -54,10 +60,12 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     private static final int REJECTS = 3;
     private static final int EMAILS = 4;
     private DatabaseReference dbLines;
-    private DatabaseReference dbEmployees;
-    private DatabaseReference dbEmails;
-    private EmployeeSelectionAdapter mAdapterEmployee;
-    private ArrayList<EmployeePosition> mPositions;
+    private DatabaseReference dbDowntime;
+    private DatabaseReference dbProducts;
+    public ArrayList<Downtime> mDowntimes;
+    public ArrayList<EmailList> mEmailLists;
+    public ArrayList<Product> mProducts;
+    private DatabaseReference dbEmailList;
     private ConfigLineContract.Presenter mPresenter;
     public Line mLine;
     private ProgressDialog progressDialog;
@@ -78,7 +86,7 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -116,11 +124,14 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         }
         else
             finish();
-
-
-
+        dbEmailList = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(EmailList.DB);
+        dbDowntime = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Downtime.DB_DOWNTIMES);
+        dbProducts =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Product.DB);
+        getDowntimeLists();
+        getEmailLists();
+        getProducts();
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Saving Changes");
+        progressDialog.setTitle("Saving Changes");
         progressDialog.setMessage("Please Wait.");
         setGestureDetector();
     }
@@ -147,7 +158,7 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_save)
         {
-            saveLine(mLine);
+            mPresenter.saveLine(mLine);
         }
 
         if (item.getItemId() == R.id.menu_delete)
@@ -160,19 +171,15 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     @Override
     public void saveLine(Line line) {
         progressDialog.show();
-        if (mPresenter.validName(line.getName()) && mPresenter.validCode(line.getCode())
-                && mPresenter.validOperators(mLine.getPositions())
-                && mPresenter.validDowntime(mLine.getDowntime()))
-            dbLines.child(line.getId()).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
+        line.setId(id);
+        dbLines.child(id).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
+                    hideProgressBar();
                     finish();
-                    if (progressDialog!=null && progressDialog.isShowing())
-                        progressDialog.hide();
                 }
             });
-        else
-            progressDialog.hide();
+
     }
 
     @Override
@@ -214,6 +221,100 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
                     .instantiateItem(mViewPager, mViewPager.getCurrentItem());
             fragment.updateLine();
         }
+        else
+        if(mViewPager.getCurrentItem() == DOWNTIME) {
+            LineDowntimeFragment fragment = (LineDowntimeFragment)mViewPager
+                    .getAdapter()
+                    .instantiateItem(mViewPager, mViewPager.getCurrentItem());
+            fragment.updateLine();
+        }
+        else
+        if(mViewPager.getCurrentItem() == REJECTS) {
+            LineRejectFragment fragment = (LineRejectFragment)mViewPager
+                    .getAdapter()
+                    .instantiateItem(mViewPager, mViewPager.getCurrentItem());
+            fragment.updateLine();
+        }
+        else
+        if(mViewPager.getCurrentItem() == PRODUCTS) {
+            LineProductFragment fragment = (LineProductFragment)mViewPager
+                    .getAdapter()
+                    .instantiateItem(mViewPager, mViewPager.getCurrentItem());
+            fragment.updateLine();
+        }
+        else
+        if(mViewPager.getCurrentItem() == EMAILS) {
+            LineEmailFragment fragment = (LineEmailFragment)mViewPager
+                    .getAdapter()
+                    .instantiateItem(mViewPager, mViewPager.getCurrentItem());
+            fragment.updateLine();
+        }
+    }
+
+    @Override
+    public void getDowntimeLists() {
+        dbDowntime.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Downtime> list = new ArrayList<Downtime>();
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    list.add(child.getValue(Downtime.class));
+                }
+                mDowntimes = new ArrayList<>();
+                mDowntimes.addAll(list);
+                Collections.sort(mDowntimes,Downtime.NameComparator);
+                setData(mLine);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    public void getEmailLists() {
+        dbEmailList.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<EmailList> list = new ArrayList<EmailList>();
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    list.add(child.getValue(EmailList.class));
+                }
+                mEmailLists = new ArrayList<>();
+                mEmailLists.addAll(list);
+                Collections.sort(mEmailLists,EmailList.NameComparator);
+                setData(mLine);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    public void getProducts() {
+        dbProducts.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mProducts = new ArrayList<>();
+                hideProgressBar();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+                {
+                    Product product = itemSnapshot.getValue(Product.class);
+                    if (product!=null)
+                        mProducts.add(product);
+                }
+                Collections.sort(mProducts,Product.NameComparator);
+                setData(mLine);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                hideProgressBar();
+            }
+        });
     }
 
     @Override
@@ -246,7 +347,7 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-                saveLine(mLine);
+                mPresenter.saveLine(mLine);
             }
         });
         alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -271,8 +372,7 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
             @Override
             public void onComplete(@NonNull Task<Void> task) {
 
-                if (progressDialog!=null && progressDialog.isShowing())
-                    progressDialog.hide();
+                hideProgressBar();
                 finish();
 
             }
@@ -306,19 +406,43 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     @Override
     public void showPositionError() {
         setPage(INFO);
-        snackbar("Add at least one Operator Position!");
+        snackbar("Add at least one (1) Operator Position!");
     }
 
     @Override
     public void showDowntimeZoneError() {
         setPage(DOWNTIME);
-        snackbar("Add at least one Downtime Zone!");
+        snackbar("Add at least one (1) Downtime Zone!");
     }
 
     @Override
     public void showDowntimeReasonError() {
         setPage(DOWNTIME);
-        snackbar("Add at least one Downtime Reason!");
+        snackbar("Add at least one (1) Downtime Reason!");
+    }
+
+    @Override
+    public void showRejectReasonError() {
+        setPage(REJECTS);
+        snackbar("Add at least one (1) Reject Reason!");
+    }
+
+    @Override
+    public void showEmailError() {
+        setPage(EMAILS);
+        snackbar("You must set all emails list notifications!");
+    }
+
+    @Override
+    public void showProductError() {
+        setPage(PRODUCTS);
+        snackbar("Add at least one (1) Product!");
+    }
+
+    @Override
+    public void hideProgressBar() {
+        if (progressDialog!=null && progressDialog.isShowing())
+            progressDialog.hide();
     }
 
     @Override

@@ -82,7 +82,11 @@ public class PlantMainFragment extends Fragment implements PlantMainContract.Vie
     public void onStart() {
         super.onStart();
         main = (PlantsActivity) getActivity();
-        getPlants();
+        int id =StorageUtils.getUserPermissions(main);
+        if (id!=0)
+            getPlants();
+        else
+            showNoPlants();
     }
 
 

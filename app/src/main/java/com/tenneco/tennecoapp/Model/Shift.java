@@ -13,6 +13,7 @@ public class Shift {
     private String shiftName;
     private String cumulativeActual;
     private String cumulativePlanned;
+    private String cumulativeFTQ;
     private ArrayList<EmployeePosition> positions;
     private ArrayList<Employee> employees;
     private boolean closed;
@@ -23,7 +24,12 @@ public class Shift {
     private String groupLeaders;
     private String teamLeaders;
     private ArrayList<Reject> rejects;
-
+    private EmailList lineList;
+    private EmailList downtimeList;
+    private EmailList leakList;
+    private EmailList scrap1List;
+    private EmailList scrap2List;
+    private EmailList scrap3List;
 
 
     public Shift() {
@@ -187,5 +193,61 @@ public class Shift {
 
     public void setRejects(ArrayList<Reject> rejects) {
         this.rejects = rejects;
+    }
+
+    public EmailList getLineList() {
+        return lineList;
+    }
+
+    public void setLineList(EmailList lineList) {
+        this.lineList = lineList;
+    }
+
+    public EmailList getDowntimeList() {
+        return downtimeList;
+    }
+
+    public void setDowntimeList(EmailList downtimeList) {
+        this.downtimeList = downtimeList;
+    }
+
+    public EmailList getLeakList() {
+        return leakList;
+    }
+
+    public void setLeakList(EmailList leakList) {
+        this.leakList = leakList;
+    }
+
+    public EmailList getScrap1List() {
+        return scrap1List;
+    }
+
+    public void setScrap1List(EmailList scrap1List) {
+        this.scrap1List = scrap1List;
+    }
+
+    public EmailList getScrap2List() {
+        return scrap2List;
+    }
+
+    public void setScrap2List(EmailList scrap2List) {
+        this.scrap2List = scrap2List;
+    }
+
+    public EmailList getScrap3List() {
+        return scrap3List;
+    }
+
+    public void setScrap3List(EmailList scrap3List) {
+        this.scrap3List = scrap3List;
+    }
+
+    public String getCumulativeFTQ() {
+        return cumulativeFTQ;
+    }
+
+    public void setCumulativeFTQ(String cumulativeFTQ) {
+        this.cumulativeFTQ = cumulativeFTQ;
     }
 }

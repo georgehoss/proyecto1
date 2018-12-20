@@ -46,7 +46,9 @@ public class ProductionLineAdapter extends RecyclerView.Adapter<ProductionLineAd
         if (line!=null) {
             holder.mTvDate.setText(line.getDate());
             holder.mTvName.setText(line.getName());
-            holder.mTvNumber.setText(line.getName());
+            if (line.getCode()!=null)
+                holder.mTvNumber.setText(line.getCode());
+            else
             holder.mTvActual1.setText(line.getFirst().getCumulativeActual());
             holder.mTvActual2.setText(line.getSecond().getCumulativeActual());
             holder.mTvActual3.setText(line.getThird().getCumulativeActual());

@@ -13,9 +13,9 @@
         style="@style/AppTheme.Button"
         android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
-        android:text="Products"
         android:drawablePadding="10dp"
         android:id="@+id/bt_products"
+        android:visibility="gone"
         />
 
     <TextView

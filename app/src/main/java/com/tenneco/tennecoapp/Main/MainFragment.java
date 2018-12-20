@@ -163,6 +163,8 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
                     admin = user.getType();
 
+                    StorageUtils.saveUserPermissions(main,admin);
+
                     if (user.getType()==0)
                     {
                         showNoLines();

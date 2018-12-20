@@ -37,6 +37,7 @@ import com.tenneco.tennecoapp.Utils.StorageUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -66,8 +67,7 @@ public class SmsListFragment extends Fragment implements SmsListContract.View, S
     }
 
     @OnClick(R.id.bt_send_sms) void send(){
-        for (Sms sms : smsLists.get(0).getNumbers())
-            sendSms(sms.getNumber(),"Prueba");
+
     }
 
     @OnClick(R.id.fb_add) void saveDw(){
@@ -194,7 +194,7 @@ public class SmsListFragment extends Fragment implements SmsListContract.View, S
                 }
                 else {
 
-                    saveData(new SmsList(mEvName.getText().toString().trim(),id));
+                    mPresenter.saveChanges(mEvName.getText().toString(),new SmsList(mEvName.getText().toString().trim(),id));
                     dialog.dismiss();
                     mPb.setVisibility(View.VISIBLE);
                 }

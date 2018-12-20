@@ -50,10 +50,20 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
                 holder.mTvDate.setVisibility(View.VISIBLE);
                 holder.mTvDate.setText(line.getDate());
             }
-            String name = line.getName();
-            if (name.length()>3) {
-                name = name.substring(0, 4);
-                name = name.trim();
+            String name = "";
+
+            if (line.getCode()!=null)
+
+                name = line.getCode();
+            else {
+
+                name = line.getName();
+
+                if (name.length() > 3) {
+                    name = name.substring(0, 4);
+                    name = name.trim();
+                }
+
             }
             holder.mTvName.setText(name);
             holder.mTvFirstShift.setText(line.getFirst().getCumulativePlanned());

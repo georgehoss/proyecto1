@@ -147,6 +147,7 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
             mEvName.setText(product.getName());
             mEvCode.setText(product.getCode());
             mEvDescription.setText(product.getDescription());
+            product = setShift(id);
         }
 
         final String finalId = id;

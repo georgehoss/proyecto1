@@ -15,9 +15,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.tenneco.tennecoapp.Adapter.DowntimeAdapter;
+import com.tenneco.tennecoapp.Adapter.DowntimeListAdapter;
 import com.tenneco.tennecoapp.Adapter.LocationAdapter;
 import com.tenneco.tennecoapp.Adapter.ScrapAdapter;
 import com.tenneco.tennecoapp.Lines.ConfigLineActivity;
+import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
@@ -31,19 +33,26 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class LineDowntimeFragment extends Fragment implements  LineDowntimeContract.View, ScrapAdapter.OnItemClick, DowntimeAdapter.OnItemClick {
+public class LineDowntimeFragment extends Fragment implements  LineDowntimeContract.View, ScrapAdapter.OnItemClick, DowntimeAdapter.OnItemClick, DowntimeListAdapter.OnItemClick {
     LineDowntimeContract.Presenter mPresenter;
     private DowntimeAdapter mAdapterDt;
-    private ScrapAdapter mAdapterSr;
     private ScrapAdapter mAdapterDr;
     @BindView(R.id.rv_downtime)
     RecyclerView mRvDowntime;
-    @BindView(R.id.rv_downtime_reasons) RecyclerView mRvDowntimeReasons;
+    @BindView(R.id.rv_downtime_reasons)
+    RecyclerView mRvDowntimeReasons;
+    @BindView(R.id.bt_list)
+    Button mBtLists;
     private ConfigLineActivity main;
+    private AlertDialog dialog;
 
 
     @OnClick(R.id.bt_add_downtime) void dtd(){
         showAddDowntimeDialog(getContext(),null);
+    }
+
+    @OnClick(R.id.bt_list) void showDialog(){
+        showListDowntimeDialog(getContext(),main.mDowntimes);
     }
 
     @OnClick (R.id.bt_add_downtime_reasons) void dtr () {showAddEventDialog(getContext(),0);}
@@ -60,6 +69,8 @@ public class LineDowntimeFragment extends Fragment implements  LineDowntimeContr
         ButterKnife.bind(this,view);
         return view;
     }
+
+
 
     @Override
     public void onStart() {
@@ -82,13 +93,20 @@ public class LineDowntimeFragment extends Fragment implements  LineDowntimeContr
 
     @Override
     public void updateLine() {
-        if (main!=null && main.mLine.getDowntime()!=null)
+        if (main!=null && main.mLine!=null && main.mLine.getDowntime()!=null)
         {
             mAdapterDt.setZones(main.mLine.getDowntime().getZones());
             mAdapterDt.notifyDataSetChanged();
             mAdapterDr.setReasons(main.mLine.getDowntime().getReasons());
             mAdapterDr.notifyDataSetChanged();
+
+            if (main.mDowntimes!=null && main.mDowntimes.size()>0)
+                showListButton();
+            else
+                hideListButton();
         }
+        else
+            hideListButton();
     }
 
     @Override
@@ -201,6 +219,38 @@ public class LineDowntimeFragment extends Fragment implements  LineDowntimeContr
     }
 
     @Override
+    public void showListDowntimeDialog(Context context, ArrayList<Downtime> downtimes) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        final DowntimeListAdapter adapter = new DowntimeListAdapter(downtimes,this);
+        RecyclerView recyclerView = new RecyclerView(context);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        alertDialogBuilder.setView(recyclerView);
+        String title = "Pick a Downtime List";
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        dialog = alertDialogBuilder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void showListButton() {
+        mBtLists.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideListButton() {
+        if (getContext()!=null)
+            mBtLists.setVisibility(View.GONE);
+    }
+
+    @Override
     public void bindPresenter(LineDowntimeContract.Presenter presenter) {
         this.mPresenter = presenter;
     }
@@ -212,6 +262,22 @@ public class LineDowntimeFragment extends Fragment implements  LineDowntimeContr
 
     @Override
     public void ZoneClick(Zone zone) {
+
+    }
+
+    @Override
+    public void DowntimeClick(Downtime downtime) {
+        if (downtime!=null) {
+            main.mLine.setDowntime(downtime);
+            updateLine();
+        }
+
+        if (dialog.isShowing())
+            dialog.dismiss();
+    }
+
+    @Override
+    public void onDelete(Downtime downtime) {
 
     }
 }

@@ -132,7 +132,7 @@
                     android:background="@drawable/bg_shift"
                     android:layout_margin="10dp"
                     android:animateLayoutChanges="true"
-                    android:visibility="gone"
+                    android:visibility="visible"
 
                     >
                     <LinearLayout

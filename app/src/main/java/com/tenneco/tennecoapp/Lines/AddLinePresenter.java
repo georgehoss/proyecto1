@@ -212,12 +212,12 @@ public class AddLinePresenter implements AddLineContract.Presenter {
                     employee.setAvailable(shifte.isAvailable());
                 }
 
-        line.setDowntimeList(mLine.getDowntimeList());
-        line.setScrap1List(mLine.getScrap1List());
-        line.setScrap2List(mLine.getScrap2List());
-        line.setScrap3List(mLine.getScrap3List());
-        line.setLeakList(mLine.getLeakList());
-        line.setCellList(mLine.getCellList());
+        line.setDowntimeEmailList(mLine.getDowntimeEmailList());
+        line.setScrap1EmailList(mLine.getScrap1EmailList());
+        line.setScrap2EmailList(mLine.getScrap2EmailList());
+        line.setScrap3EmailList(mLine.getScrap3EmailList());
+        line.setLeakEmailList(mLine.getLeakEmailList());
+        line.setLineList(mLine.getLineList());
 
         if (mLine.getParentId()!=null)
             line.setParentId(mLine.getParentId());
@@ -341,7 +341,7 @@ public class AddLinePresenter implements AddLineContract.Presenter {
 
         }
 
-        Collections.sort(emails,Email.EmailNameComparator);
+        Collections.sort(emails,Email.NameComparator);
 
         return emails;
 
