@@ -57,6 +57,28 @@ public class EditSmsListFragment extends Fragment  implements  EditSmsListContra
     @BindView(R.id.rv_sms_numbers) RecyclerView mRvDw;
     @BindView(R.id.pb_loading) ProgressBar mPb;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPb.setVisibility(View.GONE);
+            List<Sms> list = new ArrayList<Sms>();
+            for (DataSnapshot child: dataSnapshot.getChildren()) {
+                list.add(child.getValue(Sms.class));
+            }
+            smsLists = new ArrayList<>();
+            smsLists.addAll(list);
+            Collections.sort(smsLists,Sms.NameComparator);
+            if (smsLists!=null) {
+                mAdapterDt.setSms(smsLists);
+                mAdapterDt.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            mPb.setVisibility(View.GONE);
+        }
+    };
 
     public EditSmsListFragment() {
         // Required empty public constructor
@@ -131,30 +153,15 @@ public class EditSmsListFragment extends Fragment  implements  EditSmsListContra
 
     @Override
     public void getData() {
-        dbSms.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPb.setVisibility(View.GONE);
-                List<Sms> list = new ArrayList<Sms>();
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    list.add(child.getValue(Sms.class));
-                }
-                smsLists = new ArrayList<>();
-                smsLists.addAll(list);
-                Collections.sort(smsLists,Sms.NameComparator);
-                if (smsLists!=null) {
-                    mAdapterDt.setSms(smsLists);
-                    mAdapterDt.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                mPb.setVisibility(View.GONE);
-            }
-        });
+        dbSms.addValueEventListener(valueEventListener);
 
         mFbAdd.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbSms.removeEventListener(valueEventListener);
     }
 
     @Override

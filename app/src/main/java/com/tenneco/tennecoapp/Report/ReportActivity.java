@@ -71,6 +71,37 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
     private EmailList mEmailLists;
     private DatabaseReference dbTemplates;
     private Templates templates;
+    private Query postsQuery;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mLines = new ArrayList<>();
+
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                Line line = itemSnapshot.getValue(Line.class);
+                if (line!=null)
+                    mLines.add(line);
+            }
+
+            mAdapter.setLines(mLines);
+            mAdapter.notifyDataSetChanged();
+            if (progressDialog!=null && progressDialog.isShowing())
+                progressDialog.hide();
+
+            if (mLines.size()>0)
+                showButton();
+            else
+                hideButton();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            if (progressDialog!=null && progressDialog.isShowing())
+                progressDialog.hide();
+
+        }
+    };
 
     @BindView(R.id.tv_name)TextView mTvName;
     @BindView(R.id.tv_date)TextView mTvDate;
@@ -115,44 +146,16 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
         super.onPause();
         if (progressDialog!=null && progressDialog.isShowing())
             progressDialog.hide();
+        postsQuery.removeEventListener(valueEventListener);
     }
 
     @Override
     public void getLines(String date) {
-        Query postsQuery;
+
         if (progressDialog!=null)
             progressDialog.show();
         postsQuery = dbLines.orderByChild("date").equalTo(date);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mLines = new ArrayList<>();
-
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    Line line = itemSnapshot.getValue(Line.class);
-                    if (line!=null)
-                        mLines.add(line);
-                }
-
-                mAdapter.setLines(mLines);
-                mAdapter.notifyDataSetChanged();
-                if (progressDialog!=null && progressDialog.isShowing())
-                progressDialog.hide();
-
-                if (mLines.size()>0)
-                    showButton();
-                else
-                    hideButton();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                if (progressDialog!=null && progressDialog.isShowing())
-                    progressDialog.hide();
-
-            }
-        });
+        postsQuery.addValueEventListener(valueEventListener);
     }
 
     @Override
@@ -167,7 +170,7 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
 
     @Override
     public void getEmails() {
-        dbEmailList.addValueEventListener(new ValueEventListener() {
+        dbEmailList.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<EmailList> list = new ArrayList<EmailList>();
@@ -189,7 +192,7 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
     public void getTemplates() {
         Query postsQuery;
         postsQuery = dbTemplates.child(Templates.ID);
-        postsQuery.addValueEventListener(new ValueEventListener() {
+        postsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 templates = dataSnapshot.getValue(Templates.class);
@@ -286,7 +289,16 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 // +1 because january is zero
-                final String selectedDate = (month + 1) + "/" + day + "/" + year;
+                String mes = String.valueOf(month+1);
+                String dia = String.valueOf(day);
+                String ano = String.valueOf(year);
+                if (mes.length()==1)
+                    mes = "0"+mes;
+
+                if (dia.length()==1)
+                    dia = "0"+dia;
+
+                final String selectedDate = mes + "/" + dia + "/" + ano;
                 setDate(selectedDate);
                 getLines(selectedDate);
             }

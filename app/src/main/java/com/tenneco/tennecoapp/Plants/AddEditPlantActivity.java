@@ -35,6 +35,26 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
     private ProgressDialog progressDialog;
     private boolean deletable = false;
     private Plant mPlant;
+    private Query postsQuery;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPlant = dataSnapshot.getValue(Plant.class);
+            if (mPlant!=null) {
+                setData(mPlant);
+                deletable = true;
+                invalidateOptionsMenu();
+            }
+            else
+                finish();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            finish();
+        }
+    };
+
     @BindView(R.id.et_name) EditText mEtName;
     @BindView(R.id.et_code) EditText mEtCode;
     @BindView(R.id.et_address) EditText mEtAddress;
@@ -77,6 +97,7 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
         super.onPause();
         if (progressDialog!=null && progressDialog.isShowing())
             progressDialog.hide();
+        postsQuery.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -128,27 +149,12 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
     }
 
     public void getData() {
-        Query postsQuery;
-        postsQuery = dbPlants.child(id);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPlant = dataSnapshot.getValue(Plant.class);
-                if (mPlant!=null) {
-                    setData(mPlant);
-                    deletable = true;
-                    invalidateOptionsMenu();
-                }
-                else
-                    finish();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                finish();
-            }
-        });
+        postsQuery = dbPlants.child(id);
+        postsQuery.addValueEventListener(valueEventListener);
     }
+
+
 
     @Override
     public void setData(Plant plant) {

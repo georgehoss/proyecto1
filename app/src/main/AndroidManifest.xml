@@ -56,6 +56,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tenneco.tennecoapp.MainActivity" />
         </activity>
+        <activity android:name=".Graphics.GraphicActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            >
+
+        </activity>
     </application>
 
 </manifest>

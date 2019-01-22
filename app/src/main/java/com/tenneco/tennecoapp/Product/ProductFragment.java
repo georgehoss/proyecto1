@@ -3,6 +3,7 @@ package com.tenneco.tennecoapp.Product;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -53,6 +54,27 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
     RecyclerView mRvProducts;
     @BindView(R.id.fb_add)
     FloatingActionButton mFb;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mProducts = new ArrayList<>();
+            hideProgressBar();
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                Product product = itemSnapshot.getValue(Product.class);
+                if (product!=null)
+                    mProducts.add(product);
+            }
+            Collections.sort(mProducts,Product.NameComparator);
+            mAdapter.setProducts(mProducts);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            hideProgressBar();
+        }
+    };
 
     public ProductFragment() {
         // Required empty public constructor
@@ -99,27 +121,13 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
 
     @Override
     public void getProducts() {
-        dbProducts.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mProducts = new ArrayList<>();
-                hideProgressBar();
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    Product product = itemSnapshot.getValue(Product.class);
-                    if (product!=null)
-                        mProducts.add(product);
-                }
-                Collections.sort(mProducts,Product.NameComparator);
-                mAdapter.setProducts(mProducts);
-                mAdapter.notifyDataSetChanged();
-            }
+        dbProducts.addValueEventListener(valueEventListener);
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                hideProgressBar();
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbProducts.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -133,6 +141,7 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
         final EditText mEvCode = view.findViewById(R.id.et_code);
         final EditText mEvDescription = view.findViewById(R.id.et_description);
         Button btSave = view.findViewById(R.id.bt_save);
+        Button btDelete = view.findViewById(R.id.bt_delete);
         Button btCancel = view.findViewById(R.id.bt_cancel);
         final AlertDialog dialog = alertDialogBuilder.create();
         dialog.show();
@@ -148,6 +157,7 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
             mEvCode.setText(product.getCode());
             mEvDescription.setText(product.getDescription());
             product = setShift(id);
+            btDelete.setVisibility(View.VISIBLE);
         }
 
         final String finalId = id;
@@ -175,6 +185,17 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
             }
         });
 
+        btDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                finalProduct.setName(mEvName.getText().toString());
+                finalProduct.setCode(mEvCode.getText().toString());
+                finalProduct.setDescription(mEvDescription.getText().toString());
+                editDeleteDialog(finalProduct);
+            }
+        });
+
         btCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -184,13 +205,35 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
     }
 
     @Override
-    public void editDeleteDialog(Product product) {
-
+    public void editDeleteDialog(final Product product) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setTitle("Delete Email");
+        alertDialogBuilder.setMessage("Do you want to delete the product: "+product.getName()+" ?");
+        alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                delete(product.getId());
+                mPb.setVisibility(View.VISIBLE);
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialogBuilder.create().show();
     }
 
     @Override
     public void delete(String id) {
-
+        dbProducts.child(id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                hideProgressBar();
+            }
+        });
     }
 
     @Override
@@ -198,7 +241,7 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
         dbProducts.child(product.getId()).setValue(product).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-
+                hideProgressBar();
             }
         });
     }

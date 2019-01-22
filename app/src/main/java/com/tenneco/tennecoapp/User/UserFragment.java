@@ -51,6 +51,28 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
     private ArrayList<User> mUsers;
     private UserAdapter mAdapter;
     private boolean leads = false;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mUsers = new ArrayList<>();
+            hideProgressBar();
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                User user = itemSnapshot.getValue(User.class);
+                if (user!=null)
+                    mUsers.add(user);
+            }
+            Collections.sort(mUsers,User.UserNameComparator);
+            mAdapter.setUsers(mUsers);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            hideProgressBar();
+        }
+    };
+
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
     @BindView(R.id.rv_user) RecyclerView mRvUsers;
@@ -123,27 +145,13 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
 
     @Override
     public void getUsers() {
-        dbUsers.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mUsers = new ArrayList<>();
-                hideProgressBar();
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    User user = itemSnapshot.getValue(User.class);
-                    if (user!=null)
-                        mUsers.add(user);
-                }
-                Collections.sort(mUsers,User.UserNameComparator);
-                mAdapter.setUsers(mUsers);
-                mAdapter.notifyDataSetChanged();
-            }
+        dbUsers.addValueEventListener(valueEventListener);
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                hideProgressBar();
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbUsers.removeEventListener(valueEventListener);
     }
 
     @Override

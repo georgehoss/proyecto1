@@ -95,6 +95,30 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private float mScale = 1f;
     private ScaleGestureDetector mScaleDetector;
     GestureDetector gestureDetector;
+    private Query postsQuery;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            Line line = dataSnapshot.getValue(Line.class);
+            if (line!=null) {
+                mEtName.setText(line.getName());
+                if (line.getPassword()!=null)
+                    mEtPsw.setText(line.getPassword());
+                setData(line);
+                deletable = true;
+                invalidateOptionsMenu();
+                getEmployees();
+                getEmails();
+            }
+            else
+                finish();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            finish();
+        }
+    };
 
     @BindView(R.id.et_name) EditText mEtName;
     @BindView(R.id.et_psw) EditText mEtPsw;
@@ -244,6 +268,8 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         super.onPause();
         if (progressDialog!=null && progressDialog.isShowing())
             progressDialog.hide();
+
+        postsQuery.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -461,32 +487,12 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
 
     @Override
     public void getData() {
-        Query postsQuery;
-        postsQuery = dbLines.child(id);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-               Line line = dataSnapshot.getValue(Line.class);
-                if (line!=null) {
-                    mEtName.setText(line.getName());
-                    if (line.getPassword()!=null)
-                    mEtPsw.setText(line.getPassword());
-                    setData(line);
-                    deletable = true;
-                    invalidateOptionsMenu();
-                    getEmployees();
-                    getEmails();
-                }
-                else
-                    finish();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                finish();
-            }
-        });
+        postsQuery = dbLines.child(id);
+        postsQuery.addValueEventListener(valueEventListener);
     }
+
+
 
     @Override
     public void setData(Line line) {

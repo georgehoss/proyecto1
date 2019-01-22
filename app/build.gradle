@@ -12,6 +12,7 @@ apply plugin: 'io.fabric'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://jitpack.io' }
 }
 
 
@@ -21,8 +22,8 @@ android {
         applicationId "com.tenneco.tennecoapp"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 3
-        versionName "2.1"
+        versionCode 5
+        versionName "2.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -47,6 +48,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.6'
+    //Chart
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
 
 
     implementation 'com.google.code.gson:gson:2.8.2'

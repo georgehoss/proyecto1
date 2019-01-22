@@ -22,6 +22,7 @@ public class Downtime {
     private String reasonValue;
     private String name;
     private String id;
+    private int shift;
 
 
     public Downtime() {
@@ -152,5 +153,13 @@ public class Downtime {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getShift() {
+        return shift;
+    }
+
+    public void setShift(int shift) {
+        this.shift = shift;
     }
 }

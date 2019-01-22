@@ -79,6 +79,27 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 
+    private Query postsQuery;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mLine = dataSnapshot.getValue(Line.class);
+            if (mLine!=null) {
+                setData(mLine);
+                deletable = true;
+                invalidateOptionsMenu();
+
+            }
+            else
+                finish();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            finish();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,6 +157,12 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         setGestureDetector();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (postsQuery!=null && valueEventListener!=null)
+        postsQuery.removeEventListener(valueEventListener);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -189,27 +216,9 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
 
     @Override
     public void getData() {
-        Query postsQuery;
+
         postsQuery = dbLines.child(id);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mLine = dataSnapshot.getValue(Line.class);
-                if (mLine!=null) {
-                    setData(mLine);
-                    deletable = true;
-                    invalidateOptionsMenu();
-
-                }
-                else
-                    finish();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                finish();
-            }
-        });
+        postsQuery.addValueEventListener(valueEventListener);
     }
 
     @Override

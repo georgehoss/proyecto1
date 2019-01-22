@@ -179,24 +179,6 @@
                     android:textSize="20sp"
                     />
             </LinearLayout>
-            <EditText
-                android:layout_margin="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:id="@+id/et_comments"
-                android:inputType="textCapSentences|textMultiLine"
-                android:scrollHorizontally="false"
-                android:padding="5dp"
-                android:textSize="20sp"
-                android:hint="@string/dialog_comments_and_actions"
-                android:textColorHint="@color/colorHint"
-                android:textColor="@color/colorBlueLine"
-                android:textStyle="bold"
-                android:layout_marginStart="13dp"
-                android:layout_marginEnd="13dp"
-                android:background="@drawable/background_rectangle"
-                />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -241,7 +223,29 @@
                     android:visibility="gone"
                     />
             </LinearLayout>
+
+            <EditText
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:id="@+id/et_comments"
+                android:inputType="textCapSentences|textMultiLine"
+                android:scrollHorizontally="false"
+                android:padding="5dp"
+                android:textSize="20sp"
+                android:hint="@string/dialog_comments_and_actions"
+                android:textColorHint="@color/colorHint"
+                android:textColor="@color/colorBlueLine"
+                android:textStyle="bold"
+                android:layout_marginStart="13dp"
+                android:layout_marginEnd="13dp"
+                android:background="@drawable/background_rectangle"
+                />
         </LinearLayout>
+
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

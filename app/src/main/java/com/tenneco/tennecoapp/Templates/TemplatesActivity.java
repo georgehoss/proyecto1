@@ -42,6 +42,20 @@ public class TemplatesActivity extends AppCompatActivity implements TemplateCont
     private ViewPager mViewPager;
     public Templates mTemplates;
     private ProgressDialog progressDialog;
+    private  Query postsQuery;
+    private  ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mTemplates = dataSnapshot.getValue(Templates.class);
+            setData(mPresenter.setData(mTemplates));
+            hideProgress();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            finish();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +87,7 @@ public class TemplatesActivity extends AppCompatActivity implements TemplateCont
     protected void onPause() {
         super.onPause();
         hideProgress();
+        postsQuery.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -97,21 +112,9 @@ public class TemplatesActivity extends AppCompatActivity implements TemplateCont
     @Override
     public void getTemplates() {
         showProgress();
-        Query postsQuery;
-        postsQuery = dbTemplates.child(Templates.ID);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mTemplates = dataSnapshot.getValue(Templates.class);
-                setData(mPresenter.setData(mTemplates));
-                hideProgress();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                finish();
-            }
-        });
+        postsQuery = dbTemplates.child(Templates.ID);
+        postsQuery.addValueEventListener(valueEventListener);
     }
 
 

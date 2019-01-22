@@ -201,7 +201,8 @@ public class EditCreateDowntimeFragment extends Fragment implements DowntimeAdap
                     mEvName.requestFocus();
                 }
                 else {
-
+                    if (downtime.getZones()==null)
+                        downtime.setZones(new ArrayList<Zone>());
                     downtime.getZones().add(new Zone(mEvName.getText().toString().trim(),mAdapter.getLocations()));
                     Collections.sort(downtime.getZones(),Zone.NameComparator);
                     mAdapterDt.setZones(downtime.getZones());
@@ -265,6 +266,8 @@ public class EditCreateDowntimeFragment extends Fragment implements DowntimeAdap
                 else {
                     if (reason==0)
                     {
+                        if (downtime.getReasons()==null)
+                            downtime.setReasons(new ArrayList<Reason>());
 
                         downtime.getReasons().add(new Reason(mEvName.getText().toString().trim()));
                         Collections.sort(downtime.getReasons(),Reason.NameComparator);

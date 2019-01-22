@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.SmsManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -35,6 +37,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -96,6 +99,23 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DatabaseReference dbReasons;
     private DatabaseReference dbTemplates;
     private Templates templates;
+    private Query postsQuery;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mLine = dataSnapshot.getValue(Line.class);
+            if (mLine!=null) {
+                setLine();
+                getPLine();
+            }
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
 
     private ArrayList<User> mTeam;
     private ArrayList<User> mGroup;
@@ -114,12 +134,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private boolean sendReport1 = false;
     private boolean sendReport2 = false;
     private AlertDialog dialog;
+    private AlertDialog productDialog;
     private AlertDialog ftqDialog;
     private AlertDialog downtimeDialog;
     private float mScale = 1f;
     private ScaleGestureDetector mScaleDetector;
     private Product lastProduct;
     GestureDetector gestureDetector;
+    private int turno=0;
+
 
     @BindView(R.id.tv_name)TextView mTvName;
     @BindView(R.id.tv_date)TextView mTvDate;
@@ -282,33 +305,35 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void getLine() {
-        Query postsQuery;
+
         postsQuery = dbLine.child(lineId);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mLine = dataSnapshot.getValue(Line.class);
-                if (mLine!=null) {
-                    setLine();
-                    getPLine();
-                }
+        postsQuery.addValueEventListener(valueEventListener);
+    }
 
-            }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        postsQuery.removeEventListener(valueEventListener);
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getLine();
     }
 
     @Override
     public void setLine() {
+        if (progressDialog!=null && progressDialog.isShowing())
+            progressDialog.hide();
+
+        lastProduct = mLine.getLastProduct();
+
         if (lastProduct==null)
             showProductListDialog(mLine.getProducts(),this);
         else {
-            if (dialog.isShowing())
-                dialog.dismiss();
+            if (productDialog!=null && productDialog.isShowing())
+                productDialog.dismiss();
             mTvName.setText(mLine.getName());
             mTvDate.setText(mLine.getDate());
             mTvActS1.setText(mLine.getFirst().getCumulativeActual());
@@ -418,9 +443,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mLine.setScrap2EmailList(mLine.getFirst().getScrap2List());
                 mLine.setScrap3EmailList(mLine.getFirst().getScrap3List());
                 mLine.setLeakEmailList(mLine.getFirst().getLeakList());
+                turno=1;
             }
             else
-            if ( mLine.getFirst().isClosed() && !mLine.getFirst().isClosed())
+            if ( mLine.getFirst().isClosed() && !mLine.getSecond().isClosed())
             {
                 mLine.setDowntimeEmailList(mLine.getSecond().getDowntimeList());
                 mLine.setLineList(mLine.getSecond().getLineList());
@@ -428,6 +454,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mLine.setScrap2EmailList(mLine.getSecond().getScrap2List());
                 mLine.setScrap3EmailList(mLine.getSecond().getScrap3List());
                 mLine.setLeakEmailList(mLine.getSecond().getLeakList());
+                turno = 2;
             }
             else
             {
@@ -437,6 +464,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mLine.setScrap2EmailList(mLine.getThird().getScrap2List());
                 mLine.setScrap3EmailList(mLine.getThird().getScrap3List());
                 mLine.setLeakEmailList(mLine.getThird().getLeakList());
+                turno = 3;
             }
 
             if (mLine.getFirst().isClosed())
@@ -578,7 +606,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     public void getTemplates() {
         Query postsQuery;
         postsQuery = dbTemplates.child(Templates.ID);
-        postsQuery.addValueEventListener(new ValueEventListener() {
+        postsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 templates = dataSnapshot.getValue(Templates.class);
@@ -618,7 +646,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             TextView mTvTime = view.findViewById(R.id.tv_time);
             String time = workHour.getStartHour() + " - " + workHour.getEndHour();
             mTvTime.setText(time);
-            TextView mTvTarget = view.findViewById(R.id.tv_target);
+            final TextView mTvTarget = view.findViewById(R.id.tv_target);
             mTvTarget.setText(workHour.getTarget());
             final EditText mEtActual = view.findViewById(R.id.et_actual);
             final EditText mEtFtq = view.findViewById(R.id.et_ftq);
@@ -639,15 +667,47 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             dialog.show();
 
             final LinearLayout mLlReason = view.findViewById(R.id.ll_reason);
-            Spinner spReason = view.findViewById(R.id.sp_reason);
+            final Spinner spReason = view.findViewById(R.id.sp_reason);
             final EditText etReason = view.findViewById(R.id.et_reason);
             final ArrayList<ReasonDelay> mList = new ArrayList<>();
             mList.add(new ReasonDelay("- Select a Reason -","null"));
+            if (mReasons!=null)
             mList.addAll(mReasons);
             mList.add(new ReasonDelay("Other","0"));
             ArrayAdapter<ReasonDelay> mAdapter = new ArrayAdapter<>(context,R.layout.spinner_row,mList);
             spReason.setAdapter(mAdapter);
             final ReasonDelay reasonDelay = new ReasonDelay();
+
+
+            mEtActual.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!editable.toString().isEmpty())
+                    {
+                        String actual = editable.toString().trim();
+                        if (mPresenter.validateReason(  reasonDelay,actual,workHour.getTarget())) {
+                            mLlReason.setVisibility(View.VISIBLE);
+                            mEtActual.setTextColor(getResources().getColor(R.color.colorRed));
+                        }
+                        else {
+                            mLlReason.setVisibility(View.GONE);
+                            mEtActual.setTextColor(getResources().getColor(R.color.colorGreen));
+                            spReason.setSelection(0);
+                            reasonDelay.setId("null");
+                        }
+                    }
+                }
+            });
 
             spReason.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -656,6 +716,13 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     if (reas!=null) {
                         reasonDelay.setName(reas.getName());
                         reasonDelay.setId(reas.getId());
+                        if (mEtComments.getText().toString().isEmpty() && !reas.getName().equals("Other")
+                                && !reas.getName().equals("- Select a Reason -"))
+                            mEtComments.setText(reas.getName());
+                        else
+                            if (reas.getName().equals("Other"))
+                                mEtComments.setText("");
+
                     }
                 }
 
@@ -715,14 +782,13 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
                     }
                     else
-                        if(mPresenter.validateReasonSelection(actual,workHour.getTarget(),reasonDelay.getName(), etReason.getText().toString())){
-                            etReason.setVisibility(View.VISIBLE);
-                            etReason.setError("You must describe the reason!");
-                            etReason.requestFocus();
+                        if(mPresenter.validateReasonSelection(actual,workHour.getTarget(),reasonDelay.getName(), mEtComments.getText().toString())){
+                            mEtComments.setError("You must describe the reason!");
+                            mEtComments.requestFocus();
                         }
                     else {
-                        if (etReason.getVisibility()==View.VISIBLE)
-                            reasonDelay.setReason(etReason.getText().toString());
+                        if (mLlReason.getVisibility()==View.VISIBLE && reasonDelay.getName().equals("Other"))
+                            reasonDelay.setReason(mEtComments.getText().toString());
                         mPresenter.saveLine(mLine, mHours, position, actual, comment,reasonDelay,workHour.getOwner(),leak);
                         dialog.dismiss();
                     }
@@ -1123,6 +1189,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void updateLine(Line line) {
+        if (progressDialog!=null)
+            progressDialog.show();
         dbLine.child(line.getId()).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -1132,6 +1200,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                if (progressDialog!=null && progressDialog.isShowing())
+                    progressDialog.hide();
+            }
+        }).addOnCanceledListener(new OnCanceledListener() {
+            @Override
+            public void onCanceled() {
                 if (progressDialog!=null && progressDialog.isShowing())
                     progressDialog.hide();
             }
@@ -1294,6 +1368,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 else {
                     mLine.getDowntime().setStartTime(mTvStart.getText().toString());
                     mLine.getDowntime().setSet(true);
+                    mLine.getDowntime().setShift(turno);
                     mLine.getDowntime().setDowntime(mPresenter.downtime(mLine.getDowntime().getZoneValue(),
                             mLine.getDowntime().getLocationValue(), mLine.getDowntime().getReasonValue()));
                     updateLine(mLine);
@@ -1396,6 +1471,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 public void onClick(View view) {
                     Reason reason = (Reason) spinner.getSelectedItem();
 
+
                     if (reason != null && reason.getName().equals("- Select a Reason -"))
                         Toast.makeText(context, "You must select a reason to make the Report!", Toast.LENGTH_LONG).show();
                     else if (mLine.getRejects() != null && mLine.getRejects().size() >= 2 && editText.getText().toString().isEmpty()) {
@@ -1408,9 +1484,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                             mLine.setRejects(new ArrayList<Reject>());
                         }
                         if (mLine.getRejects().size() >= 2)
-                            mLine.getRejects().add(new Reject(reason.getName(), Utils.getTimeString(),editText.getText().toString()));
+                            mLine.getRejects().add(new Reject(reason.getName(), Utils.getTimeString(),editText.getText().toString(),turno));
                         else
-                            mLine.getRejects().add(new Reject(reason.getName(), Utils.getTimeString()));
+                            mLine.getRejects().add(new Reject(reason.getName(), Utils.getTimeString(),turno));
                         dialog.dismiss();
                         updateLine(mLine);
 
@@ -2128,7 +2204,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void showProductListDialog(ArrayList<Product> products, Context context) {
-        if (context!=null && products!=null && products.size()>=0) {
+        if (context!=null && products!=null && products.size()>=0  ) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
             final ProductAdapter adapter = new ProductAdapter(products, this);
             RecyclerView recyclerView = new RecyclerView(context);
@@ -2144,8 +2220,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     dialogInterface.dismiss();
                 }
             });
-            dialog = alertDialogBuilder.create();
-            dialog.show();
+            if (productDialog==null)
+            productDialog = alertDialogBuilder.create();
+            if (!productDialog.isShowing())
+            productDialog.show();
         }
 
 
@@ -2166,8 +2244,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void productClick(Product product) {
-        dialog.dismiss();
+        productDialog.dismiss();
         lastProduct = product;
+        mLine.setLastProduct(product);
         saveProduct(lastProduct);
         mPresenter.setProduct(mLine,lastProduct);
     }

@@ -47,6 +47,28 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
     @BindView(R.id.rv_emails) RecyclerView mRvEmails;
 
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mEmails = new ArrayList<>();
+            hideProgressBar();
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                Email email = itemSnapshot.getValue(Email.class);
+                if (email!=null)
+                    mEmails.add(email);
+            }
+            Collections.sort(mEmails,Email.NameComparator);
+            mAdapter.setEmails(mEmails);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            hideProgressBar();
+        }
+    };
+
     @OnClick(R.id.fb_add) void add(){
         addEditDialog(new Email(dbEmails.push().getKey()),getActivity());
     }
@@ -83,6 +105,12 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        dbEmails.removeEventListener(valueEventListener);
+    }
+
+    @Override
     public void hideProgressBar() {
         mPbLoading.setVisibility(View.GONE);
     }
@@ -94,27 +122,7 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
 
     @Override
     public void getEmails() {
-        dbEmails.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mEmails = new ArrayList<>();
-                hideProgressBar();
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    Email email = itemSnapshot.getValue(Email.class);
-                    if (email!=null)
-                        mEmails.add(email);
-                }
-                Collections.sort(mEmails,Email.NameComparator);
-                mAdapter.setEmails(mEmails);
-                mAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                hideProgressBar();
-            }
-        });
+        dbEmails.addValueEventListener(valueEventListener);
     }
 
     @Override

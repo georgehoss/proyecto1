@@ -7,19 +7,22 @@ public class Reject {
     private String reason;
     private String time;
     private String actions;
+    private int shift;
 
     public Reject() {
     }
 
-    public Reject(String reason, String time) {
+    public Reject(String reason, String time,int shift) {
         this.reason = reason;
         this.time = time;
+        this.shift = shift;
     }
 
-    public Reject(String reason, String time, String actions) {
+    public Reject(String reason, String time, String actions,int shift) {
         this.reason = reason;
         this.time = time;
         this.actions = actions;
+        this.shift = shift;
     }
 
     public String getReason() {
@@ -44,5 +47,13 @@ public class Reject {
 
     public void setActions(String actions) {
         this.actions = actions;
+    }
+
+    public int getShift() {
+        return shift;
+    }
+
+    public void setShift(int shift) {
+        this.shift = shift;
     }
 }

@@ -57,6 +57,30 @@ public class SmsListFragment extends Fragment implements SmsListContract.View, S
     RecyclerView mRvSmsList;
     @BindView(R.id.fb_add)
     FloatingActionButton mFbAdd;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPb.setVisibility(View.GONE);
+
+
+            List<SmsList> list = new ArrayList<SmsList>();
+            for (DataSnapshot child: dataSnapshot.getChildren()) {
+                SmsList smsList = child.getValue(SmsList.class);
+                Log.d("Debug",smsList.getName());
+                list.add(smsList);
+            }
+            smsLists = new ArrayList<>();
+            smsLists.addAll(list);
+            Collections.sort(smsLists,SmsList.NameComparator);
+            mAdapterDt.setSmsLists(smsLists);
+            mAdapterDt.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            mPb.setVisibility(View.GONE);
+        }
+    };
 
 
     @BindView(R.id.pb_loading)
@@ -118,32 +142,15 @@ public class SmsListFragment extends Fragment implements SmsListContract.View, S
 
     @Override
     public void getData() {
-        dbSmsList.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPb.setVisibility(View.GONE);
-
-
-                List<SmsList> list = new ArrayList<SmsList>();
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                   SmsList smsList = child.getValue(SmsList.class);
-                   Log.d("Debug",smsList.getName());
-                   list.add(smsList);
-                }
-                smsLists = new ArrayList<>();
-                smsLists.addAll(list);
-                Collections.sort(smsLists,SmsList.NameComparator);
-                mAdapterDt.setSmsLists(smsLists);
-                mAdapterDt.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                mPb.setVisibility(View.GONE);
-            }
-        });
+        dbSmsList.addValueEventListener(valueEventListener);
 
         mFbAdd.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbSmsList.removeEventListener(valueEventListener);
     }
 
     @Override

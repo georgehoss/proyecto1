@@ -215,4 +215,11 @@
     <string name="produced_rejected_piece">Produced Rejected Piece</string>
     <string name="next_notification_will_be_send_to_group_leaders">Next notification will be send to Group Leaders</string>
     <string name="this_is_the_report_of_all_the_lines_of_today">This is the report of all the lines of today</string>
+
+    <string-array name="selector">
+        <item>Production</item>
+        <item>Rejects</item>
+        <item>Downtime</item>
+        <item>Leak FTQ</item>
+    </string-array>
 </resources>

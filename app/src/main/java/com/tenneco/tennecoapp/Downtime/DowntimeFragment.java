@@ -45,6 +45,26 @@ public class DowntimeFragment extends Fragment implements DowntimeListAdapter.On
     private DatabaseReference dbDowntime;
     private ArrayList<Downtime> mDowntimes;
     private ProgressDialog progressDialog;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPb.setVisibility(View.GONE);
+            List<Downtime> list = new ArrayList<Downtime>();
+            for (DataSnapshot child: dataSnapshot.getChildren()) {
+                list.add(child.getValue(Downtime.class));
+            }
+            mDowntimes = new ArrayList<>();
+            mDowntimes.addAll(list);
+            Collections.sort(mDowntimes,Downtime.NameComparator);
+            mAdapter.setDowntimes(mDowntimes);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            mPb.setVisibility(View.GONE);
+        }
+    };
 
     @BindView(R.id.rv_downtime) RecyclerView mRv;
     @BindView(R.id.pb_loading) ProgressBar mPb;
@@ -82,6 +102,12 @@ public class DowntimeFragment extends Fragment implements DowntimeListAdapter.On
         progressDialog.setMessage("Please Wait.");
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbDowntime.removeEventListener(valueEventListener);
+    }
+
     public void initAdapters(){
         mRv.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new DowntimeListAdapter(mDowntimes,this);
@@ -92,26 +118,7 @@ public class DowntimeFragment extends Fragment implements DowntimeListAdapter.On
 
 
     public void getDowntimes() {
-        dbDowntime.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPb.setVisibility(View.GONE);
-                List<Downtime> list = new ArrayList<Downtime>();
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    list.add(child.getValue(Downtime.class));
-                }
-                mDowntimes = new ArrayList<>();
-                mDowntimes.addAll(list);
-                Collections.sort(mDowntimes,Downtime.NameComparator);
-                mAdapter.setDowntimes(mDowntimes);
-                mAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                mPb.setVisibility(View.GONE);
-            }
-        });
+        dbDowntime.addValueEventListener(valueEventListener);
     }
 
     @Override

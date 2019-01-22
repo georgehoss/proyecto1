@@ -66,9 +66,11 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
 
             }
             holder.mTvName.setText(name);
-            holder.mTvFirstShift.setText(line.getFirst().getCumulativePlanned());
-            holder.mTvSecondShift.setText(line.getSecond().getCumulativePlanned());
-            holder.mTvThirdShift.setText(line.getThird().getCumulativePlanned());
+            if (line.getProducts().size()>0) {
+                holder.mTvShift1.setText(line.getProducts().get(0).getFirst().getCumulativePlanned());
+                holder.mTvShift2.setText(line.getProducts().get(0).getSecond().getCumulativePlanned());
+                holder.mTvShift3.setText(line.getProducts().get(0).getThird().getCumulativePlanned());
+            }
             holder.mLlLine.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -89,9 +91,9 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
     class LineViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_date) TextView mTvDate;
         @BindView(R.id.tv_name) TextView mTvName;
-        @BindView(R.id.tv_shift1) TextView mTvFirstShift;
-        @BindView(R.id.tv_shift2) TextView mTvSecondShift;
-        @BindView(R.id.tv_shift3) TextView mTvThirdShift;
+        @BindView(R.id.tv_shift1) TextView mTvShift1;
+        @BindView(R.id.tv_shift2) TextView mTvShift2;
+        @BindView(R.id.tv_shift3) TextView mTvShift3;
         @BindView(R.id.ll_line) LinearLayout mLlLine;
 
 

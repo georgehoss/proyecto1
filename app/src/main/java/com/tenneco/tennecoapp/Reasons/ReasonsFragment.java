@@ -56,6 +56,26 @@ public class ReasonsFragment extends Fragment implements ReasonsContract.View, R
     FloatingActionButton mFbAdd;
     @BindView(R.id.pb_loading)
     ProgressBar mPb;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPb.setVisibility(View.GONE);
+            List<ReasonDelay> list = new ArrayList<ReasonDelay>();
+            for (DataSnapshot child: dataSnapshot.getChildren()) {
+                list.add(child.getValue(ReasonDelay.class));
+            }
+            reasonDelays = new ArrayList<>();
+            reasonDelays.addAll(list);
+            Collections.sort(reasonDelays,ReasonDelay.NameComparator);
+            mAdapterDt.setReasonDelays(reasonDelays);
+            mAdapterDt.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            mPb.setVisibility(View.GONE);
+        }
+    };
 
     public ReasonsFragment() {
         // Required empty public constructor
@@ -111,28 +131,15 @@ public class ReasonsFragment extends Fragment implements ReasonsContract.View, R
 
     @Override
     public void getData() {
-        dbReasons.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPb.setVisibility(View.GONE);
-                List<ReasonDelay> list = new ArrayList<ReasonDelay>();
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    list.add(child.getValue(ReasonDelay.class));
-                }
-                reasonDelays = new ArrayList<>();
-                reasonDelays.addAll(list);
-                Collections.sort(reasonDelays,ReasonDelay.NameComparator);
-                mAdapterDt.setReasonDelays(reasonDelays);
-                mAdapterDt.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                mPb.setVisibility(View.GONE);
-            }
-        });
+        dbReasons.addValueEventListener(valueEventListener);
 
         mFbAdd.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbReasons.removeEventListener(valueEventListener);
     }
 
     @Override

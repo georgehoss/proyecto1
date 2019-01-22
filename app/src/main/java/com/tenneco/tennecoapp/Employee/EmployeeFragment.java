@@ -46,6 +46,30 @@ public class EmployeeFragment extends Fragment implements EmployeeContract.View,
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
     @BindView(R.id.rv_employee) RecyclerView mRvEmployee;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mEmployees = new ArrayList<>();
+            hideProgressBar();
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                Employee employee = itemSnapshot.getValue(Employee.class);
+                if (employee!=null)
+                    mEmployees.add(employee);
+            }
+
+            Collections.sort(mEmployees,Employee.EmployeeNameComparator);
+            mAdapter.setEmployees(mEmployees);
+            mAdapter.notifyDataSetChanged();
+
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            hideProgressBar();
+        }
+    };
 
     public EmployeeFragment() {
         // Required empty public constructor
@@ -93,30 +117,13 @@ public class EmployeeFragment extends Fragment implements EmployeeContract.View,
 
     @Override
     public void getEmployees() {
-        dbEmployee.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mEmployees = new ArrayList<>();
-                hideProgressBar();
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    Employee employee = itemSnapshot.getValue(Employee.class);
-                    if (employee!=null)
-                        mEmployees.add(employee);
-                }
+        dbEmployee.addValueEventListener(valueEventListener);
+    }
 
-                Collections.sort(mEmployees,Employee.EmployeeNameComparator);
-                mAdapter.setEmployees(mEmployees);
-                mAdapter.notifyDataSetChanged();
-
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                hideProgressBar();
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbEmployee.removeEventListener(valueEventListener);
     }
 
     @Override

@@ -56,6 +56,75 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.cv_plants) CardView mCvPlants;
     private int admin =0;
+    private Query postsQuery;
+    private ValueEventListener valueEventListener =new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            User user = dataSnapshot.getValue(User.class);
+
+
+            if (user==null)
+            {
+                if (mUser.getDisplayName()==null)
+                    mUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                saveUser(mUser);
+            }
+            else
+            {
+
+                admin = user.getType();
+
+                StorageUtils.saveUserPermissions(main,admin);
+
+                if (user.getType()==0)
+                {
+                    showNoLines();
+                }
+                else
+                    getLines();
+
+                if (user.getType()==3) {
+                    main.showMenu();
+                }
+                else
+                    main.hideMenu();
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+    private ValueEventListener linesListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mLines = new ArrayList<>();
+            hideProgress();
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                Line line = itemSnapshot.getValue(Line.class);
+                if (line!=null)
+                    mLines.add(line);
+            }
+
+            mAdapter.setLines(mLines);
+            mAdapter.notifyDataSetChanged();
+
+            if (mLines.size()>0)
+                showPickOne();
+            else
+                showNoLines();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            hideProgress();
+            showNoLines();
+        }
+    };
 
 
 
@@ -143,48 +212,9 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
     @Override
     public void getUser() {
-        Query postsQuery;
+
         postsQuery = dbUsers.child(mUser.getUid());
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-
-
-                if (user==null)
-                {
-                    if (mUser.getDisplayName()==null)
-                        mUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                    saveUser(mUser);
-                }
-                else
-                {
-
-                    admin = user.getType();
-
-                    StorageUtils.saveUserPermissions(main,admin);
-
-                    if (user.getType()==0)
-                    {
-                        showNoLines();
-                    }
-                    else
-                        getLines();
-
-                    if (user.getType()==3) {
-                        main.showMenu();
-                    }
-                    else
-                        main.hideMenu();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        postsQuery.addValueEventListener(valueEventListener);
     }
 
     @Override
@@ -195,39 +225,14 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
             main.finish();
         }
 
-        dbLines.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mLines = new ArrayList<>();
-                hideProgress();
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    Line line = itemSnapshot.getValue(Line.class);
-                    if (line!=null)
-                        mLines.add(line);
-                }
-
-                mAdapter.setLines(mLines);
-                mAdapter.notifyDataSetChanged();
-
-                if (mLines.size()>0)
-                    showPickOne();
-                else
-                    showNoLines();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                hideProgress();
-                showNoLines();
-            }
-        });
+        dbLines.addValueEventListener(linesListener);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
+        postsQuery.removeEventListener(valueEventListener);
+        dbLines.removeEventListener(linesListener);
     }
 
     @Override

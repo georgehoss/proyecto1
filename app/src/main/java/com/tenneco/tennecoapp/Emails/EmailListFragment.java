@@ -54,6 +54,26 @@ public class EmailListFragment extends Fragment implements EmailListAdapter.OnIt
     RecyclerView mRv;
     @BindView(R.id.pb_loading)
     ProgressBar mPb;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPb.setVisibility(View.GONE);
+            List<EmailList> list = new ArrayList<EmailList>();
+            for (DataSnapshot child: dataSnapshot.getChildren()) {
+                list.add(child.getValue(EmailList.class));
+            }
+            emailLists = new ArrayList<>();
+            emailLists.addAll(list);
+            Collections.sort(emailLists,EmailList.NameComparator);
+            mAdapter.setEmails(emailLists);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            mPb.setVisibility(View.GONE);
+        }
+    };
 
 
     @OnClick(R.id.fb_add) void addDowntime(){
@@ -96,26 +116,13 @@ public class EmailListFragment extends Fragment implements EmailListAdapter.OnIt
 
 
     public void getEmails() {
-        dbEmailList.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPb.setVisibility(View.GONE);
-                List<EmailList> list = new ArrayList<EmailList>();
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    list.add(child.getValue(EmailList.class));
-                }
-                emailLists = new ArrayList<>();
-                emailLists.addAll(list);
-                Collections.sort(emailLists,EmailList.NameComparator);
-                mAdapter.setEmails(emailLists);
-                mAdapter.notifyDataSetChanged();
-            }
+        dbEmailList.addValueEventListener(valueEventListener);
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                mPb.setVisibility(View.GONE);
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbEmailList.removeEventListener(valueEventListener);
     }
 
     @Override

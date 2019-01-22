@@ -173,7 +173,7 @@ public class LineProductFragment extends Fragment implements LineProductContract
             showShiftDialog(mProduct.getFirst(),position,main);
         else
         if (position==2)
-            showShiftDialog(mProduct.getFirst(),position,main);
+            showShiftDialog(mProduct.getSecond(),position,main);
         else
         if (position==3)
             showShiftDialog(mProduct.getThird(),position,main);
@@ -551,12 +551,12 @@ public class LineProductFragment extends Fragment implements LineProductContract
                             p.setFirst(mProduct.getFirst());
                     mAdapter1.setHours(mProduct.getFirst().getHours());
                     mAdapter1.notifyDataSetChanged();
+                    updateLine();
                     dialog.dismiss();
                 }
                 else
                 if (shiftNumber==2)
                 {
-                    main.mLine.getProducts().remove(mProduct);
                     mProduct.setSecond(mPresenter.getshift(
                             s1,e1,t1,
                             s2,e2,t2,
@@ -571,12 +571,12 @@ public class LineProductFragment extends Fragment implements LineProductContract
                             p.setSecond(mProduct.getSecond());
                     mAdapter2.setHours(mProduct.getSecond().getHours());
                     mAdapter2.notifyDataSetChanged();
+                    updateLine();
                     dialog.dismiss();
                 }
                 else
                 if (shiftNumber==3)
                 {
-                    main.mLine.getProducts().remove(mProduct);
                     mProduct.setThird(mPresenter.getshift(
                             s1,e1,t1,
                             s2,e2,t2,
@@ -593,6 +593,7 @@ public class LineProductFragment extends Fragment implements LineProductContract
 
                     mAdapter3.setHours(mProduct.getThird().getHours());
                     mAdapter3.notifyDataSetChanged();
+                    updateLine();
                     dialog.dismiss();
                 }
 

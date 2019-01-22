@@ -25,6 +25,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.ProductionLineAdapter;
 import com.tenneco.tennecoapp.Daily.DailyActivity;
+import com.tenneco.tennecoapp.Graphics.GraphicActivity;
 import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Lines.ConfigLineActivity;
 import com.tenneco.tennecoapp.MainActivity;
@@ -51,6 +52,43 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     private String lineId;
     private Line mLine;
     private int admin=0;
+    private Query postsQuery;
+    private ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            ArrayList<Line> lines = new ArrayList<>();
+            boolean today = false;
+            String date = Utils.getDateString();
+
+
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
+            {
+                Line line = itemSnapshot.getValue(Line.class);
+                if (line!=null) {
+                    lines.add(line);
+                    if (line.getDate().equals(date))
+                        today=true;
+                }
+            }
+
+            mLines = new ArrayList<>();
+            for (int size = lines.size()-1; size>=0 ; size--)
+                mLines.add(lines.get(size));
+
+            if(!today)
+                showFb();
+            else
+                hideFb();
+            mAdapter.setLines(mLines);
+            mAdapter.notifyDataSetChanged();
+            hideProgressBar();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            hideProgressBar();
+        }
+    };
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
@@ -67,10 +105,15 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     }
 
     @OnClick(R.id.tv_name) void onTouch(){
-        if (mLlShifts.getVisibility()==View.VISIBLE)
+        Intent intent = new Intent(getActivity(), GraphicActivity.class);
+        intent.putExtra("lineId",lineId);
+        startActivity(intent);
+
+       /* if (mLlShifts.getVisibility()==View.VISIBLE)
             hideShifts();
         else
             showShifts();
+            */
     }
 
 
@@ -123,47 +166,18 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
 
     @Override
     public void getLines() {
-        Query postsQuery;
+
         if (admin>1)
             postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
         else
             postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(2);
-        postsQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ArrayList<Line> lines = new ArrayList<>();
-                boolean today = false;
-                String date = Utils.getDateString();
+        postsQuery.addValueEventListener(valueEventListener);
+    }
 
-
-                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
-                {
-                    Line line = itemSnapshot.getValue(Line.class);
-                    if (line!=null) {
-                        lines.add(line);
-                        if (line.getDate().equals(date))
-                            today=true;
-                    }
-                }
-
-                mLines = new ArrayList<>();
-                for (int size = lines.size()-1; size>=0 ; size--)
-                    mLines.add(lines.get(size));
-
-                if(!today)
-                    showFb();
-                else
-                    hideFb();
-                mAdapter.setLines(mLines);
-                mAdapter.notifyDataSetChanged();
-                hideProgressBar();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                hideProgressBar();
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        postsQuery.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -239,7 +253,8 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
 
     @Override
     public void setLine() {
-        mTvName.setText(mLine.getName());
+        String text = mLine.getName() + " Analytics";
+        mTvName.setText(text);
         mTvFirstShift.setText(mLine.getFirst().getCumulativePlanned());
         mTvSecondShift.setText(mLine.getSecond().getCumulativePlanned());
         mTvThirdShift.setText(mLine.getThird().getCumulativePlanned());
