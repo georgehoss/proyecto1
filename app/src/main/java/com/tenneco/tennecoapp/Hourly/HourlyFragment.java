@@ -168,7 +168,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     public void getLines() {
 
         if (admin>1)
-            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
+            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(30);
         else
             postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(2);
         postsQuery.addValueEventListener(valueEventListener);
@@ -176,7 +176,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
 
     @Override
     public void onPause() {
-        super.onPause();
+        super.onPause();//
         postsQuery.removeEventListener(valueEventListener);
     }
 
@@ -241,7 +241,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     @Override
     public void showFb() {
         if (getContext()!=null)
-        mFbAdd.setVisibility(View.VISIBLE);
+            mFbAdd.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("RestrictedApi")

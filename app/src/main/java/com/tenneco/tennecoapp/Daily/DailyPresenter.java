@@ -77,8 +77,8 @@ public class DailyPresenter implements DailyContract.Presenter {
                 if (hours.get(j).getLeak()!=null && hours.get(j).getLeak().isEmpty())
                     hours.get(j).setLeak("0");
                 else
-                    if (hours.get(j).getLeak()==null)
-                        hours.get(j).setLeak("0");
+                if (hours.get(j).getLeak()==null)
+                    hours.get(j).setLeak("0");
 
                 if (j!=0 && j!=8 && j!=16 &&
                         hours.get(j-1).getCumulativeActual()!=null &&
@@ -261,7 +261,7 @@ public class DailyPresenter implements DailyContract.Presenter {
         for (int i=0;i<=7;i++) {
             if (!line.getFirst().getHours().get(i).isClosed() &&(
                     line.getFirst().getHours().get(i).getActuals()==null
-                    ||line.getFirst().getHours().get(i).getActuals().isEmpty())) {
+                            ||line.getFirst().getHours().get(i).getActuals().isEmpty())) {
                 line.getFirst().getHours().get(i).setTarget(product.getFirst().getHours().get(i).getTarget());
                 line.getFirst().getHours().get(i).setStartHour(product.getFirst().getHours().get(i).getStartHour());
                 line.getFirst().getHours().get(i).setEndHour(product.getFirst().getHours().get(i).getEndHour());
@@ -383,8 +383,9 @@ public class DailyPresenter implements DailyContract.Presenter {
     @Override
     public int reportHour(ArrayList<WorkHour> workHours) {
         for (int i=0;i<=23;i++)
-            if ((workHours.get(i).getActuals()==null || workHours.get(i).getActuals().isEmpty()) && !workHours.get(i).isClosed())
-                return i;
+            if (i<workHours.size())
+                if ((workHours.get(i).getActuals()==null || workHours.get(i).getActuals().isEmpty()) && !workHours.get(i).isClosed())
+                    return i;
 
         return 24;
     }
@@ -572,7 +573,7 @@ public class DailyPresenter implements DailyContract.Presenter {
         if ((shift==1 && (hour.equals("12:30")||hour.equals("01:30") ||hour.equals("02:30")))
                 ||(shift ==2)
                 || (shift == 3 && (hour.equals("10:30")||hour.equals("11:30")))
-                ) return hour + ":00 PM";
+        ) return hour + ":00 PM";
 
         return hour + ":00 AM";
     }
@@ -699,19 +700,26 @@ public class DailyPresenter implements DailyContract.Presenter {
         else
         {
             StringBuilder teams = new StringBuilder();
+            StringBuilder teams2 = new StringBuilder();
+            StringBuilder teams3 = new StringBuilder();
 
+            teams.append("1st Shift\n");
             if (line.getFirst().getTeamLeaders()!=null)
-                teams.append("1st Shift\n").append(line.getFirst().getTeamLeaders());
+                teams.append(line.getFirst().getTeamLeaders());
 
+            teams2.append("2nd Shift\n");
             if (line.getSecond().getTeamLeaders()!=null)
-                teams.append("\n\n").append("2nd Shift\n").append(line.getSecond().getTeamLeaders());
+                teams2.append(line.getSecond().getTeamLeaders());
 
+            teams3.append("3rd Shift\n");
             if (line.getThird().getTeamLeaders()!=null)
-                teams.append("\n\n").append("3rd Shift\n").append(line.getThird().getTeamLeaders());
+                teams3.append(line.getThird().getTeamLeaders());
 
 
             mView.showTeam();
-            mView.setTeam(teams.toString());
+            mView.setTeam1(teams.toString());
+            mView.setTeam2(teams2.toString());
+            mView.setTeam3(teams3.toString());
         }
     }
 
@@ -725,31 +733,39 @@ public class DailyPresenter implements DailyContract.Presenter {
         {
 
             StringBuilder group = new StringBuilder();
+            StringBuilder group2 = new StringBuilder();
+            StringBuilder group3 = new StringBuilder();
 
+            group.append("1st Shift\n");
             if (line.getFirst().getGroupLeaders()!=null)
-                group.append("1st Shift\n").append(line.getFirst().getGroupLeaders());
+                group.append(line.getFirst().getGroupLeaders());
 
+            group2.append("2nd Shift\n");
             if (line.getSecond().getGroupLeaders()!=null)
-                group.append("\n\n").append("2nd Shift\n").append(line.getSecond().getGroupLeaders());
+                group2.append(line.getSecond().getGroupLeaders());
 
+            group3.append("3rd Shift\n");
             if (line.getThird().getGroupLeaders()!=null)
-                group.append("\n\n").append("3rd Shift\n").append(line.getThird().getGroupLeaders());
+                group3.append(line.getThird().getGroupLeaders());
 
 
             mView.showGroup();
-            mView.setGroup(group.toString());
+            mView.setGroup1(group.toString());
+            mView.setGroup2(group2.toString());
+            mView.setGroup3(group3.toString());
         }
     }
 
+
     @Override
-    public boolean getGroups(Line line) {
+    public boolean getGroups(Line line, int shift) {
 
 
-        if (!line.getFirst().isClosed()) {
+        if (shift == 1) {
             return !(line.getFirst().getGroupLeaders() == null || line.getFirst().getGroupLeaders().isEmpty());
         }
 
-        if (!line.getSecond().isClosed()) {
+        if (shift==2) {
             return !(line.getSecond().getGroupLeaders() == null || line.getSecond().getGroupLeaders().isEmpty());
         }
 
@@ -759,12 +775,12 @@ public class DailyPresenter implements DailyContract.Presenter {
     }
 
     @Override
-    public boolean getTeam(Line line) {
-        if (!line.getFirst().isClosed()) {
+    public boolean getTeam(Line line, int shift) {
+        if (shift == 1) {
             return !(line.getFirst().getTeamLeaders() == null || line.getFirst().getTeamLeaders().isEmpty());
         }
 
-        if (!line.getSecond().isClosed()) {
+        if (shift==2) {
             return !(line.getSecond().getTeamLeaders() == null || line.getSecond().getTeamLeaders().isEmpty());
         }
 
@@ -772,7 +788,6 @@ public class DailyPresenter implements DailyContract.Presenter {
 
 
     }
-
     @Override
     public String lineInformation(Line line) {
         StringBuilder body = new StringBuilder();
@@ -971,10 +986,12 @@ public class DailyPresenter implements DailyContract.Presenter {
             bw.write(actualShift.getTimeEnd());
 
             bw.write(";Team Leaders;");
-            bw.write(actualShift.getTeamLeaders());
+            if (actualShift.getTeamLeaders()!=null)
+                bw.write(actualShift.getTeamLeaders());
 
             bw.write(";Group Leaders;");
-            bw.write(actualShift.getGroupLeaders());
+            if (actualShift.getGroupLeaders()!=null)
+                bw.write(actualShift.getGroupLeaders());
 
             bw.write(";Leak Failure Counter;");
             bw.write(String.valueOf(actualShift.getLfCounter()));
@@ -1039,13 +1056,13 @@ public class DailyPresenter implements DailyContract.Presenter {
         else
         if (cA2>0 && Integer.valueOf(line.getSecond().getCumulativeFTQ())>=(0.10*cA2)&& !line.getSecond().isClosed()) {
             mView.setLeakReached(2);
-                mView.showFTQ(2);
-            }
+            mView.showFTQ(2);
+        }
         else
         if (cA3>0 && Integer.valueOf(line.getThird().getCumulativeFTQ())>=(0.10*cA3)&& !line.getThird().isClosed()) {
             mView.setLeakReached(3);
             mView.showFTQ(3);
-            }
+        }
     }
 
     private String getShift(Shift shift){
