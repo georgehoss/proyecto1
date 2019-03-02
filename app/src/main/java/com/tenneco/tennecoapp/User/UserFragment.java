@@ -115,6 +115,8 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         }
         else
             dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_USER);
+
+        dbUsers.keepSynced(false);
         mUsers = new ArrayList<>();
         mRvUsers.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new UserAdapter(mUsers,this,getActivity());

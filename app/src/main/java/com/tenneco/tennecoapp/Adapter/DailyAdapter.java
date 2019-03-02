@@ -68,7 +68,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
                     holder.mTvActual.setText("");
                     holder.mTvVariance.setText("");
                 }
-                else {
+            else {
                 holder.mTvActual.setText("");
                 holder.mTvVariance.setText("");
             }
@@ -170,6 +170,14 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyViewHol
             //holder.mTvOwner.setText(hour.getComments());
 
             if (!hour.isClosed()) {
+
+                holder.mTvDate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        itemInteraction.onTargetClick(position);
+                    }
+                });
+
                 holder.mTvActual.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

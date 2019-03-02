@@ -41,6 +41,7 @@ public class Line {
     private String teamLeaders;
     private String password;
     private Product lastProduct;
+    private int turno;
 
     public Line() {
     }
@@ -314,5 +315,13 @@ public class Line {
 
     public void setDowntimes(ArrayList<Downtime> downtimes) {
         this.downtimes = downtimes;
+    }
+
+    public int getTurno() {
+        return turno;
+    }
+
+    public void setTurno(int turno) {
+        this.turno = turno;
     }
 }

@@ -65,6 +65,7 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
         setContentView(R.layout.activity_add_edit_plant);
         ButterKnife.bind(this);
         dbPlants = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS);
+        dbPlants.keepSynced(false);
         if (getIntent().getExtras()!=null && getIntent().getExtras().getString("id")!=null)
         {
             id = getIntent().getExtras().getString("id");

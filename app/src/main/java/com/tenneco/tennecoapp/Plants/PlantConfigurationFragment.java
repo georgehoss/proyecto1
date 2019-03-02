@@ -71,6 +71,7 @@ public class PlantConfigurationFragment extends Fragment implements PlantConfigu
         View view = inflater.inflate(R.layout.fragment_plant_configuration, container, false);
         ButterKnife.bind(this,view);
         dbPlants = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS);
+        dbPlants.keepSynced(false);
         mPlants = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new PlantAdapter(mPlants,this);

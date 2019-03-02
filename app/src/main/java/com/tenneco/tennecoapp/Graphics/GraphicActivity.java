@@ -1,5 +1,6 @@
 package com.tenneco.tennecoapp.Graphics;
 
+import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -47,6 +48,7 @@ public class GraphicActivity extends AppCompatActivity {
     private String[] xasis;
     private int selector=0;
     private   Query postsQuery;
+    private ProgressDialog progressDialog;
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -59,22 +61,31 @@ public class GraphicActivity extends AppCompatActivity {
             for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
             {
                 Line line = itemSnapshot.getValue(Line.class);
-                if (line!=null) {
-                    mLines.add(line);
+                if (line!=null)
+                {
+                    String text = line.getCode()+" " + line.getName();
+                    if (!text.equals(mTvTitle.getText().toString()))
+                        mTvTitle.setText(text);
 
+                    mLines.add(line);
+                    configChart();
+                    initSpinner();
+                    xasis = new String[mLines.size()+1];
+                    for ( i=0; i<mLines.size(); i++)
+                        xasis[i]= mLines.get(i).getDate();
+                    xasis[i]= Utils.getDateString();
+                    selector();
                 }
+                if (progressDialog!=null && progressDialog.isShowing())
+                    progressDialog.dismiss();
             }
 
-            xasis = new String[mLines.size()+1];
-            for ( i=0; i<mLines.size(); i++)
-                xasis[i]= mLines.get(i).getDate();
-            xasis[i]= Utils.getDateString();
                 /*mLines = new ArrayList<>();
                 for (int size = lines.size()-1; size>=0 ; size--)
                     mLines.add(lines.get(size));
 
                     */
-            selector();
+
 
         }
 
@@ -93,16 +104,23 @@ public class GraphicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_graphic);
         ButterKnife.bind(this);
         dbPLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
+        dbPLines.keepSynced(false);
         dbLine =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
+        dbLine.keepSynced(false);
         if (getIntent().getExtras()!= null)
             lineId = getIntent().getExtras().getString("lineId");
         else
             finish();
-        configChart();
-        getLine();
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading Lines, Please wait...");
+        progressDialog.show();
+        progressDialog.setCancelable(true);
+        //getLine();
         getLines();
-        initSpinner();
+
     }
+
+
 
     public void initSpinner(){
         mSpSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -122,7 +140,7 @@ public class GraphicActivity extends AppCompatActivity {
 
 
         postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
-//            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(2);
+        postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(30);
         postsQuery.addValueEventListener(valueEventListener);
     }
 
@@ -130,6 +148,8 @@ public class GraphicActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         postsQuery.removeEventListener(valueEventListener);
+        if (progressDialog!=null && progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 
     public void getLine() {
@@ -169,7 +189,7 @@ public class GraphicActivity extends AppCompatActivity {
             mBarChart.getXAxis().setTextSize(20);
             //Log.e("Logger:Utility", "setMyDevice-IT IS A TABLET");
         } else {
-           // mBarChart.getXAxis().setLabelRotationAngle(-55);
+            // mBarChart.getXAxis().setLabelRotationAngle(-55);
             mBarChart.getXAxis().setTextSize(10);
             //Log.e("Logger:Utility", "setMyDevice-IT IS A MOBILE");
         }
@@ -233,7 +253,7 @@ public class GraphicActivity extends AppCompatActivity {
         //xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         // barData.getGroupWith(...) is a helper that calculates the width each group needs based on the provided parameters
-       // mBarChart.getXAxis().setAxisMaximum(startYear + chart.getBarData().getGroupWidth(groupSpace, barSpace) * groupCount);
+        // mBarChart.getXAxis().setAxisMaximum(startYear + chart.getBarData().getGroupWidth(groupSpace, barSpace) * groupCount);
         mBarChart.groupBars(0, groupSpace,  barSpace);
         mBarChart.invalidate();
     }
@@ -300,27 +320,28 @@ public class GraphicActivity extends AppCompatActivity {
 
     public void setProduction(){
         int i=0;
-        for (Line line : mLines)
-        {
-            float v1=0,v2=0,v3=0;
-            if (line.getFirst().getCumulativeActual()!=null &&!line.getFirst().getCumulativeActual().isEmpty() )
-                v1 = Float.valueOf(line.getFirst().getCumulativeActual());
+        if (mLines!=null)
+            for (Line line : mLines)
+            {
+                float v1=0,v2=0,v3=0;
+                if (line.getFirst().getCumulativeActual()!=null &&!line.getFirst().getCumulativeActual().isEmpty() )
+                    v1 = Float.valueOf(line.getFirst().getCumulativeActual());
 
 
-            if (line.getSecond().getCumulativeActual()!=null &&!line.getSecond().getCumulativeActual().isEmpty() )
-                v2= Float.valueOf(line.getSecond().getCumulativeActual());
+                if (line.getSecond().getCumulativeActual()!=null &&!line.getSecond().getCumulativeActual().isEmpty() )
+                    v2= Float.valueOf(line.getSecond().getCumulativeActual());
 
 
-            if (line.getThird().getCumulativeActual()!=null &&!line.getThird().getCumulativeActual().isEmpty() )
-                v3 = Float.valueOf(line.getThird().getCumulativeActual());
+                if (line.getThird().getCumulativeActual()!=null &&!line.getThird().getCumulativeActual().isEmpty() )
+                    v3 = Float.valueOf(line.getThird().getCumulativeActual());
 
 
-            lineBar.add(new BarEntry(i,v1+v2+v3));
-            actual1.add(new BarEntry(i, v1));
-            actual2.add(new BarEntry(i, v2));
-            actual3.add(new BarEntry(i, v3));
-            i++;
-        }
+                lineBar.add(new BarEntry(i,v1+v2+v3));
+                actual1.add(new BarEntry(i, v1));
+                actual2.add(new BarEntry(i, v2));
+                actual3.add(new BarEntry(i, v3));
+                i++;
+            }
     }
 
     public void setLeak(){

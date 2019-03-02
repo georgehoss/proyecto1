@@ -391,6 +391,36 @@ public class DailyPresenter implements DailyContract.Presenter {
     }
 
     @Override
+    public int reportHour(ArrayList<WorkHour> workHours,int turn) {
+
+        int low;
+        int high;
+
+        if (turn==1) {
+            low =0;
+            high =7;
+        }
+        else
+        if (turn==2) {
+            low =8;
+            high =15;
+        }
+        else
+            {
+                low =16;
+                high =23;
+            }
+
+            for (int i = low; i <= high; i++)
+                if (i < workHours.size())
+                    if ((workHours.get(i).getActuals() == null || workHours.get(i).getActuals().isEmpty()) && !workHours.get(i).isClosed())
+                        return i;
+
+
+        return 24;
+    }
+
+    @Override
     public void showCount(Line line) {
         if (!line.getFirst().isClosed())
         {

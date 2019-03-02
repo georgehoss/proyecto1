@@ -126,6 +126,7 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         else
             dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
 
+        dbLines.keepSynced(false);
 
         if (mPresenter==null)
             mPresenter = new ConfigLinePresenter(this);
@@ -146,8 +147,11 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         else
             finish();
         dbEmailList = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(EmailList.DB);
+        dbEmailList.keepSynced(false);
         dbDowntime = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Downtime.DB_DOWNTIMES);
+        dbDowntime.keepSynced(false);
         dbProducts =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Product.DB);
+        dbProducts.keepSynced(false);
         getDowntimeLists();
         getEmailLists();
         getProducts();

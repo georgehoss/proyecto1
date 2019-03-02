@@ -140,7 +140,9 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         View view = inflater.inflate(R.layout.fragment_hourly, container, false);
         ButterKnife.bind(this,view);
         dbPLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_PRODUCTION_LINE);
+        dbPLines.keepSynced(false);
         dbLine =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
+        dbLine.keepSynced(false);
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ProductionLineAdapter(mLines,this);

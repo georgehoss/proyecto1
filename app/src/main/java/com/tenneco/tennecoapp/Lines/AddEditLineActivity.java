@@ -232,8 +232,13 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         else
             dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
 
+        dbLines.keepSynced(false);
+
         dbEmployees = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
+        dbEmployees.keepSynced(false);
         dbEmails = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Email.DB);
+        dbEmails.keepSynced(false);
+
         if (mPresenter == null)
             mPresenter = new AddLinePresenter(this);
         else

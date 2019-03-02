@@ -70,6 +70,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         View view = inflater.inflate(R.layout.fragment_configuration, container, false);
         ButterKnife.bind(this,view);
         dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
+        dbLines.keepSynced(false);
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new LineAdapter(mLines,this,false);

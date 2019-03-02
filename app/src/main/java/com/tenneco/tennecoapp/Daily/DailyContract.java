@@ -85,6 +85,7 @@ public interface DailyContract {
         boolean validateReason(ReasonDelay reasonDelay, String actual, String target);
         boolean validateReasonSelection(String actual,String target,String reason, String detail);
         int reportHour(ArrayList<WorkHour>workHours);
+        int reportHour(ArrayList<WorkHour>workHours,int turn);
         void showCount(Line line);
         void incrementCount(Line line);
         void setDowntime(Line line,Downtime downtime);
