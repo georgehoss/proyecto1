@@ -80,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:hint="@string/introduce_plant_name"
-                    android:inputType="textEmailAddress"
+                    android:inputType="textPersonName"
                     android:background="@drawable/background_rectangle"
                     android:padding="10dp"
                     android:textColor="@color/colorPrimary"

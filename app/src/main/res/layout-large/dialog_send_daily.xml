@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+   <ScrollView
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="vertical"
+           >
+
+           <RelativeLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:background="@color/colorPrimary"
+               android:orientation="horizontal"
+               >
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:gravity="center"
+                   android:textColor="@color/colorWhite"
+                   android:text="Select Email Lists"
+                   android:textSize="24sp"
+                   android:textStyle="bold"
+                   android:padding="10dp"
+                   android:id="@+id/tv_title"
+                   />
+
+           </RelativeLayout>
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_margin="10dp"
+               android:orientation="horizontal"
+               android:background="@drawable/background_rectangle"
+               android:padding="5dp"
+               android:layout_marginStart="5dp"
+               >
+               <Spinner
+                   android:id="@+id/sp_shift_1"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:spinnerMode="dropdown" />
+           </LinearLayout>
+
+           <ImageView
+               android:layout_width="220dp"
+               android:layout_height="240dp"
+               android:layout_gravity="center"
+               android:id="@+id/iv_preview"
+               />
+
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:orientation="horizontal"
+               android:layout_marginTop="10dp"
+               >
+               <Button
+                   android:layout_width="0dp"
+                   android:layout_height="wrap_content"
+                   android:layout_weight="1"
+                   android:padding="5dp"
+                   android:text="@string/cancel"
+                   android:id="@+id/bt_cancel"
+                   android:theme="@style/AppTheme.Button"
+                   android:textSize="20sp"
+                   />
+
+               <Button
+                   android:layout_width="0dp"
+                   android:layout_height="wrap_content"
+                   android:layout_weight="1"
+                   android:padding="5dp"
+                   android:text="@string/send_email"
+                   android:id="@+id/bt_save"
+                   android:textSize="20sp"
+                   style="@style/Widget.AppCompat.Button.Colored"
+                   />
+
+
+           </LinearLayout>
+
+       </LinearLayout>
+
+
+   </ScrollView>
+
+
+</android.support.v7.widget.CardView>

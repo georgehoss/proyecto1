@@ -159,10 +159,8 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.bind(this,view);
         dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_USER);
-        dbUsers.keepSynced(false);
         if (StorageUtils.getPlantId(getContext())!=null)
-        dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
-        dbLines.keepSynced(false);
+        dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(getContext()));
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new LineAdapter(mLines,this,false);

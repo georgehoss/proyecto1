@@ -22,23 +22,15 @@
                <TextView
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
-                   android:text="@string/add_downtime"
                    android:gravity="center"
                    android:textColor="@color/colorWhite"
-                   android:textSize="22sp"
+                   android:text="Select Emails Lists"
+                   android:textSize="24sp"
                    android:textStyle="bold"
                    android:padding="10dp"
-                   android:id="@+id/tv_downtime"
+                   android:id="@+id/tv_title"
                    />
-               <ImageView
-                   android:layout_width="25dp"
-                   android:layout_height="25dp"
-                   android:layout_gravity="center"
-                   android:layout_margin="10dp"
-                   android:layout_alignParentEnd="true"
-                   android:background="@drawable/delete_icon"
-                   android:id="@+id/bt_close"
-                   />
+
            </RelativeLayout>
 
            <LinearLayout
@@ -51,10 +43,10 @@
                    android:layout_width="0dp"
                    android:layout_weight="1"
                    android:layout_height="wrap_content"
-                   android:text="@string/downtime_zone"
+                   android:text="@string/add_1st_shift"
                    android:gravity="center"
                    android:textStyle="bold"
-                   android:textSize="20sp"
+                   android:textSize="24sp"
                    android:textColor="@color/colorPrimaryDark"
                    android:padding="5dp"
                    android:layout_marginStart="5dp"
@@ -71,7 +63,7 @@
                    >
 
                    <Spinner
-                       android:id="@+id/sp_zone"
+                       android:id="@+id/sp_shift_1"
                        android:layout_width="match_parent"
                        android:layout_height="wrap_content"
                        android:spinnerMode="dropdown" />
@@ -87,10 +79,10 @@
                    android:layout_width="0dp"
                    android:layout_weight="1"
                    android:layout_height="wrap_content"
-                   android:text="@string/downtime_location"
+                   android:text="@string/add_2nd_shift"
                    android:gravity="center"
                    android:textStyle="bold"
-                   android:textSize="20sp"
+                   android:textSize="24sp"
                    android:textColor="@color/colorPrimaryDark"
                    android:padding="5dp"
                    android:layout_marginStart="5dp"
@@ -107,7 +99,7 @@
                    >
 
                    <Spinner
-                       android:id="@+id/sp_location"
+                       android:id="@+id/sp_shift_2"
                        android:layout_width="match_parent"
                        android:layout_height="wrap_content"
                        android:spinnerMode="dropdown" />
@@ -123,10 +115,10 @@
                    android:layout_width="0dp"
                    android:layout_weight="1"
                    android:layout_height="wrap_content"
-                   android:text="@string/downtime_reason"
+                   android:text="@string/add_3rd_shift"
                    android:gravity="center"
                    android:textStyle="bold"
-                   android:textSize="20sp"
+                   android:textSize="24sp"
                    android:textColor="@color/colorPrimaryDark"
                    android:padding="5dp"
                    android:layout_marginStart="5dp"
@@ -143,7 +135,7 @@
                    >
 
                    <Spinner
-                       android:id="@+id/sp_reason"
+                       android:id="@+id/sp_shift_3"
                        android:layout_width="match_parent"
                        android:layout_height="wrap_content"
                        android:spinnerMode="dropdown" />
@@ -155,149 +147,33 @@
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:orientation="horizontal"
-               android:layout_marginTop="5dp"
-               >
-
-               <TextView
-                   android:layout_width="0dp"
-                   android:layout_weight="0.5"
-                   android:layout_height="wrap_content"
-                   />
-
-               <TextView
-                   android:layout_width="0dp"
-                   android:layout_weight="1"
-                   android:layout_height="wrap_content"
-                   android:text="Start Time:"
-                   android:layout_marginStart="5dp"
-                   />
-           </LinearLayout>
-
-           <LinearLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginStart="10dp"
-               android:layout_marginEnd="10dp"
-               android:layout_marginBottom="10dp"
-               android:gravity="center"
+               android:layout_marginTop="10dp"
                >
                <Button
                    android:layout_width="0dp"
-                   android:layout_weight="0.5"
                    android:layout_height="wrap_content"
-                   style="@style/AppTheme.Button"
-                   android:text="Start"
-                   android:gravity="center"
-                   android:layout_gravity="center"
-                   android:id="@+id/bt_start"
-                   />
-
-               <EditText
-                   android:layout_width="0dp"
                    android:layout_weight="1"
-                   android:layout_height="wrap_content"
                    android:padding="5dp"
-                   android:background="@drawable/background_rectangle"
+                   android:text="@string/cancel"
+                   android:id="@+id/bt_cancel"
+                   android:theme="@style/AppTheme.Button"
                    android:textSize="20sp"
-                   android:gravity="center"
-                   android:textColor="@color/colorPrimaryDark"
-                   android:layout_margin="5dp"
-                   android:id="@+id/et_start"
-                   android:inputType="time"
                    />
 
-           </LinearLayout>
-           <LinearLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:orientation="horizontal"
-               android:layout_marginTop="5dp"
-               >
-
-               <TextView
-                   android:layout_width="0dp"
-                   android:layout_weight="0.5"
-                   android:layout_height="wrap_content"
-                   />
-
-               <TextView
-                   android:layout_width="0dp"
-                   android:layout_weight="1"
-                   android:layout_height="wrap_content"
-                   android:text="@string/downtime_end_time"
-                   android:layout_marginStart="5dp"
-                   />
-           </LinearLayout>
-
-           <LinearLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginStart="10dp"
-               android:layout_marginEnd="10dp"
-               android:layout_marginBottom="10dp"
-               android:gravity="center"
-               >
                <Button
                    android:layout_width="0dp"
-                   android:layout_weight="0.5"
                    android:layout_height="wrap_content"
-                   style="@style/AppTheme.Button"
-                   android:text="End"
-                   android:gravity="center"
-                   android:layout_gravity="center"
-                   android:id="@+id/bt_end"
+                   android:layout_weight="1"
+                   android:padding="5dp"
+                   android:text="@string/save"
+                   android:id="@+id/bt_save"
+                   android:textSize="20sp"
+                   style="@style/Widget.AppCompat.Button.Colored"
                    />
 
-               <EditText
-                   android:layout_width="0dp"
-                   android:layout_weight="1"
-                   android:layout_height="wrap_content"
-                   android:padding="5dp"
-                   android:background="@drawable/background_rectangle"
-                   android:textSize="20sp"
-                   android:gravity="center"
-                   android:textColor="@color/colorPrimaryDark"
-                   android:layout_margin="5dp"
-                   android:id="@+id/et_end"
-                   android:inputType="time"
-                   />
 
            </LinearLayout>
 
-         <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:orientation="horizontal"
-             android:gravity="center"
-             android:id="@+id/ll_total"
-             android:layout_margin="10dp"
-             >
-             <TextView
-                 android:layout_width="0dp"
-                 android:layout_weight="1"
-                 android:layout_height="wrap_content"
-                 android:text="Total"
-                 android:gravity="center"
-                 android:textStyle="bold"
-                 android:textSize="20sp"
-                 android:textColor="@color/colorPrimaryDark"
-                 android:padding="5dp"
-                 android:layout_marginStart="5dp"
-                 android:layout_marginEnd="5dp"
-                 />
-             <TextView
-                 android:layout_width="0dp"
-                 android:layout_weight="2"
-                 android:layout_height="wrap_content"
-                 android:padding="5dp"
-                 android:background="@drawable/background_rectangle"
-                 android:textSize="20sp"
-                 android:gravity="center"
-                 android:textColor="@color/colorPrimaryDark"
-                 android:id="@+id/tv_total"
-                 android:textIsSelectable="true"
-                 />
-         </LinearLayout>
        </LinearLayout>
 
 

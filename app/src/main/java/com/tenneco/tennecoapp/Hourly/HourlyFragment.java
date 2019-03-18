@@ -26,11 +26,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.ProductionLineAdapter;
 import com.tenneco.tennecoapp.Daily.DailyActivity;
 import com.tenneco.tennecoapp.Graphics.GraphicActivity;
-import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Lines.ConfigLineActivity;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
-import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Utils.StorageUtils;
 import com.tenneco.tennecoapp.Utils.Utils;
@@ -45,6 +43,7 @@ import butterknife.OnClick;
 public class HourlyFragment extends Fragment implements HourlyContract.View,ProductionLineAdapter.ItemInteraction {
     private MainActivity main;
     private DatabaseReference dbPLines;
+    private DatabaseReference dbTPLines;
     private DatabaseReference dbLine;
     private ProductionLineAdapter mAdapter;
     private ArrayList<Line> mLines;
@@ -53,12 +52,35 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     private Line mLine;
     private int admin=0;
     private Query postsQuery;
+    private ValueEventListener valueEventListener1 = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+            Line line = dataSnapshot.getValue(Line.class);
+            if (line!=null) {
+                dbTPLines =  FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(getContext())).child(line.getParentId());
+                dbTPLines.child(line.getId()).setValue(line);
+                mLines = new ArrayList<>();
+                mLines.add(line);
+                mAdapter.setLines(mLines);
+                mAdapter.notifyDataSetChanged();
+                hideProgressBar();
+            }
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             ArrayList<Line> lines = new ArrayList<>();
-            boolean today = false;
+            boolean today = false, tomorrow = false;
             String date = Utils.getDateString();
+            String t0morrow = Utils.getTomorrowDateString();
 
 
             for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
@@ -66,10 +88,20 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
                 Line line = itemSnapshot.getValue(Line.class);
                 if (line!=null) {
                     lines.add(line);
-                    if (line.getDate().equals(date))
+
+                    if (line.getDate()!=null&& line.getDate().equals(date))
                         today=true;
+
+                    if (line.getDate()!=null&& line.getDate().equals(t0morrow))
+                        tomorrow=true;
+
+
                 }
             }
+
+
+
+
 
             mLines = new ArrayList<>();
             for (int size = lines.size()-1; size>=0 ; size--)
@@ -79,9 +111,22 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
                 showFb();
             else
                 hideFb();
+
+            if(!tomorrow && Utils.compareTime(Utils.getTimeString(),"10:00:00 PM"))
+                showTw();
+            else
+                hideTw();
+
             mAdapter.setLines(mLines);
             mAdapter.notifyDataSetChanged();
             hideProgressBar();
+            for (Line line : mLines){
+                if (getContext()!=null) {
+                    dbTPLines = FirebaseDatabase.getInstance().getReference(Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(getContext())).child(Utils.getYear(line.getDate()))
+                            .child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+                    dbTPLines.child(line.getId()).setValue(line.getId());
+                }
+            }
         }
 
         @Override
@@ -92,6 +137,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
     @BindView(R.id.pb_loading) ProgressBar mPbLoading;
     @BindView(R.id.fb_add) FloatingActionButton mFbAdd;
+    @BindView(R.id.fb_tomorrow) FloatingActionButton mFbTAdd;
     @BindView(R.id.tv_name) TextView mTvName;
     @BindView(R.id.tv_shift1) TextView mTvFirstShift;
     @BindView(R.id.tv_shift2) TextView mTvSecondShift;
@@ -102,6 +148,11 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
 
     @OnClick(R.id.fb_add) void onAdd(){
         addNewLine();
+        hideFb();
+    }
+
+    @OnClick(R.id.fb_tomorrow) void onAddTomorrow(){addTNewLine();
+    hideTw();
     }
 
     @OnClick(R.id.tv_name) void onTouch(){
@@ -139,10 +190,16 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_hourly, container, false);
         ButterKnife.bind(this,view);
-        dbPLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_PRODUCTION_LINE);
-        dbPLines.keepSynced(false);
-        dbLine =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
-        dbLine.keepSynced(false);
+        if (getArguments()!=null) {
+            lineId = getArguments().getString("id");
+            admin  =getArguments().getInt("admin");
+        }
+        dbPLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(getContext())).child(lineId);
+        dbLine =  FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(getContext()));
+        //dbPLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(getContext()));
+        //dbPLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_PRODUCTION_LINE);
+        // dbTLine =  FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(getContext()));
+
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ProductionLineAdapter(mLines,this);
@@ -161,6 +218,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
             Intent intent = new Intent(main, ConfigLineActivity.class);
             intent.putExtra("cell", true);
             intent.putExtra("id", lineId);
+            intent.putExtra("parentId",mLine.getId());
             startActivity(intent);
         }
 
@@ -168,11 +226,17 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
 
     @Override
     public void getLines() {
+ /*
 
+postsQuery = dbPLines.child("-La-XOCsi3i2KHRys0oa");
+
+*/
         if (admin>1)
-            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(30);
+            postsQuery = dbPLines.limitToLast(10);
         else
-            postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(2);
+            postsQuery = dbPLines.limitToLast(2);
+
+
         postsQuery.addValueEventListener(valueEventListener);
     }
 
@@ -227,9 +291,24 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         line.setParentId(lineId);
         line.setPassword(mLine.getPassword());
         line.setProducts(mLine.getProducts());
-
         dbPLines.child(line.getId()).setValue(line);
+        dbTPLines = FirebaseDatabase.getInstance().getReference(Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(getContext())).child(Utils.getYear(line.getDate())).child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line.getId());
+    }
 
+    @Override
+    public void addTNewLine() {
+        Line line = new Line(mLine);
+        line.setId(dbPLines.push().getKey());
+        line.setCode(mLine.getCode());
+        line.setDescription(mLine.getDescription());
+        line.setDate(Utils.getTomorrowDateString());
+        line.setParentId(lineId);
+        line.setPassword(mLine.getPassword());
+        line.setProducts(mLine.getProducts());
+        dbPLines.child(line.getId()).setValue(line);
+        dbTPLines = FirebaseDatabase.getInstance().getReference(Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(getContext())).child(Utils.getYear(line.getDate())).child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line.getId());
     }
 
     @Override
@@ -251,6 +330,20 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     public void hideFb() {
         if (getContext()!=null)
             mFbAdd.setVisibility(View.GONE);
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    public void showTw() {
+        if (getContext()!=null)
+            mFbTAdd.setVisibility(View.VISIBLE);
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    public void hideTw() {
+        if (getContext()!=null)
+            mFbTAdd.setVisibility(View.GONE);
     }
 
     @Override
@@ -278,6 +371,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
     public void launchDaily(String lineId) {
         Intent intent = new Intent(main, DailyActivity.class);
         intent.putExtra("id",lineId);
+        intent.putExtra("parentId",mLine.getId());
         startActivity(intent);
     }
 

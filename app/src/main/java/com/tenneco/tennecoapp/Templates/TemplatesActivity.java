@@ -69,7 +69,7 @@ public class TemplatesActivity extends AppCompatActivity implements TemplateCont
         TabLayout tabLayout = findViewById(R.id.tabs);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-        dbTemplates = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Template.DB_TEMPLATE);
+        dbTemplates = FirebaseDatabase.getInstance().getReference(Template.DB_TEMPLATE).child(StorageUtils.getPlantId(this));
 
         if (mPresenter==null)
             mPresenter= new TemplatePresenter(this,this);

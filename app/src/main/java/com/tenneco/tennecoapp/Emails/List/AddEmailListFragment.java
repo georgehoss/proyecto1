@@ -88,8 +88,8 @@ public class AddEmailListFragment extends Fragment implements AddEmailListContra
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_email_list, container, false);
         ButterKnife.bind(this,view);
-        dbEmailList = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(EmailList.DB);
-        dbEmails = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Email.DB);
+        dbEmailList = FirebaseDatabase.getInstance().getReference(EmailList.DB).child(StorageUtils.getPlantId(getContext()));
+        dbEmails = FirebaseDatabase.getInstance().getReference(Email.DB).child(StorageUtils.getPlantId(getContext()));
         return view;
     }
 

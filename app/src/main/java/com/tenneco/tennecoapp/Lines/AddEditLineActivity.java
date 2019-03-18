@@ -67,6 +67,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     private static final int DOWNTIME = 0;
     private static final int EVENT = 1;
     private DatabaseReference dbLines;
+    private DatabaseReference dbNLines;
     private DatabaseReference dbEmployees;
     private DatabaseReference dbEmails;
     private AddLineContract.Presenter mPresenter;
@@ -227,17 +228,19 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_line);
         ButterKnife.bind(this);
-        if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell"))
-            dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
-        else
-            dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
+        if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell")) {
+           // dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
+            dbNLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(this));
+        }
+        else {
+            //dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
+            dbNLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(this));
+        }
 
-        dbLines.keepSynced(false);
+        //dbLines.keepSynced(false);
 
         dbEmployees = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
-        dbEmployees.keepSynced(false);
         dbEmails = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Email.DB);
-        dbEmails.keepSynced(false);
 
         if (mPresenter == null)
             mPresenter = new AddLinePresenter(this);
@@ -471,7 +474,7 @@ public class AddEditLineActivity extends AppCompatActivity implements AddLineCon
     @Override
     public void saveLine(Line line) {
         progressDialog.show();
-        dbLines.child(line.getId()).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
+        dbNLines.child(line.getId()).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 finish();

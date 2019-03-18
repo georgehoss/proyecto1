@@ -31,6 +31,7 @@ import butterknife.ButterKnife;
 public class AddEditPlantActivity extends AppCompatActivity implements AddEditPlantContract.View {
     private AddEditPlantContract.Presenter mPresenter;
     private DatabaseReference dbPlants;
+    private DatabaseReference dbListPlants;
     private String id;
     private ProgressDialog progressDialog;
     private boolean deletable = false;
@@ -64,8 +65,7 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_plant);
         ButterKnife.bind(this);
-        dbPlants = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS);
-        dbPlants.keepSynced(false);
+        dbPlants = FirebaseDatabase.getInstance().getReference(Plant.DB_LIST_PLANTS);
         if (getIntent().getExtras()!=null && getIntent().getExtras().getString("id")!=null)
         {
             id = getIntent().getExtras().getString("id");
@@ -98,7 +98,7 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
         super.onPause();
         if (progressDialog!=null && progressDialog.isShowing())
             progressDialog.hide();
-        postsQuery.removeEventListener(valueEventListener);
+//        postsQuery.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -258,6 +258,7 @@ public class AddEditPlantActivity extends AppCompatActivity implements AddEditPl
     @Override
     public void savePlant(Plant plant) {
         progressDialog.show();
+
         dbPlants.child(plant.getId()).child("id").setValue(plant.getId());
         dbPlants.child(plant.getId()).child("name").setValue(plant.getName());
         dbPlants.child(plant.getId()).child("psw").setValue(plant.getPsw());

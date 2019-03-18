@@ -86,8 +86,7 @@ public class EmployeeFragment extends Fragment implements EmployeeContract.View,
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_employee, container, false);
         ButterKnife.bind(this,view);
-        dbEmployee = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Employee.DB);
-        dbEmployee.keepSynced(false);
+        dbEmployee = FirebaseDatabase.getInstance().getReference(Employee.DB).child(StorageUtils.getPlantId(getContext()));
         mEmployees = new ArrayList<>();
         mRvEmployee.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new EmployeeAdapter(mEmployees,this);

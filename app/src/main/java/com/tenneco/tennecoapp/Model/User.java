@@ -12,6 +12,7 @@ public class User {
     private String name;
     private String email;
     private String phoneNumber;
+    private String pwd;
     private int type;
     private ArrayList<Line> productionLines;
     private boolean selected;
@@ -98,5 +99,13 @@ public class User {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
     }
 }

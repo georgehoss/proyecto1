@@ -90,8 +90,7 @@ public class ProductFragment extends Fragment implements ProductContract.View, P
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_product, container, false);
         ButterKnife.bind(this,view);
-        dbProducts =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Product.DB);
-        dbProducts.keepSynced(false);
+        dbProducts =  FirebaseDatabase.getInstance().getReference(Product.DB).child(StorageUtils.getPlantId(getContext()));
         mProducts = new ArrayList<>();
         mRvProducts.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ProductAdapter(mProducts,this);

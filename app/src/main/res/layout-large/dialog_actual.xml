@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorWhite"
                     android:id="@+id/tv_name"
-                    android:textSize="20sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
                     android:gravity="center"
                     android:padding="5dp"
@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorWhite"
                     android:id="@+id/tv_shift"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:gravity="center"
                     android:padding="5dp"
                     android:layout_margin="10dp"
@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorWhite"
                     android:id="@+id/tv_date"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:gravity="center"
                     android:padding="5dp"
                     />
@@ -71,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorWhite"
                     android:id="@+id/tv_time"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:gravity="center"
                     android:padding="5dp"
                     />
@@ -80,7 +80,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorWhite"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/target"
@@ -92,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorWhite"
                     android:id="@+id/tv_target"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:gravity="center"
                     android:padding="5dp"
                     android:textStyle="bold"
@@ -123,7 +123,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimaryDark"
                     android:gravity="center"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:id="@+id/tv_target_label"
                     />
                 <EditText
@@ -141,7 +141,7 @@
                     android:background="@drawable/background_rectangle"
                     android:textColor="@color/colorBlueLine"
                     android:textStyle="bold"
-                    android:textSize="20sp"
+                    android:textSize="24sp"
                     />
             </LinearLayout>
             <LinearLayout
@@ -158,7 +158,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimaryDark"
                     android:gravity="center"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:id="@+id/tv_ftq_label"
                     />
                 <EditText
@@ -176,7 +176,7 @@
                     android:background="@drawable/background_rectangle"
                     android:textColor="@color/colorBlueLine"
                     android:textStyle="bold"
-                    android:textSize="20sp"
+                    android:textSize="24sp"
                     />
             </LinearLayout>
 
@@ -244,7 +244,25 @@
                 />
         </LinearLayout>
 
-
+        <EditText
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/et_psw"
+            android:visibility="gone"
+            android:padding="5dp"
+            android:textSize="24sp"
+            android:hint="@string/password"
+            android:textColorHint="@color/colorHint"
+            android:textColor="@color/colorBlueLine"
+            android:textStyle="bold"
+            android:layout_marginStart="13dp"
+            android:layout_marginEnd="13dp"
+            android:background="@drawable/background_rectangle"
+            android:inputType="textPassword"
+            android:scrollHorizontally="false"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"

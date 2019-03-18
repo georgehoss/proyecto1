@@ -53,7 +53,6 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
             String name = "";
 
             if (line.getCode()!=null)
-
                 name = line.getCode();
             else {
 
@@ -66,6 +65,7 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
 
             }
             holder.mTvName.setText(name);
+            holder.mTvNames.setText(line.getName());
             if (line.getProducts().size()>0) {
                 holder.mTvShift1.setText(line.getProducts().get(0).getFirst().getCumulativePlanned());
                 holder.mTvShift2.setText(line.getProducts().get(0).getSecond().getCumulativePlanned());
@@ -91,6 +91,7 @@ public class LineAdapter extends RecyclerView.Adapter<LineAdapter.LineViewHolder
     class LineViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_date) TextView mTvDate;
         @BindView(R.id.tv_name) TextView mTvName;
+        @BindView(R.id.tv_names) TextView mTvNames;
         @BindView(R.id.tv_shift1) TextView mTvShift1;
         @BindView(R.id.tv_shift2) TextView mTvShift2;
         @BindView(R.id.tv_shift3) TextView mTvShift3;

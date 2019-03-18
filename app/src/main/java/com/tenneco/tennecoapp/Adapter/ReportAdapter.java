@@ -76,7 +76,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.DailyViewH
             StringBuilder sb = new StringBuilder();
             if (line.getFirst().getPositions() != null && line.getFirst().getPositions().size() > 0) {
                 for (EmployeePosition pos : line.getFirst().getPositions())
-                    if (!pos.getOperator().equals("-Select Operator-"))
+                    if (pos.getOperator()!=null && !pos.getOperator().equals("-Select Operator-"))
                         sb.append(pos.getOperator()).append(" ");
 
                 sb.append("\n");
@@ -89,7 +89,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.DailyViewH
             }
             if (line.getThird().getPositions()!=null && line.getThird().getPositions().size()>0)
                 for (EmployeePosition pos : line.getThird().getPositions())
-                    if (!pos.getOperator().equals("-Select Operator-"))
+                    if (pos.getOperator()!=null && !pos.getOperator().equals("-Select Operator-"))
                     sb.append(pos.getOperator()).append(" ");
             if (!sb.toString().isEmpty())
                 holder.mTvOperators.setText(sb.toString());

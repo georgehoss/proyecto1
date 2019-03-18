@@ -103,14 +103,13 @@ public class GraphicActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphic);
         ButterKnife.bind(this);
-        dbPLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
-        dbPLines.keepSynced(false);
-        dbLine =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
-        dbLine.keepSynced(false);
         if (getIntent().getExtras()!= null)
             lineId = getIntent().getExtras().getString("lineId");
         else
             finish();
+        dbPLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(this)).child(lineId);
+        dbLine =  FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(this));
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading Lines, Please wait...");
         progressDialog.show();
@@ -139,8 +138,8 @@ public class GraphicActivity extends AppCompatActivity {
     public void getLines() {
 
 
-        postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
-        postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId).limitToLast(30);
+        //postsQuery = dbPLines.orderByChild("parentId").equalTo(lineId);
+        postsQuery = dbPLines.limitToLast(30);
         postsQuery.addValueEventListener(valueEventListener);
     }
 

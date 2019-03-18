@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.User;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -51,6 +52,7 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
     private ArrayList<User> mUsers;
     private UserAdapter mAdapter;
     private boolean leads = false;
+    private boolean gt= false;
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -103,11 +105,13 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         if (getArguments()!=null &&  getArguments().getString("db")!=null) {
             if (Objects.requireNonNull(getArguments().getString("db")).equals(User.DB_GROUP)) {
                 setTitle("Group Leads");
-                dbUsers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(User.DB_GROUP);
+                gt = true;
+                dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_GROUP).child(StorageUtils.getPlantId(getContext()));
             }
             else {
                 setTitle("Team Leads");
-                dbUsers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(User.DB_TEAM);
+                gt = true;
+                dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_TEAM).child(StorageUtils.getPlantId(getContext()));
             }
 
             showFloatingButton();
@@ -116,7 +120,6 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         else
             dbUsers = FirebaseDatabase.getInstance().getReference(User.DB_USER);
 
-        dbUsers.keepSynced(false);
         mUsers = new ArrayList<>();
         mRvUsers.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new UserAdapter(mUsers,this,getActivity());
@@ -140,6 +143,7 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         mPbLoading.setVisibility(View.GONE);
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void showFloatingButton() {
         mFbAdd.setVisibility(View.VISIBLE);
@@ -181,6 +185,14 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         spinner.setAdapter(adapter);
         if (user.getType()!=0)
         spinner.setSelection(user.getType()-1);
+        final EditText etPsw = view.findViewById(R.id.et_psw);
+        if (gt) {
+            view.findViewById(R.id.ll_psw).setVisibility(View.VISIBLE);
+            if (user.getPwd()!=null)
+            etPsw.setText(user.getPwd());
+        }
+
+
 
         switch (user.getType())
         {
@@ -219,6 +231,9 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
                 }
                 else
                 {
+
+                    if (gt)
+                        user.setPwd(etPsw.getText().toString());
                     user.setName(mEtName.getText().toString());
                     user.setEmail(mEtInfo.getText().toString());
                     user.setType(spinner.getSelectedItemPosition()+1);

@@ -10,6 +10,7 @@ import java.util.Comparator;
  */
 public class Plant {
     public static final String DB_PLANTS = "plants";
+    public static final String DB_LIST_PLANTS = "list_plants";
     private String name;
     private String id;
     private String code;

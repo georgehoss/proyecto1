@@ -25,86 +25,56 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/employee_icon"
+                    android:src="@drawable/employee_icon"
                     android:layout_gravity="center"
-                    android:id="@+id/iv_icon"
                     />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/add_name"
+                    android:text="@string/employee_a_full_name"
                     android:layout_marginStart="10dp"
+                    android:textSize="20sp"
                     />
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/email_introduce_contact_full_name"
+                    android:hint="@string/employee_full_name"
                     android:gravity="center"
                     android:id="@+id/et_name"
                     android:inputType="textPersonName"
                     android:textColor="@color/colorPrimary"
                     android:textStyle="bold"
-                    android:textSize="20sp"
+                    android:textSize="24sp"
                     android:padding="5dp"
                     android:background="@drawable/background_rectangle"
                     />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/email"
+                    android:text="@string/employee_information"
                     android:layout_marginStart="10dp"
+                    android:textSize="20sp"
                     />
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Introduce email"
+                    android:hint="@string/employee_introduce_some_information_here"
                     android:gravity="center"
                     android:id="@+id/et_info"
-                    android:inputType="textEmailAddress"
-                    android:textSize="20sp"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
+                    android:inputType="textCapSentences"
+                    android:textSize="24sp"
                     android:padding="5dp"
                     android:background="@drawable/background_rectangle"
                     />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:id="@+id/ll_psw"
-                    android:visibility="gone"
-                    >
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/password"
-                        android:layout_marginStart="10dp"
-                        />
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Introduce Password"
-                        android:gravity="center"
-                        android:id="@+id/et_psw"
-                        android:singleLine="true"
-                        android:maxLines="1"
-                        android:textSize="20sp"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textStyle="bold"
-                        android:padding="5dp"
-                        android:background="@drawable/background_rectangle"
-                        />
-                </LinearLayout>
 
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/type_of_user"
+                    android:text="Type:"
                     android:layout_marginTop="5dp"
-                    android:id="@+id/tv_type"
+                    android:textSize="20sp"
                     />
 
                 <LinearLayout
@@ -112,13 +82,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/background_rectangle"
-                    android:id="@+id/ll_spinner"
+                    android:padding="5dp"
                     >
 
                     <Spinner
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/sp_user"
+                        android:id="@+id/sp_employee"
                         />
                 </LinearLayout>
 
@@ -137,6 +107,7 @@
                         android:text="@string/cancel"
                         android:id="@+id/bt_cancel"
                         android:theme="@style/AppTheme.Button"
+                        android:textSize="20sp"
                         tools:ignore="ButtonStyle" />
 
                     <Button
@@ -145,6 +116,7 @@
                         android:layout_weight="1"
                         android:padding="5dp"
                         android:text="@string/save"
+                        android:textSize="20sp"
                         android:id="@+id/bt_save"
                         style="@style/Widget.AppCompat.Button.Colored"
                         />
@@ -154,9 +126,9 @@
 
             </LinearLayout>
 
+
+
         </ScrollView>
-
-
 
     </LinearLayout>
 

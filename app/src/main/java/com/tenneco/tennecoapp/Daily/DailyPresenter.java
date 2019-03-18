@@ -1045,17 +1045,17 @@ public class DailyPresenter implements DailyContract.Presenter {
     }
 
     @Override
-    public boolean validateUser(FirebaseUser user, ArrayList<User> team, ArrayList<User> group) {
+    public boolean validateUser(FirebaseUser user, ArrayList<User> team, ArrayList<User> group,String psw) {
         boolean validate = false;
 
         if (user!=null && user.getEmail()!=null) {
 
             for (User us : team)
-                if (user.getEmail().equals(us.getEmail()))
+                if (user.getEmail().equals(us.getEmail())&& psw.equals(us.getPwd()))
                     validate = true;
 
             for (User us : group)
-                if (user.getEmail().equals(us.getEmail()))
+                if (user.getEmail().equals(us.getEmail()) && psw.equals(us.getPwd()))
                     validate = true;
         }
 
@@ -1092,6 +1092,64 @@ public class DailyPresenter implements DailyContract.Presenter {
         if (cA3>0 && Integer.valueOf(line.getThird().getCumulativeFTQ())>=(0.10*cA3)&& !line.getThird().isClosed()) {
             mView.setLeakReached(3);
             mView.showFTQ(3);
+        }
+    }
+
+    @Override
+    public void setDowntimes(Line line) {
+
+
+        if (line.getDowntimes()!=null && line.getDowntimes().size()>0)
+        {
+            ArrayList<Downtime> s1 = new ArrayList<>();
+            ArrayList<Downtime> s2 = new ArrayList<>();
+            ArrayList<Downtime> s3 = new ArrayList<>();
+            int ls1=0;
+            int ls2=0;
+            int ls3=0;
+
+            for (Downtime dw : line.getDowntimes()) {
+                if (dw.getShift() == 1)
+                    s1.add(dw);
+                else if (dw.getShift() == 2)
+                    s2.add(dw);
+                else if (dw.getShift() == 3)
+                    s3.add(dw);
+            }
+
+            if (s1.size()>0)
+            {
+                for (Downtime dt : s1)
+                   ls1+= Utils.getTimeDiferenceMillis(dt.getStartTime(),dt.getEndTime());
+
+                    mView.setDtS1(Utils.durationDt(ls1));
+
+            }
+
+            if (s2.size()>0)
+            {
+                for (Downtime dt : s2)
+                    ls2+= Utils.getTimeDiferenceMillis(dt.getStartTime(),dt.getEndTime());
+
+                if (ls2>0)
+                {
+                    mView.setDtS2(Utils.durationDt(ls2));
+                }
+            }
+
+
+            if (s3.size()>0)
+            {
+                for (Downtime dt : s3)
+                    ls3+= Utils.getTimeDiferenceMillis(dt.getStartTime(),dt.getEndTime());
+
+                if (ls3>0)
+                {
+                    mView.setDtS3(Utils.durationDt(ls3));
+                }
+            }
+
+
         }
     }
 

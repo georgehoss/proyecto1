@@ -81,6 +81,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -95,7 +97,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DatabaseReference dbTeamLd;
     private DatabaseReference dbGroupLd;
     private DatabaseReference dbOperators;
-    private DatabaseReference dbNumbers;
+   // private DatabaseReference dbNumbers;
     private DatabaseReference dbReasons;
     private DatabaseReference dbTemplates;
     private Templates templates;
@@ -131,6 +133,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DailyAdapter mAdapter;
     private RejectEventAdapter mAdapterScr;
     private String lineId;
+    private String parentId;
     private ArrayList<WorkHour> mHours;
     private ProgressDialog progressDialog;
     private boolean isShowingLeak = false;
@@ -159,6 +162,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @BindView(R.id.tv_start_s1) TextView mTvStartS1;
     @BindView(R.id.tv_start_s2) TextView mTvStartS2;
     @BindView(R.id.tv_start_s3) TextView mTvStartS3;
+    @BindView(R.id.tv_dt_s1) TextView mTvDtS1;
+    @BindView(R.id.tv_dt_s2) TextView mTvDtS2;
+    @BindView(R.id.tv_dt_s3) TextView mTvDtS3;
     @BindView(R.id.tv_end_s1) TextView mTvEndS1;
     @BindView(R.id.tv_end_s2) TextView mTvEndS2;
     @BindView(R.id.tv_end_s3) TextView mTvEndS3;
@@ -240,8 +246,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @OnClick(R.id.bt_downtime) void down(){
-
-        showDowntimeDialog(mLine.getDowntime(),this);
+        if (turno!=0)
+            showDowntimeDialog(mLine.getDowntime(),this);
+        else
+            Toast.makeText(this, "You must start a shift first", Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.bt_event) void scrap(){
@@ -314,21 +322,21 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily);
         ButterKnife.bind(this);
-        dbLine = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
-        dbPLine= FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
-        dbPLine.keepSynced(false);
-        dbGroupLd = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(User.DB_GROUP);
-        dbGroupLd.keepSynced(false);
-        dbTeamLd = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(User.DB_TEAM);
-        dbTeamLd.keepSynced(false);
-        dbOperators = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Employee.DB);
-        dbOperators.keepSynced(false);
-        dbReasons= FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(ReasonDelay.DB_DELAY_REASONS);
-        dbReasons.keepSynced(false);
-        dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
-        dbNumbers.keepSynced(false);
-        dbTemplates = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Template.DB_TEMPLATE);
-        dbTemplates.keepSynced(false);
+
+        if (getIntent().getExtras()!=null && getIntent().getExtras().getString("parentId")!=null)
+            parentId = getIntent().getExtras().getString("parentId");
+        else
+            finish();
+
+        dbLine = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(this)).child(parentId);
+        dbPLine= FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(this));
+        dbGroupLd = FirebaseDatabase.getInstance().getReference(User.DB_GROUP).child(StorageUtils.getPlantId(this));
+        dbTeamLd = FirebaseDatabase.getInstance().getReference(User.DB_TEAM).child(StorageUtils.getPlantId(this));
+        dbOperators = FirebaseDatabase.getInstance().getReference(Employee.DB).child(StorageUtils.getPlantId(this));
+        dbReasons= FirebaseDatabase.getInstance().getReference(ReasonDelay.DB_DELAY_REASONS).child(StorageUtils.getPlantId(this));
+        //dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
+        //dbNumbers.keepSynced(false);
+        dbTemplates = FirebaseDatabase.getInstance().getReference(Template.DB_TEMPLATE).child(StorageUtils.getPlantId(this));
 
         if (mPresenter == null)
             mPresenter = new DailyPresenter(this);
@@ -348,6 +356,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         super.onStart();
         if (getIntent().getExtras()!=null && getIntent().getExtras().getString("id")!=null)
             lineId = getIntent().getExtras().getString("id");
+
         getLine();
         getGroup();
         getTeam();
@@ -443,6 +452,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mBtS3.setText(R.string.start_3rd_shift);
 
 
+            mPresenter.setDowntimes(mLine);
+
+
             if (mLine.getFirst().getTimeEnd() != null && !mTvEndS1.getText().toString().equals(mLine.getFirst().getTimeEnd()))
                 mTvEndS1.setText(mLine.getFirst().getTimeEnd());
 
@@ -511,7 +523,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             mPresenter.setGroup(mLine);
 
 
-            if (turno==1)
+            if (mLine.getTurno()==1)
             {
                 mLine.setDowntimeEmailList(mLine.getFirst().getDowntimeList());
                 mLine.setLineList(mLine.getFirst().getLineList());
@@ -522,7 +534,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 turno=1;
             }
             else
-            if (turno==2)
+            if (mLine.getTurno()==2)
             {
                 mLine.setDowntimeEmailList(mLine.getSecond().getDowntimeList());
                 mLine.setLineList(mLine.getSecond().getLineList());
@@ -533,7 +545,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 turno = 2;
             }
             else
-            if (turno==3)
+            if (mLine.getTurno()==3)
             {
                 mLine.setDowntimeEmailList(mLine.getThird().getDowntimeList());
                 mLine.setLineList(mLine.getThird().getLineList());
@@ -617,7 +629,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void getNumbers() {
-        dbNumbers.addListenerForSingleValueEvent(new ValueEventListener() {
+        /*dbNumbers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mSmsLists = new ArrayList<>();
@@ -636,6 +648,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
             }
         });
+        */
     }
 
     @Override
@@ -732,6 +745,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             mTvTarget.setText(workHour.getTarget());
             final EditText mEtActual = view.findViewById(R.id.et_actual);
             final EditText mEtFtq = view.findViewById(R.id.et_ftq);
+            mEtActual.requestFocus();
             if (workHour.getLeak()!=null)
                 mEtFtq.setText(workHour.getLeak());
             if (workHour.getActuals()!=null)
@@ -997,6 +1011,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             TextView mTvDate = view.findViewById(R.id.tv_date);
             mTvDate.setText(line.getDate());
             TextView mTvShift = view.findViewById(R.id.tv_shift);
+            final EditText mEtPsw = view.findViewById(R.id.et_psw);
+            mEtPsw.setVisibility(View.VISIBLE);
             final EditText mEtFtq = view.findViewById(R.id.et_ftq);
             if (workHour.getLeak()!=null) {
                 mEtFtq.setText(workHour.getLeak());
@@ -1036,8 +1052,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
             final FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
 
-            if (!mPresenter.validateUser(mUser,mTeam,mGroup))
-                mBtSave.setVisibility(View.GONE);
+
 
             mBtCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1049,14 +1064,24 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             mBtSave.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String owner = mUser.getEmail();
-                    //mPresenter.validateFQT(mLine);
-                    dialog.dismiss();
-                    if ( leak!=0 && leak>=(0.10*actual)) {
-                        setLeakReached(turno);
-                        showFTQ(turno);
+
+                    if (mEtPsw.getText().toString().length()>0) {
+                        if (mPresenter.validateUser(mUser, mTeam, mGroup, mEtPsw.getText().toString())) {
+
+                            String owner = mUser.getEmail();
+                            //mPresenter.validateFQT(mLine);
+                            dialog.dismiss();
+                            if (leak != 0 && leak >= (0.10 * actual)) {
+                                setLeakReached(turno);
+                                showFTQ(turno);
+                            }
+                            mPresenter.saveLine(mLine, mHours, position, workHour.getActuals(), workHour.getComments(), workHour.getReasonDelay(), owner, null);
+                        }
+                        else
+                            Toast.makeText(DailyActivity.this, "The password or the user are incorrect", Toast.LENGTH_SHORT).show();
                     }
-                    mPresenter.saveLine(mLine, mHours, position, workHour.getActuals(), workHour.getComments(),workHour.getReasonDelay(),owner,null);
+                    else
+                        mEtPsw.setError("Please introduce the password");
 
                 }
             });
@@ -1256,6 +1281,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                             if (finalStart && !mBtSave.getText().toString().equals("Save")) {
                                 finalShift.setTimeStart(Utils.getTimeString());
                                 turno = finalTempturn;
+                                line.setTurno(finalTempturn);
                             }
 
                             if (close && !finalStart)
@@ -1309,6 +1335,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void updateLine(Line line) {
+
         line.setTurno(turno);
         if (progressDialog!=null)
             progressDialog.show();
@@ -1331,6 +1358,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     progressDialog.hide();
             }
         });
+
+        DatabaseReference  dbTPLines = FirebaseDatabase.getInstance().getReference(Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(this)).child(Utils.getYear(line.getDate()))
+                .child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line);
     }
 
     @Override
@@ -1365,6 +1396,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         View view = inflater.inflate(R.layout.dialog_downtime, null);
         alertDialogBuilder.setView(view);
         alertDialogBuilder.setCancelable(false);
+        final TextView tvTotal = view.findViewById(R.id.tv_total);
+        LinearLayout llTotal = view.findViewById(R.id.ll_total);
         Spinner spZone = view.findViewById(R.id.sp_zone);
         final Spinner spLocation = view.findViewById(R.id.sp_location);
         Spinner spReason = view.findViewById(R.id.sp_reason);
@@ -1446,7 +1479,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             downtimeDialog = alertDialogBuilder.create();
             downtimeDialog.show();
         }
-        String time = Utils.getTimeString();
+        final String time = Utils.getTimeDateString();
+
+        final Timer T=new Timer();
+
         if (mLine.getDowntime().isSet())
         {
             spZone.setEnabled(false);
@@ -1454,6 +1490,31 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             spReason.setEnabled(false);
             mTvEnd.setText(time);
         }
+        else
+            llTotal.setVisibility(View.GONE);
+
+
+        T.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        String time = Utils.getTimeDateString();
+                        if (mLine.getDowntime().isSet()) {
+                            mTvEnd.setText(time);
+                            tvTotal.setText(Utils.getTimeDiference(time,mTvStart.getText().toString()));
+                        }
+                        else
+                            mTvStart.setText(time);
+
+
+                    }
+                });
+            }
+        }, 1000, 1000);
 
 
 
@@ -1461,15 +1522,32 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         if (downtime.getStartTime()!=null && downtime.isSet()) {
             mTvStart.setText(downtime.getStartTime());
             mTvStart.setEnabled(false);
+
+
         }
         else
             mTvStart.setText(time);
 
+        mTvEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mLine.getDowntime().isSet())
+                    T.cancel();
+            }
+        });
 
+        mTvStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mLine.getDowntime().isSet())
+                    T.cancel();
+            }
+        });
 
         btClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                T.cancel();
                 downtimeDialog.dismiss();
             }
         });
@@ -1477,6 +1555,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mBtStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                T.cancel();
 
                 if (mLine.getDowntime().getZone()<=0)
                     Toast.makeText(DailyActivity.this,"You must select a Zone",Toast.LENGTH_LONG).show();
@@ -1527,8 +1607,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 "\nReason: " + mLine.getDowntime().getReasonValue() +  "\n\n" + templates.getDowntimeStart().getBody2();
 
                     }
-
-                    sendEmail(mPresenter.getEmails(mLine.getDowntimeEmailList().getEmails(),mLine),mPresenter.getCC(mLine.getDowntimeEmailList().getEmails(),mLine),subject,body,0);
+                    if (mLine.getDowntimeEmailList()!=null)
+                        sendEmail(mPresenter.getEmails(mLine.getDowntimeEmailList().getEmails(),mLine),mPresenter.getCC(mLine.getDowntimeEmailList().getEmails(),mLine),subject,body,0);
                 }
             }
         });
@@ -1537,6 +1617,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         mBtEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                T.cancel();
                 if (mLine.getDowntime().isSet()){
 
                     String time = mTvEnd.getText().toString();
@@ -1568,8 +1649,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 "\n\n" + templates.getDowntimeEnd().getBody2();
 
                     }
-
-                    sendEmail(mPresenter.getEmails(mLine.getDowntimeEmailList().getEmails(),mLine),mPresenter.getCC(mLine.getDowntimeEmailList().getEmails(),mLine),subject,body,0);
+                    if (mLine.getDowntimeEmailList()!=null)
+                        sendEmail(mPresenter.getEmails(mLine.getDowntimeEmailList().getEmails(),mLine),mPresenter.getCC(mLine.getDowntimeEmailList().getEmails(),mLine),subject,body,0);
 
                 }
                 else
@@ -1985,6 +2066,21 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @Override
     public void hideTeam() {
         mLlTls.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setDtS1(String time) {
+        mTvDtS1.setText(time);
+    }
+
+    @Override
+    public void setDtS2(String time) {
+        mTvDtS2.setText(time);
+    }
+
+    @Override
+    public void setDtS3(String time) {
+        mTvDtS3.setText(time);
     }
 
     @Override

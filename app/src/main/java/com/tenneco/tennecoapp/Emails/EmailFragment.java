@@ -84,8 +84,7 @@ public class EmailFragment extends Fragment implements EmailContract.View, Email
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_email, container, false);
         ButterKnife.bind(this,view);
-        dbEmails = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Email.DB);
-        dbEmails.keepSynced(false);
+        dbEmails = FirebaseDatabase.getInstance().getReference(Email.DB).child(StorageUtils.getPlantId(getContext()));
         mEmails = new ArrayList<>();
         mRvEmails.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new EmailAdapter(mEmails,this);

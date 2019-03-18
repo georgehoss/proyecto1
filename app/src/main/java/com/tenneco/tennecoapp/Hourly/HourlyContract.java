@@ -11,9 +11,12 @@ public interface HourlyContract {
         void getLines();
         void getLine();
         void addNewLine();
+        void addTNewLine();
         void hideProgressBar();
         void showFb();
         void hideFb();
+        void showTw();
+        void hideTw();
         void setLine();
         void hideShifts();
         void showShifts();

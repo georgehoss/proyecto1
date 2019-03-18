@@ -90,7 +90,7 @@ public class EmailListFragment extends Fragment implements EmailListAdapter.OnIt
                              Bundle savedInstanceState) {
        View view = inflater.inflate(R.layout.fragment_email_list, container, false);
         ButterKnife.bind(this,view);
-        dbEmailList = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(EmailList.DB);
+        dbEmailList =FirebaseDatabase.getInstance().getReference(EmailList.DB).child(StorageUtils.getPlantId(getContext()));
         return view;
     }
 

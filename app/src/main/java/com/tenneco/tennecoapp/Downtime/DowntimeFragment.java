@@ -87,7 +87,6 @@ public class DowntimeFragment extends Fragment implements DowntimeListAdapter.On
         View view = inflater.inflate(R.layout.fragment_downtime, container, false);
         ButterKnife.bind(this,view);
         dbDowntime = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Downtime.DB_DOWNTIMES);
-        dbDowntime.keepSynced(false);
         return view;
     }
 

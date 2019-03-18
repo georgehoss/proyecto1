@@ -99,6 +99,7 @@
             android:id="@+id/tv_sms"
             android:text="SMS"
             android:background="@drawable/bt_rounded"
+            android:visibility="gone"
             android:layout_margin="5dp"
             />
 

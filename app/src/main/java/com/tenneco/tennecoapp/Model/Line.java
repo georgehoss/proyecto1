@@ -12,6 +12,8 @@ import java.util.Comparator;
 public class Line {
     public static final String DB_LINE = "line";
     public static final String DB_PRODUCTION_LINE = "production_line";
+    public static final String DB_DATE_P_LINE = "production_line_by_date";
+    public static final String AVAILABLE_DATES = "available_dates";
     private String name;
     private String code;
     private String description;
@@ -324,4 +326,6 @@ public class Line {
     public void setTurno(int turno) {
         this.turno = turno;
     }
+
+
 }

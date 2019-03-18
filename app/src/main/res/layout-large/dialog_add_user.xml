@@ -34,6 +34,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/add_name"
+                    android:textSize="20sp"
                     android:layout_marginStart="10dp"
                     />
                 <EditText
@@ -45,7 +46,7 @@
                     android:inputType="textPersonName"
                     android:textColor="@color/colorPrimary"
                     android:textStyle="bold"
-                    android:textSize="20sp"
+                    android:textSize="24sp"
                     android:padding="5dp"
                     android:background="@drawable/background_rectangle"
                     />
@@ -54,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/email"
                     android:layout_marginStart="10dp"
+                    android:textSize="20sp"
                     />
                 <EditText
                     android:layout_width="match_parent"
@@ -62,41 +64,12 @@
                     android:gravity="center"
                     android:id="@+id/et_info"
                     android:inputType="textEmailAddress"
-                    android:textSize="20sp"
+                    android:textSize="24sp"
                     android:textColor="@color/colorPrimaryDark"
                     android:textStyle="bold"
                     android:padding="5dp"
                     android:background="@drawable/background_rectangle"
                     />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:id="@+id/ll_psw"
-                    android:visibility="gone"
-                    >
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/password"
-                        android:layout_marginStart="10dp"
-                        />
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Introduce Password"
-                        android:gravity="center"
-                        android:id="@+id/et_psw"
-                        android:singleLine="true"
-                        android:maxLines="1"
-                        android:textSize="20sp"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textStyle="bold"
-                        android:padding="5dp"
-                        android:background="@drawable/background_rectangle"
-                        />
-                </LinearLayout>
 
 
                 <TextView
@@ -104,6 +77,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/type_of_user"
                     android:layout_marginTop="5dp"
+                    android:textSize="20sp"
                     android:id="@+id/tv_type"
                     />
 
@@ -111,6 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
+                    android:padding="5dp"
                     android:background="@drawable/background_rectangle"
                     android:id="@+id/ll_spinner"
                     >
@@ -134,6 +109,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="5dp"
+                        android:textSize="20sp"
                         android:text="@string/cancel"
                         android:id="@+id/bt_cancel"
                         android:theme="@style/AppTheme.Button"
@@ -145,6 +121,7 @@
                         android:layout_weight="1"
                         android:padding="5dp"
                         android:text="@string/save"
+                        android:textSize="20sp"
                         android:id="@+id/bt_save"
                         style="@style/Widget.AppCompat.Button.Colored"
                         />

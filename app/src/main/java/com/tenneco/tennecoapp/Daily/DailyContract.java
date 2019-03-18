@@ -50,6 +50,9 @@ public interface DailyContract {
         void showUserDialog(ArrayList<User> users,Context context,int position,int shiftt);
         void showTeam();
         void hideTeam();
+        void setDtS1(String time);
+        void setDtS2(String time);
+        void setDtS3(String time);
         void setTeam1(String title);
         void setTeam2(String title);
         void setTeam3(String title);
@@ -103,7 +106,8 @@ public interface DailyContract {
         String shiftInformation(Line line,int position);
         void createCVS(Context context,Line line) throws IOException;
         void createCSVShift(Context context, Line line, int shift, Shift actualShift);
-        boolean validateUser(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group);
+        boolean validateUser(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group, String psw);
         void validateFQT(Line line);
+        void setDowntimes(Line line);
     }
 }

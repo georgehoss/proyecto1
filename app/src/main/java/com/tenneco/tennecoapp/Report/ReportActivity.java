@@ -45,6 +45,7 @@ import com.tenneco.tennecoapp.Model.Template;
 import com.tenneco.tennecoapp.Model.Templates;
 import com.tenneco.tennecoapp.R;
 import com.tenneco.tennecoapp.Utils.StorageUtils;
+import com.tenneco.tennecoapp.Utils.Utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -123,9 +124,9 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
         ButterKnife.bind(this);
         setGestureDetector();
         initAdapter();
-        dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
-        dbEmailList = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(EmailList.DB);
-        dbTemplates = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Template.DB_TEMPLATE);
+        dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(this));
+        dbEmailList = FirebaseDatabase.getInstance().getReference(EmailList.DB).child(StorageUtils.getPlantId(this));
+        dbTemplates = FirebaseDatabase.getInstance().getReference(Template.DB_TEMPLATE).child(StorageUtils.getPlantId(this));
         showDatePickerDialog();
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading Production Lines...");
@@ -152,9 +153,9 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
     @Override
     public void getLines(String date) {
 
-        if (progressDialog!=null)
+        if (progressDialog!=null && !progressDialog.isShowing())
             progressDialog.show();
-        postsQuery = dbLines.orderByChild("date").equalTo(date);
+        postsQuery = dbLines.child(Utils.getYear(date)).child(Utils.getMonth(date)).child(Utils.getDay(date)).orderByChild("code");
         postsQuery.addValueEventListener(valueEventListener);
     }
 

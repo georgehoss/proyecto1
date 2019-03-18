@@ -121,10 +121,17 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell"))
-            dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_PRODUCTION_LINE);
-        else
-            dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Line.DB_LINE);
+        String parentId="";
+        if (getIntent().getExtras()!=null && getIntent().getExtras().getString("parentId")!=null){
+            parentId =getIntent().getExtras().getString("parentId");
+        }
+
+        if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell")) {
+            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(this)).child(parentId);
+        }
+        else {
+            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(this));
+        }
 
         dbLines.keepSynced(false);
 
@@ -146,12 +153,9 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         }
         else
             finish();
-        dbEmailList = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(EmailList.DB);
-        dbEmailList.keepSynced(false);
-        dbDowntime = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Downtime.DB_DOWNTIMES);
-        dbDowntime.keepSynced(false);
-        dbProducts =  FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(Product.DB);
-        dbProducts.keepSynced(false);
+        dbEmailList = FirebaseDatabase.getInstance().getReference(EmailList.DB).child(StorageUtils.getPlantId(this));
+        dbDowntime = FirebaseDatabase.getInstance().getReference(Downtime.DB_DOWNTIMES).child(StorageUtils.getPlantId(this));
+        dbProducts =  FirebaseDatabase.getInstance().getReference(Product.DB).child(StorageUtils.getPlantId(this));
         getDowntimeLists();
         getEmailLists();
         getProducts();

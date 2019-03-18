@@ -90,8 +90,7 @@ public class ReasonsFragment extends Fragment implements ReasonsContract.View, R
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reasons, container, false);
         ButterKnife.bind(this,view);
-        dbReasons = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(ReasonDelay.DB_DELAY_REASONS);
-        dbReasons.keepSynced(false);
+        dbReasons = FirebaseDatabase.getInstance().getReference(ReasonDelay.DB_DELAY_REASONS).child(StorageUtils.getPlantId(getContext()));
         return view;
     }
 
