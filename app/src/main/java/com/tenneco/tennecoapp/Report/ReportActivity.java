@@ -147,6 +147,7 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
         super.onPause();
         if (progressDialog!=null && progressDialog.isShowing())
             progressDialog.hide();
+        if (valueEventListener!=null)
         postsQuery.removeEventListener(valueEventListener);
     }
 

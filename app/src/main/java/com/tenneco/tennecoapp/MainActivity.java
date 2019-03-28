@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     @Override
     public void launchMain() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commitAllowingStateLoss();
 
     }
 

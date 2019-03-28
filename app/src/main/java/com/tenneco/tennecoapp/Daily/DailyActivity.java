@@ -404,7 +404,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         if (lastProduct==null)
             showProductListDialog(mLine.getProducts(),this);
         else {
-            if (productDialog!=null && productDialog.isShowing())
+            if (productDialog!=null && productDialog.isShowing() && !DailyActivity.this.isFinishing())
                 productDialog.dismiss();
 
             if (!mTvName.getText().toString().equals(mLine.getName()))
@@ -1475,7 +1475,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         final EditText mTvStart = view.findViewById(R.id.et_start);
         final EditText mTvEnd = view.findViewById(R.id.et_end);
         ImageView btClose = view.findViewById(R.id.bt_close);
-        if ((downtimeDialog == null || !downtimeDialog.isShowing())&& context!=null){
+        if ((downtimeDialog == null || !downtimeDialog.isShowing())&& !DailyActivity.this.isFinishing()){
             downtimeDialog = alertDialogBuilder.create();
             downtimeDialog.show();
         }
@@ -2481,7 +2481,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             });
             if (productDialog==null)
                 productDialog = alertDialogBuilder.create();
-            if (!productDialog.isShowing())
+            if (!productDialog.isShowing()&& !DailyActivity.this.isFinishing())
                 productDialog.show();
         }
 

@@ -1,6 +1,7 @@
 package com.tenneco.tennecoapp.Configuration;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -70,6 +71,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         View view = inflater.inflate(R.layout.fragment_configuration, container, false);
         ButterKnife.bind(this,view);
         dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(getContext()));
+        //dbLines = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(getContext())).child(Line.DB_LINE);
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new LineAdapter(mLines,this,false);
@@ -105,6 +107,10 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
 
     @Override
     public void onItemClick(String lineId) {
+        /*DatabaseReference db = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(getContext()));
+        for (Line line : mLines)
+            if (lineId.equals(line.getId()))
+        db.child(lineId).setValue(line);*/
         Intent intent = new Intent(getContext(), ConfigLineActivity.class);
         intent.putExtra("id",lineId);
         startActivity(intent);
@@ -141,6 +147,7 @@ public class ConfigurationFragment extends Fragment implements ConfigurationCont
         startActivity(new Intent(main, ConfigLineActivity.class));
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void hideProgressBar() {
         if (getContext()!=null) {

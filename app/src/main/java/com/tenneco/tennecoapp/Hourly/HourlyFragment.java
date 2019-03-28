@@ -243,6 +243,7 @@ postsQuery = dbPLines.child("-La-XOCsi3i2KHRys0oa");
     @Override
     public void onPause() {
         super.onPause();//
+        if (valueEventListener!=null)
         postsQuery.removeEventListener(valueEventListener);
     }
 
