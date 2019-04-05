@@ -107,7 +107,9 @@ public interface DailyContract {
         void createCVS(Context context,Line line) throws IOException;
         void createCSVShift(Context context, Line line, int shift, Shift actualShift);
         boolean validateUser(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group, String psw);
+        String getSignature(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group);
         void validateFQT(Line line);
         void setDowntimes(Line line);
+
     }
 }

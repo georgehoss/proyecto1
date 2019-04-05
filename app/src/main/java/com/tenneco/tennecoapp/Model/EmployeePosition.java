@@ -10,6 +10,7 @@ public class EmployeePosition {
     private String id;
     private String name;
     private String operator;
+    private String operatorId;
     private int position;
 
     public EmployeePosition() {
@@ -64,5 +65,13 @@ public class EmployeePosition {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public String getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(String operatorId) {
+        this.operatorId = operatorId;
     }
 }

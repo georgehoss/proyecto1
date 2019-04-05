@@ -53,6 +53,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.realm.Realm;
+
 public class ConfigLineActivity extends AppCompatActivity implements ConfigLineContract.View{
     private static final int INFO = 0;
     private static final int PRODUCTS = 1;
@@ -75,7 +77,8 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     private String id;
     private boolean deletable =false;
     private CoordinatorLayout layout;
-
+    private Realm realm;
+    private com.tenneco.tennecoapp.Model.realm.Line realmLine;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 
@@ -115,6 +118,7 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        realm = Realm.getDefaultInstance();
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
@@ -128,9 +132,12 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
 
         if (getIntent().getExtras()!=null && getIntent().getExtras().getBoolean("cell")) {
             dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(this)).child(parentId);
+            dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_PRODUCTION_LINE).child(StorageUtils.getPlantId(this)).child(parentId);
+            realmLine = realm.where(com.tenneco.tennecoapp.Model.realm.Line.class).equalTo("plantId",StorageUtils.getPlantId(this)).equalTo("parentId",parentId).equalTo("id",id).findFirst();
         }
         else {
             dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(this));
+            realmLine = realm.where(com.tenneco.tennecoapp.Model.realm.Line.class).equalTo("plantId",StorageUtils.getPlantId(this)).equalTo("id",id).findFirst();
         }
 
         dbLines.keepSynced(false);
@@ -207,6 +214,12 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
     public void saveLine(Line line) {
         progressDialog.show();
         line.setId(id);
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(new com.tenneco.tennecoapp.Model.realm.Line(
+                line.getId(),line.getName(),line.getCode(),line.getDate(),line.getProducts().get(0).getFirst().getCumulativePlanned(),
+                line.getProducts().get(0).getSecond().getCumulativePlanned(),line.getProducts().get(0).getThird().getCumulativePlanned(),
+                "0","0","0",false,false,StorageUtils.getPlantId(this)));
+        realm.commitTransaction();
         dbLines.child(id).setValue(line).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -385,6 +398,16 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
 
     @Override
     public void delete() {
+
+        try {
+            realm.beginTransaction();
+            realmLine.deleteFromRealm();
+            realm.commitTransaction();
+        }
+        catch (Exception ignored){
+
+        }
+
         dbLines.child(id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

@@ -26,6 +26,7 @@ import com.tenneco.tennecoapp.Lines.AddEditLineActivity;
 import com.tenneco.tennecoapp.Main.MainFragment;
 import com.tenneco.tennecoapp.Plants.PlantsActivity;
 import com.tenneco.tennecoapp.Report.ReportActivity;
+import com.tenneco.tennecoapp.Schedule.ScheduleActivity;
 import com.tenneco.tennecoapp.Splash.SplashFragment;
 import com.tenneco.tennecoapp.User.UserFragment;
 import com.tenneco.tennecoapp.Utils.StorageUtils;
@@ -34,8 +35,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.fabric.sdk.android.Fabric;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class MainActivity extends AppCompatActivity implements MainActivityContract.View {
+    private static final int REALM_DATABASE_VERSION = 1;
     private FirebaseAuth mAuth;
     public FirebaseUser mUser;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -65,6 +69,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
+        Realm.init(this);
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
+                .name("tenneco.realm")
+                .schemaVersion(REALM_DATABASE_VERSION) // Must be bumped when the schema changes
+                //.migration( migration ) // Migration to run instead of throwing an exception
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        Realm.compactRealm(realmConfiguration);
+        Realm.setDefaultConfiguration(realmConfiguration);
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode("en");
@@ -102,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         MenuItem item = menu.findItem(R.id.menu_signout);
         MenuItem item1 = menu.findItem(R.id.menu_report);
         MenuItem item2 = menu.findItem(R.id.menu_plants);
+        MenuItem item3 = menu.findItem(R.id.menu_schedule);
 
 
         if (mUser!=null){
@@ -112,12 +126,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
            else
                item1.setVisible(false);
 
+            if (StorageUtils.getUserPermissions(this)>1)
+                item3.setVisible(true);
+            else
+                item3.setVisible(false);
+
         }
             else
         {
             item.setVisible(false);
             item1.setVisible(false);
             item2.setVisible(false);
+            item3.setVisible(false);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -131,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
             launchPlants();
         if (item.getItemId()==R.id.menu_report)
             launchReport();
+        if (item.getItemId()==R.id.menu_schedule)
+            launchSchedule();
         return super.onOptionsItemSelected(item);
     }
 
@@ -213,6 +235,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     }
 
     @Override
+    public void launchSchedule() {
+        startActivity(new Intent(this, ScheduleActivity.class));
+    }
+
+    @Override
     public void launchEmail() {
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new EmailMainFragment()).commit();
     }
@@ -231,8 +258,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     @Override
     public void signOut() {
-        mAuth.signOut();
         StorageUtils.saveUserPermissions(this,0);
+        StorageUtils.removePlantId(this);
+
+        try (Realm realm = Realm.getDefaultInstance()) {
+            realm.beginTransaction();
+            realm.deleteAll();
+            realm.commitTransaction();
+        } catch (Exception ignored) {
+
+        } finally {
+            mAuth.signOut();
+        }
     }
 
 

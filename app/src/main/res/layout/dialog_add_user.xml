@@ -96,6 +96,26 @@
                         android:padding="5dp"
                         android:background="@drawable/background_rectangle"
                         />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/signature"
+                        android:layout_marginStart="10dp"
+                        />
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/introduce_signature"
+                        android:gravity="center"
+                        android:id="@+id/et_signature"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textStyle="bold"
+                        android:padding="5dp"
+                        android:background="@drawable/background_rectangle"
+                        />
                 </LinearLayout>
 
 

@@ -44,6 +44,8 @@ public class Line {
     private String password;
     private Product lastProduct;
     private int turno;
+    private boolean isSchedule;
+    private ArrayList<Employee> operators;
 
     public Line() {
     }
@@ -327,5 +329,19 @@ public class Line {
         this.turno = turno;
     }
 
+    public boolean isSchedule() {
+        return isSchedule;
+    }
 
+    public void setSchedule(boolean schedule) {
+        isSchedule = schedule;
+    }
+
+    public ArrayList<Employee> getOperators() {
+        return operators;
+    }
+
+    public void setOperators(ArrayList<Employee> operators) {
+        this.operators = operators;
+    }
 }

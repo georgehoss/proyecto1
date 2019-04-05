@@ -14,6 +14,7 @@ public class User {
     private String phoneNumber;
     private String pwd;
     private int type;
+    private String signature;
     private ArrayList<Line> productionLines;
     private boolean selected;
 
@@ -107,5 +108,13 @@ public class User {
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }

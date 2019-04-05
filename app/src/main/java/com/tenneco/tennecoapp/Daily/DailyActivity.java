@@ -63,6 +63,7 @@ import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.Model.Product;
+import com.tenneco.tennecoapp.Model.Production;
 import com.tenneco.tennecoapp.Model.ReasonDelay;
 import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.Model.Shift;
@@ -206,10 +207,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @OnClick(R.id.bt_end_s1) void endS1(){
         if (mLine!=null && mLine.getFirst()!=null) {
             if (!mLine.getFirst().isClosed() && turno==0)
-                showFinishFirst();
+                showEndShiftDialog(mLine, 1, this, true);
             else
                 if (turno==1)
-                showEndShiftDialog(mLine, 1, this, false);
+                showFinishFirst();
                 else
                     Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
         }
@@ -218,10 +219,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @OnClick(R.id.bt_end_s2) void endS2(){
         if (mLine!=null && mLine.getSecond()!=null) {
             if (!mLine.getSecond().isClosed()&& turno==0)
-                showFinishSecond();
+                showEndShiftDialog(mLine, 2, this, true);
             else
                 if (turno ==2)
-                showEndShiftDialog(mLine, 2, this, false);
+                    showFinishSecond();
                 else
                     Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
         }
@@ -230,10 +231,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @OnClick(R.id.bt_end_s3) void endS3(){
         if (mLine!=null && mLine.getThird()!=null) {
             if (!mLine.getThird().isClosed() && turno==0)
-                showFinishThird();
+                showEndShiftDialog(mLine, 3, this, true);
             else
                 if (turno==3)
-                showEndShiftDialog(mLine, 3, this, false);
+                    showFinishThird();
                 else
                     Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
         }
@@ -260,15 +261,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @OnClick(R.id.tv_shift1) void shf1(){
-        //showEndShiftDialog(mLine,1,this,false);
+        showEndShiftDialog(mLine, 1, this, false);
         }
 
     @OnClick(R.id.tv_shift2) void shf2(){
-        //showEndShiftDialog(mLine,2,this,false);
+        showEndShiftDialog(mLine,2,this,false);
     }
 
     @OnClick(R.id.tv_shift3) void shf3(){
-       // showEndShiftDialog(mLine,3,this,false);
+        showEndShiftDialog(mLine,3,this,false);
     }
 
     @OnClick(R.id.tv_gls_1) void group1(){
@@ -296,7 +297,14 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @OnClick(R.id.bt_send_sms) void send(){
-        showSendMsgDialog(this);
+
+        //showSendMsgDialog(this);
+        if (turno!=0) {
+            showEndShiftDialog(mLine, turno, this, false);
+        }
+        else
+            Toast.makeText(this, "You must start a shift first", Toast.LENGTH_SHORT).show();
+
     }
 
   /*  @OnClick(R.id.tv_end_s1) void fe1(){
@@ -349,6 +357,55 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
         permissions();
         setGestureDetector();
+
+        findViewById(R.id.bt_send_sms).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showOperators();
+                return false;
+            }
+        });
+    }
+
+
+    private void showOperators(){
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_schedulel, null);
+        alertDialogBuilder.setView(view);
+        TextView tvDate = view.findViewById(R.id.tv_date);
+        view.findViewById(R.id.tv_name).setVisibility(View.GONE);
+        TextView tvLines = view.findViewById(R.id.tv_lines);
+        Button btCancel = view.findViewById(R.id.bt_cancel);
+        Button btAccept = view.findViewById(R.id.bt_save);
+        btCancel.setText("OK");
+        btAccept.setVisibility(View.GONE);
+
+        StringBuilder sb = new StringBuilder();
+        tvDate.setText(mTvDate.getText());
+        if (mLine.getOperators()!=null && mLine.getOperators().size()>0) {
+            for (Employee e : mLine.getOperators()) {
+                sb.append("- ").append(e.getFullName()).append("\n");
+                int tot = 0;
+                for (Production p : e.getProductions()) {
+                    sb.append(" ").append(p.getProductName()).append(": ").append(p.getTotal());
+                    tot += p.getTotal();
+                }
+                sb.append("\nTotal: ").append(String.valueOf(tot));
+                sb.append("\n\n");
+            }
+        }
+        else
+            sb.append("The are no records");
+        tvLines.setText(sb.toString());
+        final AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+        btCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
 
     @Override
@@ -1068,7 +1125,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     if (mEtPsw.getText().toString().length()>0) {
                         if (mPresenter.validateUser(mUser, mTeam, mGroup, mEtPsw.getText().toString())) {
 
-                            String owner = mUser.getEmail();
+                            String owner = mPresenter.getSignature(mUser,mTeam,mGroup);
                             //mPresenter.validateFQT(mLine);
                             dialog.dismiss();
                             if (leak != 0 && leak >= (0.10 * actual)) {
@@ -1095,238 +1152,233 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     public void showEndShiftDialog(final Line line, final int shift, final Context context, final boolean close) {
         if (!mLine.getDowntime().isSet())
         {
-            if (mTeam==null || mGroup==null||(mPresenter.getGroups(mLine,shift) && mPresenter.getTeam(mLine,shift))
-                    || (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())){
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-                LayoutInflater inflater = (LayoutInflater) context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.dialog_end_shift, null);
-                alertDialogBuilder.setView(view);
-                alertDialogBuilder.setCancelable(false);
-                TextView mTvName = view.findViewById(R.id.tv_name);
-                mTvName.setText(line.getName());
-                TextView mTvDate = view.findViewById(R.id.tv_date);
-                mTvDate.setText(line.getDate());
-                TextView mTvShift = view.findViewById(R.id.tv_shift);
-                Shift eShitf = new Shift();
-                String title="";
-                boolean start =false;
-                int tempturn=0;
-                final Button mBtSave = view.findViewById(R.id.bt_save);
-                Button mBtCancel = view.findViewById(R.id.bt_cancel);
+            if (mLine.getLastProduct()!=null) {
+                if (mTeam == null || mGroup == null || (mPresenter.getGroups(mLine, shift) && mPresenter.getTeam(mLine, shift))
+                        || (mLine.getFirst().isClosed() && mLine.getSecond().isClosed() && mLine.getThird().isClosed())) {
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                            context);
+                    LayoutInflater inflater = (LayoutInflater) context
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = inflater.inflate(R.layout.dialog_end_shift, null);
+                    alertDialogBuilder.setView(view);
+                    alertDialogBuilder.setCancelable(false);
+                    TextView mTvName = view.findViewById(R.id.tv_name);
+                    mTvName.setText(line.getName());
+                    TextView mTvDate = view.findViewById(R.id.tv_date);
+                    mTvDate.setText(line.getDate());
+                    TextView mTvShift = view.findViewById(R.id.tv_shift);
+                    Shift eShitf = new Shift();
+                    String title = "";
+                    boolean start = false;
+                    int tempturn = 0;
+                    final Button mBtSave = view.findViewById(R.id.bt_save);
+                    Button mBtCancel = view.findViewById(R.id.bt_cancel);
 
-                if (shift==1) {
+                    if (shift == 1) {
 
-                    if (line.getFirst().getTimeStart()==null || line.getFirst().getTimeStart().isEmpty()) {
-                        mBtSave.setText(R.string.start_shift);
-                        start = true;
-                        tempturn=1;
-                    }
-                    if (start)
-                        title = "Start of "+getString(R.string.add_1st_shift)+ " Transfer";
-                    else
-                        title = "End of "+getString(R.string.add_1st_shift)+ " Transfer";
+                        if (line.getFirst().getTimeStart() == null || line.getFirst().getTimeStart().isEmpty()) {
+                            mBtSave.setText(R.string.start_shift);
+                            start = true;
+                            tempturn = 1;
+                        }
+                        if (start)
+                            title = "Start of " + getString(R.string.add_1st_shift) + " Transfer";
+                        else
+                            title = "End of " + getString(R.string.add_1st_shift) + " Transfer";
 
-                    eShitf = line.getFirst();
-                    if (eShitf.getPositions()==null) {
-                        eShitf.setPositions(mLine.getPositions());
-                        for (EmployeePosition employeePosition : eShitf.getPositions())
-                            employeePosition.setPosition(0);
-                    }
-
-                }
-                if (shift==2) {
-                    if (line.getSecond().getTimeStart()==null || line.getSecond().getTimeStart().isEmpty()) {
-                        mBtSave.setText(R.string.start_shift);
-                        start = true;
-                        tempturn=2;
-                    }
-                    if (start)
-                        title = "Start of "+getString(R.string.add_2nd_shift)+ " Transfer";
-                    else
-                        title = "End of "+getString(R.string.add_2nd_shift)+ " Transfer";
-                    eShitf = line.getSecond();
-
-                    if (eShitf.getPositions()==null) {
-                        eShitf.setPositions(mLine.getPositions());
-                        for (EmployeePosition employeePosition : eShitf.getPositions())
-                            employeePosition.setPosition(0);
-                    }
-
-                }
-                if (shift==3) {
-                    if (line.getThird().getTimeStart()==null || line.getThird().getTimeStart().isEmpty()) {
-                        mBtSave.setText(R.string.start_shift);
-                        start = true;
-                        tempturn=3;
-                    }
-                    if (start)
-                        title = "Start of "+getString(R.string.add_3rd_shift)+ " Transfer";
-                    else
-                        title = "End of "+getString(R.string.add_3rd_shift)+ " Transfer";
-                    eShitf = line.getThird();
-                    if (eShitf.getPositions()==null) {
-                        eShitf.setPositions(mLine.getPositions());
-                        for (EmployeePosition employeePosition : eShitf.getPositions())
-                            employeePosition.setPosition(0);
-                    }
-                }
-
-
-
-
-                mTvShift.setText(title);
-
-                TextView mTvActual = view.findViewById(R.id.tv_actual);
-                mTvActual.setText(eShitf.getCumulativeActual());
-                TextView mTvTarget = view.findViewById(R.id.tv_target);
-                mTvTarget.setText(eShitf.getCumulativePlanned());
-
-                RecyclerView recyclerView = view.findViewById(R.id.rv_position);
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-                final EndShiftPositionAdapter adapter;
-                if (mOperators==null || mOperators.size()==0)
-                    adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),eShitf.getEmployees(),eShitf.isClosed());
-                else
-                    adapter = new EndShiftPositionAdapter(this,eShitf.getPositions(),mOperators,eShitf.isClosed());
-
-                recyclerView.setAdapter(adapter);
-
-
-                if (!close)
-                    mBtSave.setText("Save");
-
-                if (eShitf.isClosed()) {
-                    mBtSave.setVisibility(View.GONE);
-                    alertDialogBuilder.setCancelable(true);
-                    mBtCancel.setText("Send by Email");
-                }
-
-                final AlertDialog dialog = alertDialogBuilder.create();
-                dialog.show();
-
-                mBtCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                        if (mBtSave.getVisibility()==View.GONE)
-                            showDialogEndShift(shift);
-                    }
-                });
-
-                final boolean finalStart = start;
-                final int finalTempturn = tempturn;
-                mBtSave.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        boolean error = false;
-                        int valid=0;
-                        ArrayList<EmployeePosition> employeePositions = adapter.getPositions();
-                        for (EmployeePosition position : employeePositions){
-                            if ((position.getOperator()==null || position.getOperator().isEmpty()|| position.getOperator().equals("-Select Operator-")) && !error) {
-                                if (valid==0)
-                                    Toast.makeText(context, "Select an operator for position: " + position.getName(), Toast.LENGTH_LONG).show();
-                                error = true;
-                            }
-                            else
-                            if (position.getOperator()!=null && !position.getOperator().isEmpty()&& !position.getOperator().equals("-Select Operator-"))
-                                valid++;
+                        eShitf = line.getFirst();
+                        if (eShitf.getPositions() == null) {
+                            eShitf.setPositions(mLine.getPositions());
+                            for (EmployeePosition employeePosition : eShitf.getPositions())
+                                employeePosition.setPosition(0);
                         }
 
+                    }
+                    if (shift == 2) {
+                        if (line.getSecond().getTimeStart() == null || line.getSecond().getTimeStart().isEmpty()) {
+                            mBtSave.setText(R.string.start_shift);
+                            start = true;
+                            tempturn = 2;
+                        }
+                        if (start)
+                            title = "Start of " + getString(R.string.add_2nd_shift) + " Transfer";
+                        else
+                            title = "End of " + getString(R.string.add_2nd_shift) + " Transfer";
+                        eShitf = line.getSecond();
+
+                        if (eShitf.getPositions() == null) {
+                            eShitf.setPositions(mLine.getPositions());
+                            for (EmployeePosition employeePosition : eShitf.getPositions())
+                                employeePosition.setPosition(0);
+                        }
+
+                    }
+                    if (shift == 3) {
+                        if (line.getThird().getTimeStart() == null || line.getThird().getTimeStart().isEmpty()) {
+                            mBtSave.setText(R.string.start_shift);
+                            start = true;
+                            tempturn = 3;
+                        }
+                        if (start)
+                            title = "Start of " + getString(R.string.add_3rd_shift) + " Transfer";
+                        else
+                            title = "End of " + getString(R.string.add_3rd_shift) + " Transfer";
+                        eShitf = line.getThird();
+                        if (eShitf.getPositions() == null) {
+                            eShitf.setPositions(mLine.getPositions());
+                            for (EmployeePosition employeePosition : eShitf.getPositions())
+                                employeePosition.setPosition(0);
+                        }
+                    }
 
 
-                        if (valid>0)
-                        {
-                            Shift finalShift = new Shift();
-                            switch (shift){
-                                case 1:
-                                    finalShift = line.getFirst();
-                                    break;
-                                case 2:
-                                    finalShift = line.getSecond();
-                                    break;
-                                case 3:
-                                    finalShift = line.getThird();
-                                    break;
-                            }
+                    mTvShift.setText(title);
+
+                    TextView mTvActual = view.findViewById(R.id.tv_actual);
+                    mTvActual.setText(eShitf.getCumulativeActual());
+                    TextView mTvTarget = view.findViewById(R.id.tv_target);
+                    mTvTarget.setText(eShitf.getCumulativePlanned());
+
+                    RecyclerView recyclerView = view.findViewById(R.id.rv_position);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                    final EndShiftPositionAdapter adapter;
+                    if (mOperators == null || mOperators.size() == 0)
+                        adapter = new EndShiftPositionAdapter(this, eShitf.getPositions(), eShitf.getEmployees(), eShitf.isClosed());
+                    else
+                        adapter = new EndShiftPositionAdapter(this, eShitf.getPositions(), mOperators, eShitf.isClosed());
+
+                    recyclerView.setAdapter(adapter);
 
 
-                            if (close && !finalStart) {
+                    if (!close)
+                        mBtSave.setText("Save");
 
-                                turno = 0;
+                    if (eShitf.isClosed()) {
+                        mBtSave.setVisibility(View.GONE);
+                        alertDialogBuilder.setCancelable(true);
+                        mBtCancel.setText("Send by Email");
+                    }
 
-                                ArrayList<WorkHour> hours = finalShift.getHours();
-                                for (WorkHour hour : hours) {
-                                    hour.setClosed(true);
-                                    if (hour.getActuals()==null || hour.getActuals().isEmpty())
-                                    {
-                                        hour.setActuals("0");
-                                        if (finalShift.getCumulativeActual()!=null)
-                                            hour.setCumulativeActual(finalShift.getCumulativeActual());
-                                        else {
-                                            hour.setCumulativeActual("0");
-                                            finalShift.setCumulativeActual("0");
-                                        }
-                                        if (hour.getComments()==null || hour.getComments().isEmpty())
-                                            hour.setComments("Shift ended");
-                                    }
-                                }
-                                finalShift.setClosed(true);
-                                finalShift.setHours(hours);
-                                finalShift.setRejects(mLine.getRejects());
-                                line.setRejects(new ArrayList<Reject>());
-                            }
+                    final AlertDialog dialog = alertDialogBuilder.create();
+                    dialog.show();
 
-                            if (finalStart && !mBtSave.getText().toString().equals("Save")) {
-                                finalShift.setTimeStart(Utils.getTimeString());
-                                turno = finalTempturn;
-                                line.setTurno(finalTempturn);
-                            }
-
-                            if (close && !finalStart)
-                                finalShift.setTimeEnd(Utils.getTimeString());
-
-                            switch (shift){
-                                case 1:
-                                    line.setFirst(finalShift);
-                                    if (finalShift.isClosed())
-                                        sendReport1 = true;
-                                    break;
-                                case 2:
-                                    line.setSecond(finalShift);
-                                    if (finalShift.isClosed())
-                                        sendReport2 = true;
-                                    break;
-                                case 3:
-                                    line.setThird(finalShift);
-                                    break;
-                            }
-
-
-                            if (line.getFirst().isClosed() && line.getSecond().isClosed() && line.getThird().isClosed())
-                                sendReport=true;
-
-                            updateLine(line);
+                    mBtCancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
                             dialog.dismiss();
-
-
+                            if (mBtSave.getVisibility() == View.GONE)
+                                showDialogEndShift(shift);
                         }
-                    }
-                });
+                    });
 
+                    final boolean finalStart = start;
+                    final int finalTempturn = tempturn;
+                    mBtSave.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            boolean error = false;
+                            int valid = 0;
+                            ArrayList<EmployeePosition> employeePositions = adapter.getPositions();
+                            for (EmployeePosition position : employeePositions) {
+                                if ((position.getOperator() == null || position.getOperator().isEmpty() || position.getOperator().equals("-Select Operator-")) && !error) {
+                                    if (valid == 0)
+                                        Toast.makeText(context, "Select an operator for position: " + position.getName(), Toast.LENGTH_LONG).show();
+                                    error = true;
+                                } else if (position.getOperator() != null && !position.getOperator().isEmpty() && !position.getOperator().equals("-Select Operator-"))
+                                    valid++;
+                            }
+
+
+                            if (valid > 0) {
+                                Shift finalShift = new Shift();
+                                switch (shift) {
+                                    case 1:
+                                        finalShift = line.getFirst();
+                                        break;
+                                    case 2:
+                                        finalShift = line.getSecond();
+                                        break;
+                                    case 3:
+                                        finalShift = line.getThird();
+                                        break;
+                                }
+
+
+                                if (close && !finalStart) {
+
+                                    turno = 0;
+
+                                    ArrayList<WorkHour> hours = finalShift.getHours();
+                                    for (WorkHour hour : hours) {
+                                        hour.setClosed(true);
+                                        if (hour.getActuals() == null || hour.getActuals().isEmpty()) {
+                                            hour.setActuals("0");
+                                            if (finalShift.getCumulativeActual() != null)
+                                                hour.setCumulativeActual(finalShift.getCumulativeActual());
+                                            else {
+                                                hour.setCumulativeActual("0");
+                                                finalShift.setCumulativeActual("0");
+                                            }
+                                            if (hour.getComments() == null || hour.getComments().isEmpty())
+                                                hour.setComments("Shift ended");
+                                        }
+                                    }
+                                    finalShift.setClosed(true);
+                                    finalShift.setHours(hours);
+                                    finalShift.setRejects(mLine.getRejects());
+                                    line.setRejects(new ArrayList<Reject>());
+                                }
+
+                                if (finalStart && !mBtSave.getText().toString().equals("Save")) {
+                                    finalShift.setTimeStart(Utils.getTimeString());
+                                    turno = finalTempturn;
+                                    line.setTurno(finalTempturn);
+                                }
+
+                                if (close && !finalStart)
+                                    finalShift.setTimeEnd(Utils.getTimeString());
+
+                                switch (shift) {
+                                    case 1:
+                                        line.setFirst(finalShift);
+                                        if (finalShift.isClosed())
+                                            sendReport1 = true;
+                                        break;
+                                    case 2:
+                                        line.setSecond(finalShift);
+                                        if (finalShift.isClosed())
+                                            sendReport2 = true;
+                                        break;
+                                    case 3:
+                                        line.setThird(finalShift);
+                                        break;
+                                }
+
+
+                                if (line.getFirst().isClosed() && line.getSecond().isClosed() && line.getThird().isClosed())
+                                    sendReport = true;
+
+                                updateLine(line);
+                                dialog.dismiss();
+
+
+                            }
+                        }
+                    });
+
+                } else if (!(mPresenter.getGroups(mLine, shift)) && mGroup != null) {
+                    Toast.makeText(this, "Please select group leaders!", Toast.LENGTH_LONG).show();
+                    showUserDialog(mGroup, this, 1, shift);
+                } else if (!(mPresenter.getTeam(mLine, shift)) && mTeam != null) {
+                    Toast.makeText(this, "Please select team leaders!", Toast.LENGTH_LONG).show();
+                    showUserDialog(mTeam, this, 0, shift);
+                }
             }
             else
-            if (!(mPresenter.getGroups(mLine,shift))&& mGroup!=null)
-            {
-                Toast.makeText(this,"Please select group leaders!",Toast.LENGTH_LONG).show();
-                showUserDialog(mGroup,this,1,shift);
-            }
-            else
-            if(!(mPresenter.getTeam(mLine,shift)) && mTeam!=null)
-            {
-                Toast.makeText(this,"Please select team leaders!",Toast.LENGTH_LONG).show();
-                showUserDialog(mTeam,this,0,shift);
+                if (mLine.getProducts()!=null && mLine.getProducts().size()>0)
+                {
+                showProductListDialog(mLine.getProducts(), this);
+                Toast.makeText(this, "Please select a Product!", Toast.LENGTH_LONG).show();
             }
         }
         else

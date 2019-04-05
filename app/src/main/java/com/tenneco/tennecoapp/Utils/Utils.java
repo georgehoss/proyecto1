@@ -17,6 +17,11 @@ public class Utils {
         return dateFormat.format(new Date());
     }
 
+    public static String getDateStamp() {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy");
+        return dateFormat.format(new Date());
+    }
+
     public static String getTomorrowDateString() {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Calendar calendar = Calendar.getInstance();
@@ -35,6 +40,28 @@ public class Utils {
             Date date2 = sdf.parse(endtime);
 
             if(date1.after(date2)) {
+                return true;
+            } else {
+
+                return false;
+            }
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public static boolean compareDate(String today, String date) {
+
+        String pattern = "MM/dd/yyyy";
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+
+        try {
+            Date date1 = sdf.parse(today);
+            Date date2 = sdf.parse(date);
+
+            if(date2.before(date1)) {
                 return true;
             } else {
 
@@ -152,14 +179,23 @@ public class Utils {
 
 
     public static String getDay(String date){
+        if (date!=null && date.length()>4)
         return date.substring(3,5);
+        else
+            return "";
     }
 
     public static String getMonth(String date){
+        if (date!=null && date.length()>1)
         return date.substring(0,2);
+        else
+            return "";
     }
 
     public static String getYear(String date){
+        if (date!=null && date.length()>5)
         return date.substring(6);
+        else
+            return "";
     }
 }

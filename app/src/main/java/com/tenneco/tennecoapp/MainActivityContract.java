@@ -10,6 +10,7 @@ public interface MainActivityContract {
         void launchProduction();
         void launchUsers();
         void launchConfiguration();
+        void launchSchedule();
         void launchEmail();
         void showMenu();
         void hideMenu();

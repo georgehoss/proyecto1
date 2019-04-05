@@ -10,6 +10,7 @@ public interface MainContract {
     interface View extends BaseView<Presenter>{
         void getUser();
         void getLines();
+        void getRealmResults();
         void hideProgress();
         void showPickOne();
         void showNoLines();

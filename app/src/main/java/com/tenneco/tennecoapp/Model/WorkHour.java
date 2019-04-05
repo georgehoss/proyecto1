@@ -1,5 +1,6 @@
 package com.tenneco.tennecoapp.Model;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
@@ -19,6 +20,7 @@ public class WorkHour {
     private String owner;
     private Product product;
     private String leak;
+    private ArrayList<Employee> operators;
 
 
     public WorkHour() {

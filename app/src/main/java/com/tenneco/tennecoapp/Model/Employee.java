@@ -1,5 +1,6 @@
 package com.tenneco.tennecoapp.Model;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
@@ -14,6 +15,8 @@ public class Employee {
     private String info;
     private String type;
     private int shift;
+    private ArrayList<Production> productions;
+    private String station;
 
     @Override
     public String toString() {
@@ -21,6 +24,14 @@ public class Employee {
     }
 
     public Employee() {
+    }
+
+    public Employee(String id, String fullName, int shift, ArrayList<Production> productions, String station) {
+        this.id = id;
+        this.fullName = fullName;
+        this.shift = shift;
+        this.productions = productions;
+        this.station = station;
     }
 
     public static Comparator<Employee> EmployeeNameComparator = new Comparator<Employee>() {
@@ -108,5 +119,21 @@ public class Employee {
 
     public void setShift(int shift) {
         this.shift = shift;
+    }
+
+    public String getStation() {
+        return station;
+    }
+
+    public void setStation(String station) {
+        this.station = station;
+    }
+
+    public ArrayList<Production> getProductions() {
+        return productions;
+    }
+
+    public void setProductions(ArrayList<Production> productions) {
+        this.productions = productions;
     }
 }

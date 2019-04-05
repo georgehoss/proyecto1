@@ -215,6 +215,11 @@
     <string name="produced_rejected_piece">Produced Rejected Piece</string>
     <string name="next_notification_will_be_send_to_group_leaders">Next notification will be send to Group Leaders</string>
     <string name="this_is_the_report_of_all_the_lines_of_today">This is the report of all the lines of today</string>
+    <string name="signature">Signature</string>
+    <string name="introduce_signature">Introduce Signature</string>
+    <string name="please_pick_a_date_and_select_the_lines_you_need_to_schedule">Please pick a date and select the lines you need to schedule</string>
+    <string name="schedule_lines">Schedule Lines</string>
+    <string name="operators_positions">Operators</string>
 
     <string-array name="selector">
         <item>Production</item>

@@ -66,6 +66,7 @@ public class EndShiftPositionAdapter extends RecyclerView.Adapter<EndShiftPositi
                     Employee employee = (Employee) adapterView.getItemAtPosition(i);
                     if (employee!=null) {
                         employeePosition.setOperator(employee.getFullName());
+                        employeePosition.setOperatorId(employee.getId());
                         employeePosition.setPosition(i);
                     }
                 }

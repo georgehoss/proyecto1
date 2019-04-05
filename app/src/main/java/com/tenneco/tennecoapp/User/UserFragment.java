@@ -186,10 +186,13 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
         if (user.getType()!=0)
         spinner.setSelection(user.getType()-1);
         final EditText etPsw = view.findViewById(R.id.et_psw);
+        final EditText etSignature = view.findViewById(R.id.et_signature);
         if (gt) {
             view.findViewById(R.id.ll_psw).setVisibility(View.VISIBLE);
             if (user.getPwd()!=null)
-            etPsw.setText(user.getPwd());
+                etPsw.setText(user.getPwd());
+            if (user.getSignature()!=null)
+                etSignature.setText(user.getSignature());
         }
 
 
@@ -232,8 +235,10 @@ public class UserFragment extends Fragment implements UserContract, UserAdapter.
                 else
                 {
 
-                    if (gt)
+                    if (gt) {
                         user.setPwd(etPsw.getText().toString());
+                        user.setSignature(etSignature.getText().toString());
+                    }
                     user.setName(mEtName.getText().toString());
                     user.setEmail(mEtInfo.getText().toString());
                     user.setType(spinner.getSelectedItemPosition()+1);

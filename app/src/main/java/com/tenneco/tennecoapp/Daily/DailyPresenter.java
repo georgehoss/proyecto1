@@ -10,6 +10,7 @@ import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
 import com.tenneco.tennecoapp.Model.Product;
+import com.tenneco.tennecoapp.Model.Production;
 import com.tenneco.tennecoapp.Model.ReasonDelay;
 import com.tenneco.tennecoapp.Model.Reject;
 import com.tenneco.tennecoapp.Model.Shift;
@@ -67,6 +68,23 @@ public class DailyPresenter implements DailyContract.Presenter {
         int cL1=0;
         int cL2=0;
         int cL3=0;
+        int shift;
+        int pos;
+
+        if (position<=7) {
+            shift = 1;
+            pos = position;
+        }
+        else
+        if (position<=15) {
+            shift = 2;
+            pos = position-8;
+        }
+        else {
+            shift = 3;
+            pos = position-16;
+        }
+
 
         for (int j=0;j<=23;j++)
         {
@@ -162,6 +180,65 @@ public class DailyPresenter implements DailyContract.Presenter {
             line.getThird().setCumulativeActual("");
 
 
+        if (line.getOperators()==null)
+            line.setOperators(new ArrayList<Employee>());
+
+        Shift shift1 = new Shift();
+        if (shift==1)
+            shift1 = line.getFirst();
+        if (shift==2)
+            shift1 = line.getSecond();
+        if (shift==3)
+            shift1 = line.getThird();
+
+        ArrayList<Employee> operatos = new ArrayList<>();
+
+        ArrayList<Production> productions = new ArrayList<>();
+        String productid="0",productName="";
+        if (line.getLastProduct()!=null) {
+            productid = line.getLastProduct().getId();
+            productName = line.getLastProduct().getName();
+        }
+
+        productions.add(new Production(productid,productName,Integer.valueOf(actual)));
+        for (EmployeePosition e : shift1.getPositions())
+            if (e.getOperatorId() != null)
+                operatos.add(new Employee(e.getOperatorId(),e.getOperator(),shift,productions,e.getName()));
+
+
+        ArrayList<Employee> operators = new ArrayList<>(line.getOperators());
+
+        if (operators.size()>0) {
+
+            for (Employee act : operatos) {
+                boolean exist=false;
+                for (Employee old : operators) {
+                    if (old.getId().equals(act.getId())) {
+                        exist = true;
+                        boolean isp = false;
+                        for (Production np : act.getProductions()) {
+                            for (Production op : old.getProductions()) {
+                                if (np.getProductId().equals(op.getProductId())) {
+                                    op.setTotal(op.getTotal() + np.getTotal());
+                                    isp = true;
+                                }
+                            }
+                            if (!isp)
+                                old.getProductions().add(np);
+                        }
+
+                    }
+                }
+                if (!exist)
+                    operators.add(act);
+            }
+
+            line.setOperators(operators);
+        }
+        else
+            line.setOperators(operatos);
+
+
         mView.updateLine(line);
 
     }
@@ -255,6 +332,12 @@ public class DailyPresenter implements DailyContract.Presenter {
 
     @Override
     public void setProduct(Line line, Product product) {
+
+        Product newP = new Product();
+        newP.setCode(product.getCode());
+        newP.setName(product.getName());
+        newP.setId(product.getId());
+
         int cA=0;
         int cA2=0;
         int cA3=0;
@@ -265,7 +348,7 @@ public class DailyPresenter implements DailyContract.Presenter {
                 line.getFirst().getHours().get(i).setTarget(product.getFirst().getHours().get(i).getTarget());
                 line.getFirst().getHours().get(i).setStartHour(product.getFirst().getHours().get(i).getStartHour());
                 line.getFirst().getHours().get(i).setEndHour(product.getFirst().getHours().get(i).getEndHour());
-                line.getFirst().getHours().get(i).setProduct(product);
+                line.getFirst().getHours().get(i).setProduct(newP);
 
             }
 
@@ -317,7 +400,7 @@ public class DailyPresenter implements DailyContract.Presenter {
                 line.getSecond().getHours().get(i).setCumulativePlanned(product.getSecond().getHours().get(i).getCumulativePlanned());
                 line.getSecond().getHours().get(i).setStartHour(product.getSecond().getHours().get(i).getStartHour());
                 line.getSecond().getHours().get(i).setEndHour(product.getSecond().getHours().get(i).getEndHour());
-                line.getSecond().getHours().get(i).setProduct(product);
+                line.getSecond().getHours().get(i).setProduct(newP);
             }
 
             if (!line.getThird().getHours().get(i).isClosed() &&(
@@ -327,7 +410,7 @@ public class DailyPresenter implements DailyContract.Presenter {
                 line.getThird().getHours().get(i).setCumulativePlanned(product.getThird().getHours().get(i).getCumulativePlanned());
                 line.getThird().getHours().get(i).setStartHour(product.getThird().getHours().get(i).getStartHour());
                 line.getThird().getHours().get(i).setEndHour(product.getThird().getHours().get(i).getEndHour());
-                line.getThird().getHours().get(i).setProduct(product);
+                line.getThird().getHours().get(i).setProduct(newP);
             }
         }
 
@@ -1060,6 +1143,22 @@ public class DailyPresenter implements DailyContract.Presenter {
         }
 
         return validate;
+    }
+
+    @Override
+    public String getSignature(FirebaseUser user, ArrayList<User> team, ArrayList<User> group) {
+        if (user!=null && user.getEmail()!=null) {
+
+            for (User us : team)
+                if (user.getEmail().equals(us.getEmail()) && us.getSignature()!=null)
+                    return us.getSignature();
+
+            for (User us : group)
+                if (user.getEmail().equals(us.getEmail()) && us.getSignature()!=null)
+                    return us.getSignature();
+        }
+
+        return "-";
     }
 
     @Override

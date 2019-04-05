@@ -11,10 +11,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Schedule.ScheduleActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -57,11 +58,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tenneco.tennecoapp.MainActivity" />
         </activity>
-        <activity android:name=".Graphics.GraphicActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
-
-        </activity>
+        <activity
+            android:name=".Graphics.GraphicActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

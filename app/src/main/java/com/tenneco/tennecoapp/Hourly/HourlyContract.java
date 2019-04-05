@@ -21,6 +21,7 @@ public interface HourlyContract {
         void hideShifts();
         void showShifts();
         void launchDaily(String lineId);
+        void getRealmResults();
     }
     interface Presenter extends BasePresenter<View>{
 

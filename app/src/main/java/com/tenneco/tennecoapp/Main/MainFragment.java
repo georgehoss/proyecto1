@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.tenneco.tennecoapp.Adapter.LineAdapter;
+import com.tenneco.tennecoapp.Adapter.RealmLineAdapter;
 import com.tenneco.tennecoapp.Hourly.HourlyFragment;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
@@ -40,15 +41,19 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 
-public class MainFragment extends Fragment implements LineAdapter.ItemInteraction,MainContract.View {
+public class MainFragment extends Fragment implements LineAdapter.ItemInteraction,MainContract.View, RealmLineAdapter.ItemInteraction {
 
     private FirebaseUser mUser;
     private MainActivity main;
     private DatabaseReference dbUsers;
     private DatabaseReference dbLines;
     private LineAdapter mAdapter;
+    private RealmLineAdapter mRAdapter;
     private ArrayList<Line> mLines;
     private MainContract.Presenter mPresenter;
     @BindView(R.id.rv_lines) RecyclerView mRvLines;
@@ -110,11 +115,32 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
                     mLines.add(line);
             }
 
-            mAdapter.setLines(mLines);
-            mAdapter.notifyDataSetChanged();
 
-            if (mLines.size()>0)
+           // mAdapter.setLines(mLines);
+           // mAdapter.notifyDataSetChanged();
+
+            if (mLines.size()>0) {
+                try (Realm realm = Realm.getDefaultInstance()) {
+                    realm.beginTransaction();
+                    for (Line l : mLines) {
+                        com.tenneco.tennecoapp.Model.realm.Line line = new com.tenneco.tennecoapp.Model.realm.Line(
+                                l.getId(),l.getName(),l.getCode(),l.getDate(),l.getProducts().get(0).getFirst().getCumulativePlanned(),
+                                l.getProducts().get(0).getSecond().getCumulativePlanned(),l.getProducts().get(0).getThird().getCumulativePlanned(),
+                                "0","0","0",false,l.isSchedule(),StorageUtils.getPlantId(main));
+                        realm.copyToRealmOrUpdate(line);
+                    }
+
+                    realm.commitTransaction();
+
+                } catch (Exception ignored) {
+
+                }
+                finally {
+                    getRealmResults();
+                }
+
                 showPickOne();
+            }
             else
                 showNoLines();
         }
@@ -163,8 +189,9 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
         dbLines = FirebaseDatabase.getInstance().getReference(Line.DB_LINE).child(StorageUtils.getPlantId(getContext()));
         mLines = new ArrayList<>();
         mRvLines.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = new LineAdapter(mLines,this,false);
-        mRvLines.setAdapter(mAdapter);
+        mRAdapter = new RealmLineAdapter(null,this,false);
+        getRealmResults();
+        mRvLines.setAdapter(mRAdapter);
         return view;
     }
 
@@ -220,12 +247,34 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     @Override
     public void getLines() {
 
-        if (getActivity()!=null && StorageUtils.getPlantId(getActivity())==null) {
+        getRealmResults();
+
+        if (getActivity()!=null && (StorageUtils.getPlantId(getActivity())==null || StorageUtils.getPlantId(getActivity()).equals("0"))) {
             startActivity(new Intent(main, PlantsActivity.class));
             main.finish();
         }
 
         dbLines.addValueEventListener(linesListener);
+    }
+
+    @Override
+    public void getRealmResults() {
+        Realm realm = Realm.getDefaultInstance();
+        String plantId="";
+        if(main!=null)
+            plantId=StorageUtils.getPlantId(main);
+        else
+            if (getActivity()!=null)
+                plantId = StorageUtils.getPlantId(getActivity());
+
+        RealmResults<com.tenneco.tennecoapp.Model.realm.Line> mLines = realm.where(com.tenneco.tennecoapp.Model.realm.Line.class)
+                .equalTo("isPline",false).equalTo("plantId",plantId).sort("code", Sort.ASCENDING).findAll();
+        if (mLines!=null && mLines.size()>0) {
+            showPickOne();
+            hideProgress();
+        }
+        mRAdapter.setLines(mLines);
+        mRAdapter.notifyDataSetChanged();
     }
 
     @Override
