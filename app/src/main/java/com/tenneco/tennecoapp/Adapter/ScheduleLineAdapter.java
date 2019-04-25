@@ -37,7 +37,7 @@ public class ScheduleLineAdapter extends RecyclerView.Adapter<ScheduleLineAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LineViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final LineViewHolder holder, int position) {
 
         final Line line = lines.get(position);
         if (line!=null) {
@@ -59,10 +59,10 @@ public class ScheduleLineAdapter extends RecyclerView.Adapter<ScheduleLineAdapte
             holder.mTvCode.setText(name);
             holder.mTvName.setText(line.getName());
             holder.mSw.setChecked(line.isSchedule());
-            holder.mSw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            holder.mSw.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    line.setSchedule(isChecked);
+                public void onClick(View v) {
+                    line.setSchedule(holder.mSw.isChecked());
                 }
             });
 

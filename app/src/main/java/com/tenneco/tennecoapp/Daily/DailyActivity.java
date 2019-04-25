@@ -612,6 +612,15 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 mLine.setLeakEmailList(mLine.getThird().getLeakList());
                 turno = 3;
             }
+            else
+            {
+                if (mLine.getFirst().getTimeStart()!=null && !mLine.getFirst().getTimeStart().isEmpty() && (mLine.getFirst().getTimeEnd()==null||mLine.getFirst().getTimeEnd().isEmpty()) )
+                    turno =1;
+                if (mLine.getSecond().getTimeStart()!=null && !mLine.getSecond().getTimeStart().isEmpty() && (mLine.getSecond().getTimeEnd()==null||mLine.getSecond().getTimeEnd().isEmpty()) )
+                    turno =2;
+                if (mLine.getThird().getTimeStart()!=null && !mLine.getThird().getTimeStart().isEmpty() && (mLine.getThird().getTimeEnd()==null||mLine.getThird().getTimeEnd().isEmpty()) )
+                    turno =3;
+            }
 
 
             /*
@@ -1188,7 +1197,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
                         eShitf = line.getFirst();
                         if (eShitf.getPositions() == null) {
-                            eShitf.setPositions(mLine.getPositions());
+                            if (mPline!=null && mPline.getFirst()!=null && mPline.getFirst().getPositions()!=null)
+                                eShitf.setPositions(mPline.getFirst().getPositions());
+                            else
+                                eShitf.setPositions(mLine.getPositions());
                             for (EmployeePosition employeePosition : eShitf.getPositions())
                                 employeePosition.setPosition(0);
                         }
@@ -1207,7 +1219,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         eShitf = line.getSecond();
 
                         if (eShitf.getPositions() == null) {
-                            eShitf.setPositions(mLine.getPositions());
+                            if (mPline!=null && mPline.getSecond()!=null && mPline.getSecond().getPositions()!=null)
+                                eShitf.setPositions(mPline.getSecond().getPositions());
+                            else
+                                eShitf.setPositions(mLine.getPositions());
                             for (EmployeePosition employeePosition : eShitf.getPositions())
                                 employeePosition.setPosition(0);
                         }
@@ -1225,7 +1240,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                             title = "End of " + getString(R.string.add_3rd_shift) + " Transfer";
                         eShitf = line.getThird();
                         if (eShitf.getPositions() == null) {
-                            eShitf.setPositions(mLine.getPositions());
+                            if (mPline!=null && mPline.getThird()!=null && mPline.getThird().getPositions()!=null)
+                                eShitf.setPositions(mPline.getThird().getPositions());
+                            else
+                                eShitf.setPositions(mLine.getPositions());
+
                             for (EmployeePosition employeePosition : eShitf.getPositions())
                                 employeePosition.setPosition(0);
                         }
@@ -1341,23 +1360,26 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 switch (shift) {
                                     case 1:
                                         line.setFirst(finalShift);
+                                        mPline.getFirst().setPositions(line.getFirst().getPositions());
                                         if (finalShift.isClosed())
                                             sendReport1 = true;
                                         break;
                                     case 2:
                                         line.setSecond(finalShift);
+                                        mPline.getSecond().setPositions(line.getSecond().getPositions());
                                         if (finalShift.isClosed())
                                             sendReport2 = true;
                                         break;
                                     case 3:
                                         line.setThird(finalShift);
+                                        mPline.getThird().setPositions(line.getThird().getPositions());
                                         break;
                                 }
 
 
                                 if (line.getFirst().isClosed() && line.getSecond().isClosed() && line.getThird().isClosed())
                                     sendReport = true;
-
+                                dbPLine.child(mPline.getId()).setValue(mPline);
                                 updateLine(line);
                                 dialog.dismiss();
 

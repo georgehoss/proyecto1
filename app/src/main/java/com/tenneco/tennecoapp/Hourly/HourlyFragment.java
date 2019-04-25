@@ -42,6 +42,7 @@ import butterknife.OnClick;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import io.realm.internal.Util;
 
 
 public class HourlyFragment extends Fragment implements HourlyContract.View,ProductionLineAdapter.ItemInteraction, RealmProductionLineAdapter.ItemInteraction {
@@ -85,6 +86,7 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             ArrayList<Line> lines = new ArrayList<>();
+            ArrayList<Line> dlines = new ArrayList<>();
             boolean today = false, tomorrow = false;
             String date = Utils.getDateString();
             String t0morrow = Utils.getTomorrowDateString();
@@ -93,8 +95,12 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
             for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
             {
                 Line line = itemSnapshot.getValue(Line.class);
+
                 if (line!=null) {
-                    lines.add(line);
+                    if (Utils.getMonth(line.getDate()).equals(Utils.getMonth(Utils.getDateString())))
+                        lines.add(line);
+                    else
+                        dlines.add(line);
 
                     if (line.getDate()!=null&& line.getDate().equals(date))
                         today=true;
@@ -105,37 +111,33 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
                 }
             }
 
+            if (lines.size()>0) {
 
-            if (lines.size()>0){
                 try (Realm realm = Realm.getDefaultInstance()) {
-                    realm.beginTransaction();
+                        realm.beginTransaction();
 
-                    mRLines.deleteAllFromRealm();
+                        mRLines.deleteAllFromRealm();
 
-                    for (Line line : lines) {
-                        com.tenneco.tennecoapp.Model.realm.Line l = new com.tenneco.tennecoapp.Model.realm.Line(
-                                line.getId(), line.getName(), line.getCode(), line.getDate(), line.getProducts().get(0).getFirst().getCumulativePlanned(),
-                                line.getProducts().get(0).getSecond().getCumulativePlanned(), line.getProducts().get(0).getThird().getCumulativePlanned(),
-                                line.getFirst().getCumulativeActual(),
-                                line.getSecond().getCumulativeActual(),
-                                line.getThird().getCumulativeActual(),
-                                true, line.isSchedule(), StorageUtils.getPlantId(main));
-                        l.setParentId(line.getParentId());
-                        realm.copyToRealmOrUpdate(l);
+                        for (Line line : lines) {
+                            com.tenneco.tennecoapp.Model.realm.Line l = new com.tenneco.tennecoapp.Model.realm.Line(
+                                    line.getId(), line.getName(), line.getCode(), line.getDate(), line.getProducts().get(0).getFirst().getCumulativePlanned(),
+                                    line.getProducts().get(0).getSecond().getCumulativePlanned(), line.getProducts().get(0).getThird().getCumulativePlanned(),
+                                    line.getFirst().getCumulativeActual(),
+                                    line.getSecond().getCumulativeActual(),
+                                    line.getThird().getCumulativeActual(),
+                                    true, line.isSchedule(), StorageUtils.getPlantId(main));
+                            l.setParentId(line.getParentId());
+                            realm.copyToRealmOrUpdate(l);
+                        }
+
+                        realm.commitTransaction();
+
+                    } catch (Exception ignored) {
+
+                    } finally {
+                        getRealmResults();
                     }
-
-                    realm.commitTransaction();
-
-                } catch (Exception ignored) {
-
                 }
-                finally {
-                    getRealmResults();
-                }
-            }
-
-
-
 
 
             mLines = new ArrayList<>();
@@ -155,13 +157,20 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
             //mAdapter.setLines(mLines);
             //mAdapter.notifyDataSetChanged();
             hideProgressBar();
-            for (Line line : mLines){
-                if (getContext()!=null) {
+
+/*            for (Line line : dlines) {
+                if (getContext() != null) {
                     dbTPLines = FirebaseDatabase.getInstance().getReference(Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(getContext())).child(Utils.getYear(line.getDate()))
                             .child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
                     dbTPLines.child(line.getId()).setValue(line.getId());
+                    if (!Utils.getMonth(line.getDate()).equals(Utils.getMonth(Utils.getDateString()))) {
+                        //dbPLines.removeEventListener(valueEventListener);
+                        dbPLines.child(line.getId()).removeValue();
+                    }
                 }
-            }
+            }*/
+
+
         }
 
         @Override
@@ -322,7 +331,8 @@ postsQuery = dbPLines.child("-La-XOCsi3i2KHRys0oa");
     public void addNewLine() {
 
         Line line = new Line(mLine);
-        line.setId(lineId+line.getCode()+Utils.getDateStamp());
+        String id = dbPLines.push().getKey();
+        line.setId(id+mLine.getCode()+Utils.getDateStamp());
         line.setCode(mLine.getCode());
         line.setDescription(mLine.getDescription());
         line.setDate(Utils.getDateString());

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public interface ScheduleContract {
     void getLines();
+    void getPLines();
     void updateLines();
     void dialogCreate(ArrayList<Line> lines);
     void createLine(Line line);

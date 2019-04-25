@@ -3,11 +3,12 @@ package com.tenneco.tennecoapp.Schedule;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,9 +44,11 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
     private Realm realm;
     private RealmResults<Line> mRlines;
     private ArrayList<com.tenneco.tennecoapp.Model.Line> mLines;
+    private ArrayList<com.tenneco.tennecoapp.Model.Line> mPLines;
     private ScheduleLineAdapter mAdapter;
     private DatabaseReference dbLines;
     private DatabaseReference dbPLine;
+    private ProgressDialog progressD;
     private ValueEventListener linesListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -59,6 +62,26 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
                 updateLines();
                 mBtSchedule.setVisibility(View.VISIBLE);
                 mPb.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            finish();
+        }
+    };
+
+    private ValueEventListener plinesListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mPLines = new ArrayList<>();
+            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                com.tenneco.tennecoapp.Model.Line line = itemSnapshot.getValue(com.tenneco.tennecoapp.Model.Line.class);
+                if (line != null && line.getDate().equals(mTvDate.getText().toString()))
+                    mPLines.add(line);
+
+                if (progressD!=null && progressD.isShowing())
+                    progressD.dismiss();
             }
         }
 
@@ -91,6 +114,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
         mRvLines.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new ScheduleLineAdapter(null,this);
         getLines();
+        getPLines();
         mRvLines.setAdapter(mAdapter);
         mTvDate.setText(Utils.getDateString());
     }
@@ -109,6 +133,19 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
     @Override
     public void getLines() {
         dbLines.addValueEventListener(linesListener);
+    }
+
+
+    @Override
+    public void getPLines() {
+        progressD = new ProgressDialog(this);
+        progressD.setMessage("Validating Date, Please Wait..");
+        mPLines = new ArrayList<>();
+       // if (progressD!=null && !progressD.isShowing())
+         //   progressD.show();
+        DatabaseReference dbPLineBd = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(this))
+                .child(Utils.getYear(mTvDate.getText().toString())).child(Utils.getMonth(mTvDate.getText().toString())).child(Utils.getDay(mTvDate.getText().toString()));
+        dbPLineBd.addListenerForSingleValueEvent(plinesListener);
     }
 
     @Override
@@ -153,9 +190,16 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
             btAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    for (com.tenneco.tennecoapp.Model.Line line : lines)
-                        if (line.isSchedule())
-                            createLine(line);
+                    for (com.tenneco.tennecoapp.Model.Line line : lines) {
+                        boolean exist = false;
+                        if (line.isSchedule()) {
+                            for (com.tenneco.tennecoapp.Model.Line eline : mPLines)
+                                if (eline.getParentId().equals(line.getId()))
+                                    exist = true;
+                            if (!exist)
+                                createLine(line);
+                        }
+                    }
                     dialog.dismiss();
                     Toast.makeText(ScheduleActivity.this, "Lines have been scheduled successfully for date "+ mTvDate.getText().toString(), Toast.LENGTH_LONG).show();
                 }
@@ -169,16 +213,23 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
 
 
     @Override
-    public void createLine(com.tenneco.tennecoapp.Model.Line line) {
-        String date = mTvDate.getText().toString();
-        String id = line.getId();
-        line.setParentId(id);
-        line.setDate(date);
-        line.setId(id+line.getCode()+date.replaceAll("/",""));
+    public void createLine(com.tenneco.tennecoapp.Model.Line mLine) {
+        com.tenneco.tennecoapp.Model.Line line = new com.tenneco.tennecoapp.Model.Line(mLine);
+        String id = mLine.getId();
+        line.setId(dbLines.push().getKey()+mLine.getCode()+Utils.getDateStamp());
+        line.setCode(mLine.getCode());
+        line.setDescription(mLine.getDescription());
+        line.setDate(mTvDate.getText().toString());
+        line.setParentId(mLine.getId());
+        line.setPassword(mLine.getPassword());
+        line.setProducts(mLine.getProducts());
         dbPLine.child(id).child(line.getId()).setValue(line);
         DatabaseReference  dbTPLines = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(this)).child(Utils.getYear(line.getDate()))
                 .child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
         dbTPLines.child(line.getId()).setValue(line);
+        dbTPLines = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(this)).child(Utils.getYear(line.getDate())).child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line.getId());
+        getPLines();
     }
 
 
@@ -204,8 +255,10 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
                 final String selectedDate = mes + "/" + dia + "/" + ano;
                 if (Utils.compareDate(Utils.getDateString(),selectedDate))
                     Toast.makeText(ScheduleActivity.this, "Sorry, dates before today are not allowed", Toast.LENGTH_SHORT).show();
-                else
+                else {
+                    getPLines();
                     mTvDate.setText(selectedDate);
+                }
 
             }
         });
