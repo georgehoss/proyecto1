@@ -20,6 +20,7 @@ public interface MainActivityContract {
         void setUsers();
         void setConfiguration();
         void setEmail();
+        void setUserName(String name);
     }
 
 }

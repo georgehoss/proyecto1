@@ -869,6 +869,32 @@ public class DailyPresenter implements DailyContract.Presenter {
         }
     }
 
+    @Override
+    public void setOperators(Line line) {
+        StringBuilder sb = new StringBuilder();
+        if (line.getOperators()!=null && line.getOperators().size()>0)
+        {
+            mView.showOperatorsl();
+            for (Employee e : line.getOperators()) {
+                sb.append("- ").append(e.getFullName()).append(": ");
+                int tot = 0;
+                for (Production p : e.getProductions()) {
+                    sb.append(" ").append(p.getProductName()).append(" (").append(p.getTotal()).append(") ");
+                    tot += p.getTotal();
+                }
+                sb.append("Total: ").append(String.valueOf(tot));
+                sb.append(" Shift: ").append(e.getShift());
+                sb.append(" Station: ").append(e.getStation());
+                sb.append("\n\n");
+            }
+
+            mView.setOperators(sb.toString());
+
+        }
+        else
+            mView.hideOperators();
+    }
+
 
     @Override
     public boolean getGroups(Line line, int shift) {

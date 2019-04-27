@@ -61,6 +61,9 @@ public interface DailyContract {
         void setGroup1(String title);
         void setGroup2(String title);
         void setGroup3(String title);
+        void showOperatorsl();
+        void hideOperators();
+        void setOperators(String operators);
         void showCellEmailDialog();
         void sendCellEmail();
         void longClicks();
@@ -100,6 +103,7 @@ public interface DailyContract {
         String[] getCC (ArrayList<Email> emails, Line line);
         void setTeam(Line line);
         void setGroup(Line line);
+        void setOperators(Line line);
         boolean getGroups(Line line, int shift);
         boolean getTeam(Line line, int shift);
         String lineInformation(Line line);

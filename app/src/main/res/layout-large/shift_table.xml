@@ -499,6 +499,44 @@
         </LinearLayout>
     </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/ll_operators"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:text="@string/operators_positions"
+            android:gravity="center"
+            android:layout_height="match_parent"
+            android:textColor="@color/colorBlueLine"
+            android:textStyle="bold"
+            android:background="@drawable/daily_title"
+            android:padding="5dp"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:id="@+id/tv_operators"
+                android:gravity="start"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold"
+                android:background="@drawable/daily_item"
+                android:padding="10dp"
+                android:textSize="16sp"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

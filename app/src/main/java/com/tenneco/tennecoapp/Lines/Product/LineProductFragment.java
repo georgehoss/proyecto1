@@ -45,6 +45,7 @@ public class LineProductFragment extends Fragment implements LineProductContract
     private HourAdapter mAdapter3;
     private ArrayAdapter<Product> mAdapter;
     private Product mProduct;
+    private int productPosition=0;
 
     private ConfigLineActivity main;
     @BindView(R.id.ll_shift1) LinearLayout mLlS1;
@@ -126,6 +127,8 @@ public class LineProductFragment extends Fragment implements LineProductContract
         if (main!=null && main.mLine!=null && main.mLine.getProducts()!=null) {
             mAdapter = new ArrayAdapter<>(main, R.layout.spinner_row, main.mLine.getProducts());
             spProducts.setAdapter(mAdapter);
+            if (productPosition<main.mLine.getProducts().size())
+                spProducts.setSelection(productPosition);
             spProducts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -285,6 +288,7 @@ public class LineProductFragment extends Fragment implements LineProductContract
         else
             mTvName.setText(getString(R.string.add_3rd_shift));
 
+
         final EditText mEtS1s1 = view.findViewById(R.id.et_s1_shour1);
         final EditText mEtS1e1 = view.findViewById(R.id.et_s1_ehour1);
         final EditText mEtS1t1 = view.findViewById(R.id.et_s1_t1);
@@ -365,6 +369,8 @@ public class LineProductFragment extends Fragment implements LineProductContract
         mBtSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                productPosition = spProducts.getSelectedItemPosition();
 
                 String s1 = mEtS1s1.getText().toString().trim();
                 String e1 = mEtS1e1.getText().toString().trim();

@@ -84,7 +84,7 @@ public class LineConfigFragment extends Fragment implements LineConfigContract.V
         {
             if (main.mLine.getName()!=null)
                 mEtName.setText(main.mLine.getName());
-            if (main.mLine.getLineList()!=null)
+            if (main.mLine.getCode()!=null)
                 mEtCode.setText(main.mLine.getCode());
             if (main.mLine.getDescription()!=null)
                 mEtDescription.setText(main.mLine.getDescription());

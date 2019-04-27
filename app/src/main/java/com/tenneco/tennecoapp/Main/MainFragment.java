@@ -74,11 +74,13 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
                     mUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 saveUser(mUser);
+                main.setUserName(mUser.getDisplayName());
             }
             else
             {
 
                 admin = user.getType();
+                main.setUserName(user.getName());
 
                 StorageUtils.saveUserPermissions(main,admin);
 

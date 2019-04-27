@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     @BindView(R.id.tv_users) ImageView mTvUsers;
     @BindView(R.id.tv_configuration) ImageView mTvConfiguration;
     @BindView(R.id.tv_email) ImageView mTvEmail;
+    @BindView(R.id.tv_user_name) TextView mTvUserName;
 
     @OnClick(R.id.tv_production) void production(){
         launchProduction();
@@ -308,6 +309,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     public void setEmail() {
         mTvEmail.setBackground(getResources().getDrawable(R.drawable.email_blue_icon));
         mTvEmail.setEnabled(false);
+    }
+
+    @Override
+    public void setUserName(String name) {
+        mTvUserName.setText(name);
     }
 
     public void launchPlants() {

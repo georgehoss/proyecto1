@@ -178,6 +178,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     @BindView(R.id.tv_gls_1) TextView mTvGls1;
     @BindView(R.id.tv_gls_2) TextView mTvGls2;
     @BindView(R.id.tv_gls_3) TextView mTvGls3;
+    @BindView(R.id.tv_operators) TextView mTvOperators;
+    @BindView(R.id.ll_operators) LinearLayout mLlOperators;
     @BindView(R.id.ll_tlstx) LinearLayout mLlTls;
     @BindView(R.id.ll_glstx) LinearLayout mLlGls;
     @BindView(R.id.bt_hour) Button mBtHour;
@@ -409,6 +411,16 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
+    public void hideOperators() {
+        mLlOperators.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void setOperators(String operators) {
+        mTvOperators.setText(operators);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         if (getIntent().getExtras()!=null && getIntent().getExtras().getString("id")!=null)
@@ -578,6 +590,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
             mPresenter.setTeam(mLine);
             mPresenter.setGroup(mLine);
+            mPresenter.setOperators(mLine);
 
 
             if (mLine.getTurno()==1)
@@ -1176,6 +1189,14 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     TextView mTvDate = view.findViewById(R.id.tv_date);
                     mTvDate.setText(line.getDate());
                     TextView mTvShift = view.findViewById(R.id.tv_shift);
+                    final Spinner spProduct = view.findViewById(R.id.sp_product);
+                    ArrayAdapter<Product> mAdapter;
+                    mAdapter = new ArrayAdapter<>(this, R.layout.spinner_row, mLine.getProducts());
+                    spProduct.setAdapter(mAdapter);
+                    for (int i=0;i<mLine.getProducts().size();i++)
+                        if (lastProduct.getCode().equals(mLine.getProducts().get(i).getCode()))
+                            spProduct.setSelection(i);
+
                     Shift eShitf = new Shift();
                     String title = "";
                     boolean start = false;
@@ -1320,6 +1341,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                     case 3:
                                         finalShift = line.getThird();
                                         break;
+                                }
+
+                                Product mProduct = (Product) spProduct.getSelectedItem();
+                                if (mProduct != null) {
+                                    productClick(mProduct);
+                                    line.setLastProduct(mProduct);
                                 }
 
 
@@ -2194,6 +2221,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     }
 
     @Override
+    public void showOperatorsl() {
+        mLlOperators.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void showCellEmailDialog() {
         sendReport = false;
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -2577,7 +2609,9 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @Override
     public void productClick(Product product) {
-        productDialog.dismiss();
+        if (productDialog!=null && productDialog.isShowing())
+            productDialog.dismiss();
+
         lastProduct = product;
         mLine.setLastProduct(product);
         saveProduct(lastProduct);
