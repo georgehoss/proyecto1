@@ -97,10 +97,10 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
                 Line line = itemSnapshot.getValue(Line.class);
 
                 if (line!=null) {
-                    if (Utils.getMonth(line.getDate()).equals(Utils.getMonth(Utils.getDateString())))
+                   // if (Utils.getMonth(line.getDate()).equals(Utils.getMonth(Utils.getDateString())))
                         lines.add(line);
-                    else
-                        dlines.add(line);
+                    //else
+                      //  dlines.add(line);
 
                     if (line.getDate()!=null&& line.getDate().equals(date))
                         today=true;

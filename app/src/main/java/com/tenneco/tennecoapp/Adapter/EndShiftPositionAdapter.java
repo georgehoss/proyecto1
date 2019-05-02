@@ -57,7 +57,7 @@ public class EndShiftPositionAdapter extends RecyclerView.Adapter<EndShiftPositi
             mList.addAll(employees);
             ArrayAdapter<Employee> mAdapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_item,mList);
             holder.mSpPosition.setAdapter(mAdapter);
-            if (employeePosition.getPosition()>0)
+            if (employeePosition.getPosition()>0 && employeePosition.getPosition()<employees.size())
                 holder.mSpPosition.setSelection(employeePosition.getPosition());
 
             holder.mSpPosition.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
