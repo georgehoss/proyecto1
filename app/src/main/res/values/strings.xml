@@ -220,6 +220,7 @@
     <string name="please_pick_a_date_and_select_the_lines_you_need_to_schedule">Please pick a date and select the lines you need to schedule</string>
     <string name="schedule_lines">Schedule Lines</string>
     <string name="operators_positions">Operators</string>
+    <string name="no_authorization">You don\'t have permissions to login, please ask for authorization to your manager.</string>
 
     <string-array name="selector">
         <item>Production</item>

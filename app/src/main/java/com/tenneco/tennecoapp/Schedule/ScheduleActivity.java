@@ -205,14 +205,33 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
             btAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    for (com.tenneco.tennecoapp.Model.Line line : lines) {
+                    for (final com.tenneco.tennecoapp.Model.Line line : lines) {
                         boolean exist = false;
                         if (line.isSchedule()) {
                             for (com.tenneco.tennecoapp.Model.Line eline : mPLines)
                                 if (eline.getParentId().equals(line.getId()))
                                     exist = true;
-                            if (!exist)
-                                createLine(line);
+                            if (!exist) {
+                                dbPLine.child(line.getId()).orderByChild("date").equalTo(mTvDate.getText().toString()).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                                            com.tenneco.tennecoapp.Model.Line mline = itemSnapshot.getValue(com.tenneco.tennecoapp.Model.Line.class);
+                                            if (mline == null)
+                                                createLine(line);
+                                            else {
+                                                createDateLine(mline);
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                            }
                         }
                     }
                     dialog.dismiss();
@@ -246,6 +265,35 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
         dbTPLines.child(line.getId()).setValue(line.getId());
         getPLines();
     }
+
+    public void createDateLine(com.tenneco.tennecoapp.Model.Line mLine)
+    {
+        DatabaseReference  dbTPLines = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(this)).child(Utils.getYear(mLine.getDate()))
+                .child(Utils.getMonth(mLine.getDate())).child(Utils.getDay(mLine.getDate()));
+        dbTPLines.child(mLine.getId()).setValue(mLine);
+        dbTPLines = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(this)).child(Utils.getYear(mLine.getDate())).child(Utils.getMonth(mLine.getDate())).child(Utils.getDay(mLine.getDate()));
+        dbTPLines.child(mLine.getId()).setValue(mLine.getId());
+    }
+
+    /*
+       com.tenneco.tennecoapp.Model.Line line = new com.tenneco.tennecoapp.Model.Line(mLine);
+        String id = mLine.getId();
+        //line.setId(dbLines.push().getKey()+mLine.getCode()+Utils.getDateStamp());
+        line.setId(mLine.getCode()+Utils.getDateStamp());
+        line.setCode(mLine.getCode());
+        line.setDescription(mLine.getDescription());
+        line.setDate(mTvDate.getText().toString());
+        line.setParentId(mLine.getId());
+        line.setPassword(mLine.getPassword());
+        line.setProducts(mLine.getProducts());
+        dbPLine.child(id).child(line.getId()).child(Utils.getMonth(line.getDate())).setValue(line);
+        DatabaseReference  dbTPLines = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(this)).child(Utils.getYear(line.getDate()))
+                .child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line);
+        dbTPLines = FirebaseDatabase.getInstance().getReference(com.tenneco.tennecoapp.Model.Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(this)).child(Utils.getYear(line.getDate())).child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line.getId());
+        getPLines();
+     */
 
 
     @Override

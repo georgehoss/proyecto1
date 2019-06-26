@@ -342,6 +342,8 @@ postsQuery = dbPLines.child("-La-XOCsi3i2KHRys0oa");
         dbPLines.child(line.getId()).setValue(line);
         dbTPLines = FirebaseDatabase.getInstance().getReference(Line.AVAILABLE_DATES).child(StorageUtils.getPlantId(getContext())).child(Utils.getYear(line.getDate())).child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
         dbTPLines.child(line.getId()).setValue(line.getId());
+        dbTPLines = FirebaseDatabase.getInstance().getReference(Line.DB_DATE_P_LINE).child(StorageUtils.getPlantId(getContext())).child(Utils.getYear(line.getDate())).child(Utils.getMonth(line.getDate())).child(Utils.getDay(line.getDate()));
+        dbTPLines.child(line.getId()).setValue(line);
     }
 
     @Override

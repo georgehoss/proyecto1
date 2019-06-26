@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,7 +29,6 @@ import com.tenneco.tennecoapp.Adapter.RealmLineAdapter;
 import com.tenneco.tennecoapp.Hourly.HourlyFragment;
 import com.tenneco.tennecoapp.MainActivity;
 import com.tenneco.tennecoapp.Model.Line;
-import com.tenneco.tennecoapp.Model.Plant;
 import com.tenneco.tennecoapp.Model.User;
 import com.tenneco.tennecoapp.Plants.PlantsActivity;
 import com.tenneco.tennecoapp.R;
@@ -86,7 +84,8 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
 
                 if (user.getType()==0)
                 {
-                    showNoLines();
+                    showNoAuthoritation();
+                    hideProgress();
                 }
                 else
                     getLines();
@@ -304,6 +303,14 @@ public class MainFragment extends Fragment implements LineAdapter.ItemInteractio
     public void showNoLines() {
         if (getContext()!=null){
             mTvSlogan.setText(R.string.main_come_back_later);
+            mTvSlogan.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void showNoAuthoritation() {
+        if (getContext()!=null){
+            mTvSlogan.setText(R.string.no_authorization);
             mTvSlogan.setVisibility(View.VISIBLE);
         }
     }

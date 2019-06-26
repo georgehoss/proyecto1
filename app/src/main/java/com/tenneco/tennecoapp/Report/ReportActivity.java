@@ -371,6 +371,7 @@ public class ReportActivity extends AppCompatActivity implements ReportContract.
             // image naming and path  to include sd card  appending name you choose for file
             String mPath = Environment.getExternalStorageDirectory().toString() + "/" +now + ".jpg";
 
+
             // create bitmap screen capture
             View v1 = getWindow().getDecorView().getRootView();
             v1.setDrawingCacheEnabled(true);

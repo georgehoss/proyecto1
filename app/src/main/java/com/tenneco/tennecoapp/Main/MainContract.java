@@ -14,6 +14,7 @@ public interface MainContract {
         void hideProgress();
         void showPickOne();
         void showNoLines();
+        void showNoAuthoritation();
         void showPlants();
         void launchPlants();
         void launchHourly(String lineId);
