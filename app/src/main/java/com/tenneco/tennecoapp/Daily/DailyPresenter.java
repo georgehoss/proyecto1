@@ -102,30 +102,30 @@ public class DailyPresenter implements DailyContract.Presenter {
                         hours.get(j-1).getCumulativeActual()!=null &&
                         !hours.get(j-1).getCumulativeActual().isEmpty())
                 {
-                    cA = Integer.valueOf(hours.get(j).getActuals()) + Integer.valueOf(hours.get(j - 1).getCumulativeActual());
+                    cA = Integer.valueOf(hours.get(j).getActuals().trim()) + Integer.valueOf(hours.get(j - 1).getCumulativeActual().trim());
                     hours.get(j).setCumulativeActual(String.valueOf(cA));
                 }
                 else
                 if ( j==0 || j==8 ||j==16)
                 {
-                    hours.get(j).setCumulativeActual(hours.get(j).getActuals());
+                    hours.get(j).setCumulativeActual(hours.get(j).getActuals().trim());
                 }
 
                 if (j<=7)
                 {
-                    cA1 = cA1 + Integer.valueOf(hours.get(j).getActuals());
-                    cL1 = cL1 + Integer.valueOf(hours.get(j).getLeak());
+                    cA1 = cA1 + Integer.valueOf(hours.get(j).getActuals().trim());
+                    cL1 = cL1 + Integer.valueOf(hours.get(j).getLeak().trim());
                 }
                 else
                 if (j<=15)
                 {
-                    cA2 = cA2 + Integer.valueOf(hours.get(j).getActuals());
-                    cL2 = cL2 + Integer.valueOf(hours.get(j).getLeak());
+                    cA2 = cA2 + Integer.valueOf(hours.get(j).getActuals().trim());
+                    cL2 = cL2 + Integer.valueOf(hours.get(j).getLeak().trim());
                 }
                 else
                 {
-                    cA3 = cA3 + Integer.valueOf(hours.get(j).getActuals());
-                    cL3 = cL3 + Integer.valueOf(hours.get(j).getLeak());
+                    cA3 = cA3 + Integer.valueOf(hours.get(j).getActuals().trim());
+                    cL3 = cL3 + Integer.valueOf(hours.get(j).getLeak().trim());
                 }
 
             }
@@ -1112,16 +1112,21 @@ public class DailyPresenter implements DailyContract.Presenter {
             bw.write("Cell;"+line.getName()+";;"+"Date;"+line.getDate());
             bw.write(";"+shiftname);
 
+
             bw.write(";Target;");
+            if (actualShift.getCumulativePlanned()!=null)
             bw.write(actualShift.getCumulativePlanned());
 
             bw.write(";Actual;");
+            if (actualShift.getCumulativeActual()!=null)
             bw.write(actualShift.getCumulativeActual());
 
             bw.write(";Hour Start;");
+            if (actualShift.getTimeStart()!=null)
             bw.write(actualShift.getTimeStart());
 
             bw.write(";Hour End;");
+            if (actualShift.getTimeEnd()!=null)
             bw.write(actualShift.getTimeEnd());
 
             bw.write(";Team Leaders;");

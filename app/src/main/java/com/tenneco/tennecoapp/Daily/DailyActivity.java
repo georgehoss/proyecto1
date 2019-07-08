@@ -451,6 +451,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     protected void onPause() {
         super.onPause();
         postsQuery.removeEventListener(valueEventListener);
+
         context = null;
     }
 
