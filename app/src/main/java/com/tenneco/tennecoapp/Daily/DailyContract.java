@@ -6,6 +6,7 @@ import android.content.Context;
 import com.google.firebase.auth.FirebaseUser;
 import com.tenneco.tennecoapp.BasePresenter;
 import com.tenneco.tennecoapp.BaseView;
+import com.tenneco.tennecoapp.Model.DateShift;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Email;
@@ -37,6 +38,7 @@ public interface DailyContract {
         void showTargetDialog(WorkHour workHour,Line line, int position,Context context);
         void showOwnerDialog(WorkHour workHour, Line line,int position, Context context);
         void showEndShiftDialog(Line line,int shift,Context context,boolean close);
+        void saveShift(int shiftId, DateShift dateShift);
         void updateLine(Line line);
         void hideLeakCounter();
         void setCount(int count);
@@ -114,6 +116,6 @@ public interface DailyContract {
         String getSignature(FirebaseUser user, ArrayList<User>Team, ArrayList<User>Group);
         void validateFQT(Line line);
         void setDowntimes(Line line);
-
+        void validateShift (String dateLine, String datePLine, Shift shift, int shiftId, String code);
     }
 }

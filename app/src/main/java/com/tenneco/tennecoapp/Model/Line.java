@@ -46,6 +46,9 @@ public class Line {
     private int turno;
     private boolean isSchedule;
     private ArrayList<Employee> operators;
+    private String dateLast1st;
+    private String dateLast2nd;
+    private String dateLast3rd;
 
     public Line() {
     }
@@ -343,5 +346,29 @@ public class Line {
 
     public void setOperators(ArrayList<Employee> operators) {
         this.operators = operators;
+    }
+
+    public String getDateLast1st() {
+        return dateLast1st;
+    }
+
+    public String getDateLast2nd() {
+        return dateLast2nd;
+    }
+
+    public String getDateLast3rd() {
+        return dateLast3rd;
+    }
+
+    public void setDateLast1st(String dateLast1st) {
+        this.dateLast1st = dateLast1st;
+    }
+
+    public void setDateLast2nd(String dateLast2nd) {
+        this.dateLast2nd = dateLast2nd;
+    }
+
+    public void setDateLast3rd(String dateLast3rd) {
+        this.dateLast3rd = dateLast3rd;
     }
 }

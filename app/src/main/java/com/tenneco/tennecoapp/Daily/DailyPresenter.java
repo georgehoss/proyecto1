@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.tenneco.tennecoapp.Model.DateShift;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Email;
 import com.tenneco.tennecoapp.Model.Employee;
@@ -1280,6 +1281,19 @@ public class DailyPresenter implements DailyContract.Presenter {
             }
 
 
+        }
+    }
+
+    @Override
+    public void validateShift(String dateLine, String datePLine, Shift shift, int shiftId, String code) {
+        if (datePLine!=null){
+
+            if (Utils.compareDate(dateLine,datePLine))
+                mView.saveShift(shiftId,new DateShift(dateLine,shift,code));
+
+        }else
+        {
+            mView.saveShift(shiftId,new DateShift(dateLine,shift,code));
         }
     }
 

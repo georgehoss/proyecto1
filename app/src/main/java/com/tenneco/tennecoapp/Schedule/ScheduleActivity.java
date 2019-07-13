@@ -212,22 +212,32 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
                                 if (eline.getParentId().equals(line.getId()))
                                     exist = true;
                             if (!exist) {
-                                dbPLine.child(line.getId()).orderByChild("date").equalTo(mTvDate.getText().toString()).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
+                                dbPLine.child(line.getId()).orderByChild("date").equalTo(mTvDate.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
-                                            com.tenneco.tennecoapp.Model.Line mline = itemSnapshot.getValue(com.tenneco.tennecoapp.Model.Line.class);
-                                            if (mline == null)
-                                                createLine(line);
-                                            else {
-                                                createDateLine(mline);
+                                        if (dataSnapshot.getValue()!=null) {
+                                            for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                                                com.tenneco.tennecoapp.Model.Line mline = itemSnapshot.getValue(com.tenneco.tennecoapp.Model.Line.class);
+                                                if (mline == null) {
+                                                    Toast.makeText(ScheduleActivity.this, "Line:  has been scheduled successfully for date " + mTvDate.getText().toString(), Toast.LENGTH_LONG).show();
+                                                    createLine(line);
+
+                                                } else {
+                                                    Toast.makeText(ScheduleActivity.this, "Line:  has been scheduled successfully for date " + mTvDate.getText().toString(), Toast.LENGTH_LONG).show();
+                                                    createDateLine(mline);
+                                                }
                                             }
                                         }
+                                        else{
+                                            Toast.makeText(ScheduleActivity.this, "Line:  has been scheduled successfully for date " + mTvDate.getText().toString(), Toast.LENGTH_LONG).show();
+                                            createLine(line);
+                                        }
+
                                     }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                        Toast.makeText(ScheduleActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
                                     }
                                 });
 
@@ -235,7 +245,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
                         }
                     }
                     dialog.dismiss();
-                    Toast.makeText(ScheduleActivity.this, "Lines have been scheduled successfully for date "+ mTvDate.getText().toString(), Toast.LENGTH_LONG).show();
+
                 }
             });
         }

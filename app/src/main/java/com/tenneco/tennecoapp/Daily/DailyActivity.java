@@ -54,6 +54,7 @@ import com.tenneco.tennecoapp.Adapter.EndShiftPositionAdapter;
 import com.tenneco.tennecoapp.Adapter.ProductAdapter;
 import com.tenneco.tennecoapp.Adapter.RejectEventAdapter;
 import com.tenneco.tennecoapp.Adapter.UserSelectorAdapter;
+import com.tenneco.tennecoapp.Model.DateShift;
 import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
@@ -344,6 +345,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         dbTeamLd = FirebaseDatabase.getInstance().getReference(User.DB_TEAM).child(StorageUtils.getPlantId(this));
         dbOperators = FirebaseDatabase.getInstance().getReference(Employee.DB).child(StorageUtils.getPlantId(this));
         dbReasons= FirebaseDatabase.getInstance().getReference(ReasonDelay.DB_DELAY_REASONS).child(StorageUtils.getPlantId(this));
+
         //dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
         //dbNumbers.keepSynced(false);
         dbTemplates = FirebaseDatabase.getInstance().getReference(Template.DB_TEMPLATE).child(StorageUtils.getPlantId(this));
@@ -1389,18 +1391,24 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                     case 1:
                                         line.setFirst(finalShift);
                                         mPline.getFirst().setPositions(line.getFirst().getPositions());
-                                        if (finalShift.isClosed())
+                                        if (finalShift.isClosed()) {
                                             sendReport1 = true;
+                                            mPresenter.validateShift(mLine.getDate(),mPline.getDateLast1st(), finalShift, 1,mPline.getCode());
+                                        }
                                         break;
                                     case 2:
                                         line.setSecond(finalShift);
                                         mPline.getSecond().setPositions(line.getSecond().getPositions());
-                                        if (finalShift.isClosed())
+                                        if (finalShift.isClosed()) {
                                             sendReport2 = true;
+                                            mPresenter.validateShift(mLine.getDate(),mPline.getDateLast2nd(), finalShift, 2,mPline.getCode());
+                                        }
                                         break;
                                     case 3:
                                         line.setThird(finalShift);
                                         mPline.getThird().setPositions(line.getThird().getPositions());
+                                        if (finalShift.isClosed())
+                                        mPresenter.validateShift(mLine.getDate(),mPline.getDateLast3rd(),finalShift,3,mPline.getCode());
                                         break;
                                 }
 
@@ -1433,6 +1441,34 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         }
         else
             showDowntimeDialog(mLine.getDowntime(),this);
+    }
+
+    @Override
+    public void saveShift(int shiftId, DateShift dateShift) {
+
+        if (mPline!=null)
+        {
+            switch (shiftId){
+                case 1:
+                    mPline.setDateLast1st(dateShift.getDate());
+                    break;
+                case 2:
+                    mPline.setDateLast2nd(dateShift.getDate());
+                    break;
+                case 3:
+                    mPline.setDateLast3rd(dateShift.getDate());
+                    break;
+            }
+
+            dbPLine.child(mPline.getId()).setValue(mPline);
+
+        DatabaseReference dbShifts = FirebaseDatabase.getInstance()
+                .getReference(DateShift.DB_SHIFTS)
+                .child(StorageUtils.getPlantId(this))
+                .child(mPline.getId()).child(String.valueOf(shiftId));
+        dbShifts.setValue(dateShift);
+
+        }
     }
 
     @Override
