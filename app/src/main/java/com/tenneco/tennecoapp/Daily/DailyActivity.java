@@ -58,6 +58,7 @@ import com.tenneco.tennecoapp.Model.Downtime.Downtime;
 import com.tenneco.tennecoapp.Model.Downtime.Location;
 import com.tenneco.tennecoapp.Model.Downtime.Reason;
 import com.tenneco.tennecoapp.Model.Downtime.Zone;
+import com.tenneco.tennecoapp.Model.EmailList;
 import com.tenneco.tennecoapp.Model.Employee;
 import com.tenneco.tennecoapp.Model.EmployeePosition;
 import com.tenneco.tennecoapp.Model.Line;
@@ -82,6 +83,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -105,6 +107,66 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private Query postsQuery;
     private Context context;
     private int turno=0;
+    private DatabaseReference dbEmailList;
+
+    private ValueEventListener emailEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            List<EmailList> list = new ArrayList<>();
+            for (DataSnapshot child: dataSnapshot.getChildren()) {
+                EmailList emailList =child.getValue(EmailList.class);
+                if (emailList!=null) {
+                    list.add(emailList);
+                    if (mLine.getFirst().getDowntimeList().getId().equals(emailList.getId()))
+                        mLine.getFirst().getDowntimeList().setEmails(emailList.getEmails());
+                    if (mLine.getFirst().getLineList().getId().equals(emailList.getId()))
+                        mLine.getFirst().getLineList().setEmails(emailList.getEmails());
+                    if (mLine.getFirst().getLeakList().getId().equals(emailList.getId()))
+                        mLine.getFirst().getLeakList().setEmails(emailList.getEmails());
+                    if (mLine.getFirst().getScrap1List().getId().equals(emailList.getId()))
+                        mLine.getFirst().getScrap1List().setEmails(emailList.getEmails());
+                    if (mLine.getFirst().getScrap2List().getId().equals(emailList.getId()))
+                        mLine.getFirst().getScrap2List().setEmails(emailList.getEmails());
+                    if (mLine.getFirst().getScrap3List().getId().equals(emailList.getId()))
+                        mLine.getFirst().getScrap3List().setEmails(emailList.getEmails());
+
+
+                    if (mLine.getSecond().getDowntimeList().getId().equals(emailList.getId()))
+                        mLine.getSecond().getDowntimeList().setEmails(emailList.getEmails());
+                    if (mLine.getSecond().getLineList().getId().equals(emailList.getId()))
+                        mLine.getSecond().getLineList().setEmails(emailList.getEmails());
+                    if (mLine.getSecond().getLeakList().getId().equals(emailList.getId()))
+                        mLine.getSecond().getLeakList().setEmails(emailList.getEmails());
+                    if (mLine.getSecond().getScrap1List().getId().equals(emailList.getId()))
+                        mLine.getSecond().getScrap1List().setEmails(emailList.getEmails());
+                    if (mLine.getSecond().getScrap2List().getId().equals(emailList.getId()))
+                        mLine.getSecond().getScrap2List().setEmails(emailList.getEmails());
+                    if (mLine.getSecond().getScrap3List().getId().equals(emailList.getId()))
+                        mLine.getSecond().getScrap3List().setEmails(emailList.getEmails());
+
+
+                    if (mLine.getThird().getDowntimeList().getId().equals(emailList.getId()))
+                        mLine.getThird().getDowntimeList().setEmails(emailList.getEmails());
+                    if (mLine.getThird().getLineList().getId().equals(emailList.getId()))
+                        mLine.getThird().getLineList().setEmails(emailList.getEmails());
+                    if (mLine.getThird().getLeakList().getId().equals(emailList.getId()))
+                        mLine.getThird().getLeakList().setEmails(emailList.getEmails());
+                    if (mLine.getThird().getScrap1List().getId().equals(emailList.getId()))
+                        mLine.getThird().getScrap1List().setEmails(emailList.getEmails());
+                    if (mLine.getThird().getScrap2List().getId().equals(emailList.getId()))
+                        mLine.getThird().getScrap2List().setEmails(emailList.getEmails());
+                    if (mLine.getThird().getScrap3List().getId().equals(emailList.getId()))
+                        mLine.getThird().getScrap3List().setEmails(emailList.getEmails());
+
+                }
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+        }
+    };
+
 
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
@@ -114,6 +176,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 turno = mLine.getTurno();
                 setLine();
                 getPLine();
+                getEmails();
             }
 
         }
@@ -347,7 +410,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         //dbNumbers = FirebaseDatabase.getInstance().getReference(Plant.DB_PLANTS).child(StorageUtils.getPlantId(this)).child(SmsList.DB_SMS_LIST);
         //dbNumbers.keepSynced(false);
         dbTemplates = FirebaseDatabase.getInstance().getReference(Template.DB_TEMPLATE).child(StorageUtils.getPlantId(this));
-
+        dbEmailList = FirebaseDatabase.getInstance().getReference(EmailList.DB).child(StorageUtils.getPlantId(this));
         if (mPresenter == null)
             mPresenter = new DailyPresenter(this);
         else
@@ -433,6 +496,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
         getNumbers();
         getReasons();
         getTemplates();
+
     }
 
     @Override
@@ -451,7 +515,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     protected void onPause() {
         super.onPause();
         postsQuery.removeEventListener(valueEventListener);
-
+        dbEmailList.removeEventListener(emailEventListener);
         context = null;
     }
 
@@ -792,6 +856,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 finish();
             }
         });
+    }
+
+    @Override
+    public void getEmails() {
+        dbEmailList.addValueEventListener(emailEventListener);
     }
 
     @Override
@@ -1607,7 +1676,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                         String time = Utils.getTimeDateString();
                         if (mLine.getDowntime().isSet()) {
                             mTvEnd.setText(time);
-                            tvTotal.setText(Utils.getTimeDiference(time,mTvStart.getText().toString()));
+                            try {
+                                tvTotal.setText(Utils.getTimeDiference(time, mTvStart.getText().toString()));
+                            }
+                            catch (Exception ignored)
+                            {}
                         }
                         else
                             mTvStart.setText(time);
@@ -1670,10 +1743,11 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                     Toast.makeText(DailyActivity.this,"You must select a Reason",Toast.LENGTH_LONG).show();
                 else {
                     String time = mTvStart.getText().toString();
-                    if (time.contains("a"))
-                        time = time.substring(0,8)+"AM";
+                    /*if (time.contains("a"))
+                        time = time.substring(0,8)+" AM";
                     if (time.contains("p"))
-                        time = time.substring(0,8)+"PM";
+                        time = time.substring(0,8)+" PM";
+                     */
 
                     mLine.getDowntime().setStartTime(time);
                     mLine.getDowntime().setSet(true);
@@ -1723,10 +1797,12 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 if (mLine.getDowntime().isSet()){
 
                     String time = mTvEnd.getText().toString();
-                    if (time.contains("a"))
-                        time = time.substring(0,8)+"AM";
+                    /*if (time.contains("a"))
+                        time = time.substring(0,8)+" AM";
                     if (time.contains("p"))
-                        time = time.substring(0,8)+"PM";
+                        time = time.substring(0,8)+" PM";
+
+                     */
 
                     mLine.getDowntime().setEndTime(time);
                     mLine.getDowntime().setSet(false);

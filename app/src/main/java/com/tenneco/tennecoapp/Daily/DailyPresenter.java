@@ -566,38 +566,79 @@ public class DailyPresenter implements DailyContract.Presenter {
 
     @Override
     public void setDowntime(Line line, Downtime downtime) {
+        boolean comm=false,comm2=false;
+        for (WorkHour workHour : line.getFirst().getHours()) {
 
-        for (WorkHour workHour : line.getFirst().getHours())
-            if (setComment(workHour,downtime,1))
-                if (workHour.getComments()==null || workHour.getComments().isEmpty())                 {
-                    workHour.setComments(downtime.getDowntime() +".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
-                }
-                else{
-                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
-                }
-
-
-
-
-        for (WorkHour workHour : line.getSecond().getHours())
-            if (setComment(workHour,downtime,2))
-                if (workHour.getComments()==null || workHour.getComments().isEmpty())
+            if (!comm && setComment(workHour, downtime, 1))
+                comm = true;
+            else
+                if (comm && setComment(workHour, downtime, 1))
                 {
-                    workHour.setComments(downtime.getDowntime() +".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
-                }
-                else{
-                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                    comm=false;
+                    comm2=true;
                 }
 
-        for (WorkHour workHour : line.getThird().getHours())
-            if (setComment(workHour,downtime,3))
-                if (workHour.getComments()==null || workHour.getComments().isEmpty())
-                {
-                    workHour.setComments(downtime.getDowntime() +".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+            if (comm || comm2) {
+                if (workHour.getComments() == null || workHour.getComments().isEmpty()) {
+                    workHour.setComments(downtime.getDowntime() + ".\n  Start:" + downtime.getStartTime() + " End:" + downtime.getEndTime());
+                } else {
+                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:" + downtime.getStartTime() + " End:" + downtime.getEndTime());
                 }
-                else{
-                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:"+downtime.getStartTime() + " End:"+downtime.getEndTime());
+                comm2 = false;
+            }
+
+
+        }
+
+
+
+        comm=false;
+        comm2=false;
+        for (WorkHour workHour : line.getSecond().getHours()) {
+
+            if (!comm && setComment(workHour, downtime, 2))
+                comm = true;
+            else
+            if (comm && setComment(workHour, downtime, 2))
+            {
+                comm=false;
+                comm2=true;
+            }
+
+            if (comm || comm2) {
+                if (workHour.getComments() == null || workHour.getComments().isEmpty()) {
+                    workHour.setComments(downtime.getDowntime() + ".\n  Start:" + downtime.getStartTime() + " End:" + downtime.getEndTime());
+                } else {
+                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:" + downtime.getStartTime() + " End:" + downtime.getEndTime());
                 }
+
+                comm2 = false;
+            }
+        }
+
+        comm=false;
+        comm2=false;
+
+        for (WorkHour workHour : line.getThird().getHours()) {
+
+            if (!comm && setComment(workHour, downtime, 3))
+                comm = true;
+            else
+            if (comm && setComment(workHour, downtime, 3))
+            {
+                comm=false;
+                comm2=true;
+            }
+
+            if (comm || comm2) {
+                if (workHour.getComments() == null || workHour.getComments().isEmpty()) {
+                    workHour.setComments(downtime.getDowntime() + ".\n  Start:" + downtime.getStartTime() + " End:" + downtime.getEndTime());
+                } else {
+                    workHour.setComments(workHour.getComments() + "\n" + downtime.getDowntime() + ".\n  Start:" + downtime.getStartTime() + " End:" + downtime.getEndTime());
+                }
+                comm2 = false;
+            }
+        }
 
         line.setDowntime(downtime);
         ArrayList<Downtime> downtimes;
@@ -674,6 +715,9 @@ public class DailyPresenter implements DailyContract.Presenter {
             if (endh.after(middnight))
                 endh.add(Calendar.DATE,1);
         }
+
+
+
 
         return (starthdowntime.after(starth) && starthdowntime.before(endh)) || (endhdowntime.after(starth) && endhdowntime.before(endh));
 

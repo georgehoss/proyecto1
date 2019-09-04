@@ -17,13 +17,13 @@ repositories {
 
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.tenneco.tennecoapp"
         minSdkVersion 22
-        targetSdkVersion 28
-        versionCode 24
-        versionName "3.2.1"
+        targetSdkVersion 29
+        versionCode 25
+        versionName "3.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

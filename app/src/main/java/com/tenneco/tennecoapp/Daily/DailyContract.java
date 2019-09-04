@@ -33,6 +33,7 @@ public interface DailyContract {
         void getOperators();
         void getReasons();
         void getTemplates();
+        void getEmails();
         void showActualsDialog(WorkHour workHour, Line line,int position, Context context);
         void showTargetDialog(WorkHour workHour,Line line, int position,Context context);
         void showOwnerDialog(WorkHour workHour, Line line,int position, Context context);

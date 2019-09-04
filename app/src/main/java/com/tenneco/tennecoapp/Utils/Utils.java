@@ -86,6 +86,13 @@ public class Utils {
     public static String converTimeString(String input){
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
         Date date = null;
+
+        if (input.contains("A"))
+            input = input.substring(0,8) + " a. m. ";
+
+        if (input.contains("P"))
+            input = input.substring(0,8) + " p. m. ";
+
         try {
             date = dateFormat.parse(input);
             @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
@@ -93,7 +100,26 @@ public class Utils {
 
         } catch (ParseException e) {
             e.printStackTrace();
-            return null;
+            if (input.length()>8) {
+                if (input.contains("A") || input.contains("a"))
+                    return input.substring(0, 8);
+                if (input.contains("P") || input.contains("p")) {
+                    String h = input.substring(0,2);
+                    int hora = Integer.valueOf(h);
+                    if (hora!=12)
+                        hora = hora + 12;
+
+                    if (hora>9)
+                        h = String.valueOf(hora);
+                    else
+                        h = "0" + hora;
+                    String rest =input.substring(2,8);
+                    return h + rest;
+                }
+
+            }
+
+                return input;
         }
     }
 
@@ -102,8 +128,13 @@ public class Utils {
     public static String getTimeDiference (String start, String end){
         String date = "";
         SimpleDateFormat dateFormat;
-        if (start.length()<=12)
-        dateFormat= new SimpleDateFormat("hh:mm:ss a");
+        if (start.length()<=12) {
+            dateFormat = new SimpleDateFormat("hh:mm:ss a");
+            if (start.contains("a")||start.contains("A"))
+                start = start.substring(0,8) + " a. m. ";
+            if (start.contains("p")||start.contains("P"))
+                start = start.substring(0,8) + " p. m. ";
+        }
         else
             dateFormat = new SimpleDateFormat("hh:mm:ss a MM/dd/yyyy");
 
