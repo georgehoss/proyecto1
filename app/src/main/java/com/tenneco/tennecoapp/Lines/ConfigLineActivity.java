@@ -313,46 +313,52 @@ public class ConfigLineActivity extends AppCompatActivity implements ConfigLineC
                     EmailList emailList =child.getValue(EmailList.class);
                     if (emailList!=null) {
                         list.add(emailList);
-                        if (mLine.getFirst().getDowntimeList().getId().equals(emailList.getId()))
-                            mLine.getFirst().getDowntimeList().setEmails(emailList.getEmails());
-                        if (mLine.getFirst().getLineList().getId().equals(emailList.getId()))
-                            mLine.getFirst().getLineList().setEmails(emailList.getEmails());
-                        if (mLine.getFirst().getLeakList().getId().equals(emailList.getId()))
-                            mLine.getFirst().getLeakList().setEmails(emailList.getEmails());
-                        if (mLine.getFirst().getScrap1List().getId().equals(emailList.getId()))
-                            mLine.getFirst().getScrap1List().setEmails(emailList.getEmails());
-                        if (mLine.getFirst().getScrap2List().getId().equals(emailList.getId()))
-                            mLine.getFirst().getScrap2List().setEmails(emailList.getEmails());
-                        if (mLine.getFirst().getScrap3List().getId().equals(emailList.getId()))
-                            mLine.getFirst().getScrap3List().setEmails(emailList.getEmails());
+
+                        try {
+                            if (mLine.getFirst().getDowntimeList() != null && mLine.getFirst().getDowntimeList().getId().equals(emailList.getId()))
+                                mLine.getFirst().getDowntimeList().setEmails(emailList.getEmails());
+                            if (mLine.getFirst().getLineList() != null && mLine.getFirst().getLineList().getId().equals(emailList.getId()))
+                                mLine.getFirst().getLineList().setEmails(emailList.getEmails());
+                            if (mLine.getFirst().getLeakList() != null && mLine.getFirst().getLeakList().getId().equals(emailList.getId()))
+                                mLine.getFirst().getLeakList().setEmails(emailList.getEmails());
+                            if (mLine.getFirst().getScrap1List() != null && mLine.getFirst().getScrap1List().getId().equals(emailList.getId()))
+                                mLine.getFirst().getScrap1List().setEmails(emailList.getEmails());
+                            if (mLine.getFirst().getScrap2List() != null && mLine.getFirst().getScrap2List().getId().equals(emailList.getId()))
+                                mLine.getFirst().getScrap2List().setEmails(emailList.getEmails());
+                            if (mLine.getFirst().getScrap3List() != null && mLine.getFirst().getScrap3List().getId().equals(emailList.getId()))
+                                mLine.getFirst().getScrap3List().setEmails(emailList.getEmails());
 
 
-                        if (mLine.getSecond().getDowntimeList().getId().equals(emailList.getId()))
-                            mLine.getSecond().getDowntimeList().setEmails(emailList.getEmails());
-                        if (mLine.getSecond().getLineList().getId().equals(emailList.getId()))
-                            mLine.getSecond().getLineList().setEmails(emailList.getEmails());
-                        if (mLine.getSecond().getLeakList().getId().equals(emailList.getId()))
-                            mLine.getSecond().getLeakList().setEmails(emailList.getEmails());
-                        if (mLine.getSecond().getScrap1List().getId().equals(emailList.getId()))
-                            mLine.getSecond().getScrap1List().setEmails(emailList.getEmails());
-                        if (mLine.getSecond().getScrap2List().getId().equals(emailList.getId()))
-                            mLine.getSecond().getScrap2List().setEmails(emailList.getEmails());
-                        if (mLine.getSecond().getScrap3List().getId().equals(emailList.getId()))
-                            mLine.getSecond().getScrap3List().setEmails(emailList.getEmails());
+                            if (mLine.getSecond().getDowntimeList() != null && mLine.getSecond().getDowntimeList().getId().equals(emailList.getId()))
+                                mLine.getSecond().getDowntimeList().setEmails(emailList.getEmails());
+                            if (mLine.getSecond().getLineList() != null && mLine.getSecond().getLineList().getId().equals(emailList.getId()))
+                                mLine.getSecond().getLineList().setEmails(emailList.getEmails());
+                            if (mLine.getSecond().getLeakList() != null && mLine.getSecond().getLeakList().getId().equals(emailList.getId()))
+                                mLine.getSecond().getLeakList().setEmails(emailList.getEmails());
+                            if (mLine.getSecond().getScrap1List() != null && mLine.getSecond().getScrap1List().getId().equals(emailList.getId()))
+                                mLine.getSecond().getScrap1List().setEmails(emailList.getEmails());
+                            if (mLine.getSecond().getScrap2List() != null && mLine.getSecond().getScrap2List().getId().equals(emailList.getId()))
+                                mLine.getSecond().getScrap2List().setEmails(emailList.getEmails());
+                            if (mLine.getSecond().getScrap3List() != null && mLine.getSecond().getScrap3List().getId().equals(emailList.getId()))
+                                mLine.getSecond().getScrap3List().setEmails(emailList.getEmails());
 
 
-                        if (mLine.getThird().getDowntimeList().getId().equals(emailList.getId()))
-                            mLine.getThird().getDowntimeList().setEmails(emailList.getEmails());
-                        if (mLine.getThird().getLineList().getId().equals(emailList.getId()))
-                            mLine.getThird().getLineList().setEmails(emailList.getEmails());
-                        if (mLine.getThird().getLeakList().getId().equals(emailList.getId()))
-                            mLine.getThird().getLeakList().setEmails(emailList.getEmails());
-                        if (mLine.getThird().getScrap1List().getId().equals(emailList.getId()))
-                            mLine.getThird().getScrap1List().setEmails(emailList.getEmails());
-                        if (mLine.getThird().getScrap2List().getId().equals(emailList.getId()))
-                            mLine.getThird().getScrap2List().setEmails(emailList.getEmails());
-                        if (mLine.getThird().getScrap3List().getId().equals(emailList.getId()))
-                            mLine.getThird().getScrap3List().setEmails(emailList.getEmails());
+                            if (mLine.getThird().getDowntimeList() != null && mLine.getThird().getDowntimeList().getId().equals(emailList.getId()))
+                                mLine.getThird().getDowntimeList().setEmails(emailList.getEmails());
+                            if (mLine.getThird().getLineList() != null && mLine.getThird().getLineList().getId().equals(emailList.getId()))
+                                mLine.getThird().getLineList().setEmails(emailList.getEmails());
+                            if (mLine.getThird().getLeakList() != null && mLine.getThird().getLeakList().getId().equals(emailList.getId()))
+                                mLine.getThird().getLeakList().setEmails(emailList.getEmails());
+                            if (mLine.getThird().getScrap1List() != null && mLine.getThird().getScrap1List().getId().equals(emailList.getId()))
+                                mLine.getThird().getScrap1List().setEmails(emailList.getEmails());
+                            if (mLine.getThird().getScrap2List() != null && mLine.getThird().getScrap2List().getId().equals(emailList.getId()))
+                                mLine.getThird().getScrap2List().setEmails(emailList.getEmails());
+                            if (mLine.getThird().getScrap3List() != null && mLine.getThird().getScrap3List().getId().equals(emailList.getId()))
+                                mLine.getThird().getScrap3List().setEmails(emailList.getEmails());
+                        }
+                        catch (Exception ignored){
+
+                        }
 
                     }
                 }

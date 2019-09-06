@@ -100,7 +100,7 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private DatabaseReference dbTeamLd;
     private DatabaseReference dbGroupLd;
     private DatabaseReference dbOperators;
-   // private DatabaseReference dbNumbers;
+    // private DatabaseReference dbNumbers;
     private DatabaseReference dbReasons;
     private DatabaseReference dbTemplates;
     private Templates templates;
@@ -112,52 +112,57 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
     private ValueEventListener emailEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            List<EmailList> list = new ArrayList<>();
+
             for (DataSnapshot child: dataSnapshot.getChildren()) {
                 EmailList emailList =child.getValue(EmailList.class);
                 if (emailList!=null) {
-                    list.add(emailList);
-                    if (mLine.getFirst().getDowntimeList().getId().equals(emailList.getId()))
-                        mLine.getFirst().getDowntimeList().setEmails(emailList.getEmails());
-                    if (mLine.getFirst().getLineList().getId().equals(emailList.getId()))
-                        mLine.getFirst().getLineList().setEmails(emailList.getEmails());
-                    if (mLine.getFirst().getLeakList().getId().equals(emailList.getId()))
-                        mLine.getFirst().getLeakList().setEmails(emailList.getEmails());
-                    if (mLine.getFirst().getScrap1List().getId().equals(emailList.getId()))
-                        mLine.getFirst().getScrap1List().setEmails(emailList.getEmails());
-                    if (mLine.getFirst().getScrap2List().getId().equals(emailList.getId()))
-                        mLine.getFirst().getScrap2List().setEmails(emailList.getEmails());
-                    if (mLine.getFirst().getScrap3List().getId().equals(emailList.getId()))
-                        mLine.getFirst().getScrap3List().setEmails(emailList.getEmails());
+
+                    try {
+                        if (mLine.getFirst().getDowntimeList().getId().equals(emailList.getId()))
+                            mLine.getFirst().getDowntimeList().setEmails(emailList.getEmails());
+                        if (mLine.getFirst().getLineList().getId().equals(emailList.getId()))
+                            mLine.getFirst().getLineList().setEmails(emailList.getEmails());
+                        if (mLine.getFirst().getLeakList().getId().equals(emailList.getId()))
+                            mLine.getFirst().getLeakList().setEmails(emailList.getEmails());
+                        if (mLine.getFirst().getScrap1List().getId().equals(emailList.getId()))
+                            mLine.getFirst().getScrap1List().setEmails(emailList.getEmails());
+                        if (mLine.getFirst().getScrap2List().getId().equals(emailList.getId()))
+                            mLine.getFirst().getScrap2List().setEmails(emailList.getEmails());
+                        if (mLine.getFirst().getScrap3List().getId().equals(emailList.getId()))
+                            mLine.getFirst().getScrap3List().setEmails(emailList.getEmails());
 
 
-                    if (mLine.getSecond().getDowntimeList().getId().equals(emailList.getId()))
-                        mLine.getSecond().getDowntimeList().setEmails(emailList.getEmails());
-                    if (mLine.getSecond().getLineList().getId().equals(emailList.getId()))
-                        mLine.getSecond().getLineList().setEmails(emailList.getEmails());
-                    if (mLine.getSecond().getLeakList().getId().equals(emailList.getId()))
-                        mLine.getSecond().getLeakList().setEmails(emailList.getEmails());
-                    if (mLine.getSecond().getScrap1List().getId().equals(emailList.getId()))
-                        mLine.getSecond().getScrap1List().setEmails(emailList.getEmails());
-                    if (mLine.getSecond().getScrap2List().getId().equals(emailList.getId()))
-                        mLine.getSecond().getScrap2List().setEmails(emailList.getEmails());
-                    if (mLine.getSecond().getScrap3List().getId().equals(emailList.getId()))
-                        mLine.getSecond().getScrap3List().setEmails(emailList.getEmails());
+                        if (mLine.getSecond().getDowntimeList().getId().equals(emailList.getId()))
+                            mLine.getSecond().getDowntimeList().setEmails(emailList.getEmails());
+                        if (mLine.getSecond().getLineList().getId().equals(emailList.getId()))
+                            mLine.getSecond().getLineList().setEmails(emailList.getEmails());
+                        if (mLine.getSecond().getLeakList().getId().equals(emailList.getId()))
+                            mLine.getSecond().getLeakList().setEmails(emailList.getEmails());
+                        if (mLine.getSecond().getScrap1List().getId().equals(emailList.getId()))
+                            mLine.getSecond().getScrap1List().setEmails(emailList.getEmails());
+                        if (mLine.getSecond().getScrap2List().getId().equals(emailList.getId()))
+                            mLine.getSecond().getScrap2List().setEmails(emailList.getEmails());
+                        if (mLine.getSecond().getScrap3List().getId().equals(emailList.getId()))
+                            mLine.getSecond().getScrap3List().setEmails(emailList.getEmails());
 
 
-                    if (mLine.getThird().getDowntimeList().getId().equals(emailList.getId()))
-                        mLine.getThird().getDowntimeList().setEmails(emailList.getEmails());
-                    if (mLine.getThird().getLineList().getId().equals(emailList.getId()))
-                        mLine.getThird().getLineList().setEmails(emailList.getEmails());
-                    if (mLine.getThird().getLeakList().getId().equals(emailList.getId()))
-                        mLine.getThird().getLeakList().setEmails(emailList.getEmails());
-                    if (mLine.getThird().getScrap1List().getId().equals(emailList.getId()))
-                        mLine.getThird().getScrap1List().setEmails(emailList.getEmails());
-                    if (mLine.getThird().getScrap2List().getId().equals(emailList.getId()))
-                        mLine.getThird().getScrap2List().setEmails(emailList.getEmails());
-                    if (mLine.getThird().getScrap3List().getId().equals(emailList.getId()))
-                        mLine.getThird().getScrap3List().setEmails(emailList.getEmails());
+                        if (mLine.getThird().getDowntimeList().getId().equals(emailList.getId()))
+                            mLine.getThird().getDowntimeList().setEmails(emailList.getEmails());
+                        if (mLine.getThird().getLineList().getId().equals(emailList.getId()))
+                            mLine.getThird().getLineList().setEmails(emailList.getEmails());
+                        if (mLine.getThird().getLeakList().getId().equals(emailList.getId()))
+                            mLine.getThird().getLeakList().setEmails(emailList.getEmails());
+                        if (mLine.getThird().getScrap1List().getId().equals(emailList.getId()))
+                            mLine.getThird().getScrap1List().setEmails(emailList.getEmails());
+                        if (mLine.getThird().getScrap2List().getId().equals(emailList.getId()))
+                            mLine.getThird().getScrap2List().setEmails(emailList.getEmails());
+                        if (mLine.getThird().getScrap3List().getId().equals(emailList.getId()))
+                            mLine.getThird().getScrap3List().setEmails(emailList.getEmails());
+                    }
+                    catch (Exception ignored)
+                    {
 
+                    }
                 }
             }
         }
@@ -274,10 +279,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             if (!mLine.getFirst().isClosed() && turno==0)
                 showEndShiftDialog(mLine, 1, this, true);
             else
-                if (turno==1)
+            if (turno==1)
                 showFinishFirst();
-                else
-                    Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -286,10 +291,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             if (!mLine.getSecond().isClosed()&& turno==0)
                 showEndShiftDialog(mLine, 2, this, true);
             else
-                if (turno ==2)
-                    showFinishSecond();
-                else
-                    Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
+            if (turno ==2)
+                showFinishSecond();
+            else
+                Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -298,10 +303,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
             if (!mLine.getThird().isClosed() && turno==0)
                 showEndShiftDialog(mLine, 3, this, true);
             else
-                if (turno==3)
-                    showFinishThird();
-                else
-                    Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
+            if (turno==3)
+                showFinishThird();
+            else
+                Toast.makeText(this, "You must end the actual shift", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -320,14 +325,14 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
     @OnClick(R.id.bt_event) void scrap(){
         if (turno!=0)
-        showRejectDialog(mLine.getScrapReasons(),this);
+            showRejectDialog(mLine.getScrapReasons(),this);
         else
             Toast.makeText(this, "You must start a shift first", Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.tv_shift1) void shf1(){
         showEndShiftDialog(mLine, 1, this, false);
-        }
+    }
 
     @OnClick(R.id.tv_shift2) void shf2(){
         showEndShiftDialog(mLine,2,this,false);
@@ -978,10 +983,10 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                                 commentt=finalComments +"\n";
 
 
-                            if (!reas.getName().equals("- Select a Reason -"))
-                                mEtComments.setText(commentt);
-                            else
-                                mEtComments.setText(finalComments);
+                        if (!reas.getName().equals("- Select a Reason -"))
+                            mEtComments.setText(commentt);
+                        else
+                            mEtComments.setText(finalComments);
                     }
                 }
 
@@ -1494,8 +1499,8 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
                 }
             }
             else
-                if (mLine.getProducts()!=null && mLine.getProducts().size()>0)
-                {
+            if (mLine.getProducts()!=null && mLine.getProducts().size()>0)
+            {
                 showProductListDialog(mLine.getProducts(), this);
                 Toast.makeText(this, "Please select a Product!", Toast.LENGTH_LONG).show();
             }
@@ -1971,104 +1976,104 @@ public class DailyActivity extends AppCompatActivity implements DailyContract.Vi
 
         Context context = DailyActivity.this;
 
-            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.dialog_leak, null);
-            alertDialogBuilder.setView(view);
-            Button btSave = view.findViewById(R.id.bt_save);
-            Button btCancel = view.findViewById(R.id.bt_cancel);
-            TextView mTvName = view.findViewById(R.id.tv_name);
-            mTvName.setText(mLine.getName());
-            TextView mTvDate = view.findViewById(R.id.tv_date);
-            TextView mTvActual = view.findViewById(R.id.tv_actual);
-            TextView mTvLeak = view.findViewById(R.id.tv_leak);
-            String date = mLine.getDate() + " " + Utils.getTimeString();
-            mTvDate.setText(date);
-            TextView mTvShift = view.findViewById(R.id.tv_shift);
-            final EditText eTActions = view.findViewById(R.id.et_actions);
-            String stilte = "";
-            Shift tshift;
-            if (shift == 1) {
-                stilte = getString(R.string.add_1st_shift);
-                tshift = mLine.getFirst();
-            } else if (shift == 2) {
-                stilte = getString(R.string.add_2nd_shift);
-                tshift = mLine.getSecond();
-            } else {
-                stilte = getString(R.string.add_3rd_shift);
-                tshift = mLine.getThird();
-            }
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_leak, null);
+        alertDialogBuilder.setView(view);
+        Button btSave = view.findViewById(R.id.bt_save);
+        Button btCancel = view.findViewById(R.id.bt_cancel);
+        TextView mTvName = view.findViewById(R.id.tv_name);
+        mTvName.setText(mLine.getName());
+        TextView mTvDate = view.findViewById(R.id.tv_date);
+        TextView mTvActual = view.findViewById(R.id.tv_actual);
+        TextView mTvLeak = view.findViewById(R.id.tv_leak);
+        String date = mLine.getDate() + " " + Utils.getTimeString();
+        mTvDate.setText(date);
+        TextView mTvShift = view.findViewById(R.id.tv_shift);
+        final EditText eTActions = view.findViewById(R.id.et_actions);
+        String stilte = "";
+        Shift tshift;
+        if (shift == 1) {
+            stilte = getString(R.string.add_1st_shift);
+            tshift = mLine.getFirst();
+        } else if (shift == 2) {
+            stilte = getString(R.string.add_2nd_shift);
+            tshift = mLine.getSecond();
+        } else {
+            stilte = getString(R.string.add_3rd_shift);
+            tshift = mLine.getThird();
+        }
 
-            mTvShift.setText(stilte);
-            mTvActual.setText(tshift.getCumulativeActual());
-            mTvLeak.setText(tshift.getCumulativeFTQ());
+        mTvShift.setText(stilte);
+        mTvActual.setText(tshift.getCumulativeActual());
+        mTvLeak.setText(tshift.getCumulativeFTQ());
 
-            if (ftqDialog==null )
-                ftqDialog = alertDialogBuilder.create();
+        if (ftqDialog==null )
+            ftqDialog = alertDialogBuilder.create();
 
-            if (!ftqDialog.isShowing())
-                ftqDialog.show();
+        if (!ftqDialog.isShowing())
+            ftqDialog.show();
 
 
-            if (!tshift.isLeakReached()) {
-                ftqDialog.dismiss();
-                isShowingLeak = false;
-            }
+        if (!tshift.isLeakReached()) {
+            ftqDialog.dismiss();
+            isShowingLeak = false;
+        }
 
-            btSave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+        btSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-                    if (!eTActions.getText().toString().isEmpty()) {
+                if (!eTActions.getText().toString().isEmpty()) {
 
-                        switch (shift) {
-                            case 1:
-                                mLine.getFirst().setLeakReached(false);
-                                break;
-                            case 2:
-                                mLine.getSecond().setLeakReached(false);
-                                break;
-                            case 3:
-                                mLine.getThird().setLeakReached(false);
-                                break;
-                        }
-                        updateLine(mLine);
-                        ftqDialog.dismiss();
-                        String subject,body;
-                        if (templates== null || templates.getFtqs()==null) {
-                            subject = "Cell " + mLine.getName() + "  FTQ over 10% Escalation and Actions";
-                            body = "Hi\n" +
-                                    " \n" +
-                                    "Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on Cell " +
-                                    mLine.getName() + "\n" +
-                                    " \n" +
-                                    eTActions.getText().toString();
-                        }
-                        else
-                        {
-                            subject = "Cell " + mLine.getName() +" "+ templates.getFtqs().getSubject();
-                            body = templates.getFtqs().getBody1()+ mLine.getName() + "\n" +
-                                    " \n" +
-                                    eTActions.getText().toString();
-                        }
-
-                        sendEmail(mPresenter.getEmails(mLine.getLeakEmailList().getEmails(),mLine), mPresenter.getCC(mLine.getLeakEmailList().getEmails(),mLine), subject, body,0);
-                    } else {
-                        eTActions.setError("You must introduce the actions taken!");
-                        eTActions.requestFocus();
+                    switch (shift) {
+                        case 1:
+                            mLine.getFirst().setLeakReached(false);
+                            break;
+                        case 2:
+                            mLine.getSecond().setLeakReached(false);
+                            break;
+                        case 3:
+                            mLine.getThird().setLeakReached(false);
+                            break;
+                    }
+                    updateLine(mLine);
+                    ftqDialog.dismiss();
+                    String subject,body;
+                    if (templates== null || templates.getFtqs()==null) {
+                        subject = "Cell " + mLine.getName() + "  FTQ over 10% Escalation and Actions";
+                        body = "Hi\n" +
+                                " \n" +
+                                "Please see below the Actions Taken to solve FTQ Leak issues faced on current shift on Cell " +
+                                mLine.getName() + "\n" +
+                                " \n" +
+                                eTActions.getText().toString();
+                    }
+                    else
+                    {
+                        subject = "Cell " + mLine.getName() +" "+ templates.getFtqs().getSubject();
+                        body = templates.getFtqs().getBody1()+ mLine.getName() + "\n" +
+                                " \n" +
+                                eTActions.getText().toString();
                     }
 
-
+                    sendEmail(mPresenter.getEmails(mLine.getLeakEmailList().getEmails(),mLine), mPresenter.getCC(mLine.getLeakEmailList().getEmails(),mLine), subject, body,0);
+                } else {
+                    eTActions.setError("You must introduce the actions taken!");
+                    eTActions.requestFocus();
                 }
-            });
 
-            btCancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ftqDialog.dismiss();
 
-                }
-            });
+            }
+        });
+
+        btCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ftqDialog.dismiss();
+
+            }
+        });
 
     }
 

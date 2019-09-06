@@ -30,6 +30,17 @@ public class Utils {
         return dateFormat.format(tomorrow);
     }
 
+
+    public static String getYesterdayDateString() {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, -1);
+        Date tomorrow = calendar.getTime();
+        return dateFormat.format(tomorrow);
+    }
+
+
+
     public static boolean compareTime(String time, String endtime) {
 
         String pattern = "HH:mm:ss a";
@@ -45,6 +56,31 @@ public class Utils {
 
                 return false;
             }
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public static boolean compareTimeShift3(String time) {
+
+        String pattern = "HH:mm:ss a";
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+
+        if (time.contains("A"))
+            time = time.substring(0,8) + " a. m. ";
+
+        if (time.contains("P"))
+            time = time.substring(0,8) + " p. m. ";
+
+        try {
+            Date date1 = sdf.parse(time);
+            //Date date2 = sdf.parse("12:00:00 a. m.");
+            Date date3 = sdf.parse("06:30:00 a. m.");
+            boolean rt;
+            rt = date1.before(date3);
+            return rt;
         } catch (ParseException e){
             e.printStackTrace();
         }

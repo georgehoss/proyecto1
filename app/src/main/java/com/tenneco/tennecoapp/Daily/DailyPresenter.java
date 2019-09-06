@@ -569,6 +569,13 @@ public class DailyPresenter implements DailyContract.Presenter {
         boolean comm=false,comm2=false;
         for (WorkHour workHour : line.getFirst().getHours()) {
 
+
+            if (setOneComment(workHour,downtime,1))
+            {
+                comm = false;
+                comm2 = true;
+            }
+            else
             if (!comm && setComment(workHour, downtime, 1))
                 comm = true;
             else
@@ -595,7 +602,12 @@ public class DailyPresenter implements DailyContract.Presenter {
         comm=false;
         comm2=false;
         for (WorkHour workHour : line.getSecond().getHours()) {
-
+            if (setOneComment(workHour,downtime,2))
+            {
+                comm = false;
+                comm2 = true;
+            }
+            else
             if (!comm && setComment(workHour, downtime, 2))
                 comm = true;
             else
@@ -620,7 +632,12 @@ public class DailyPresenter implements DailyContract.Presenter {
         comm2=false;
 
         for (WorkHour workHour : line.getThird().getHours()) {
-
+            if (setOneComment(workHour,downtime,3))
+            {
+                comm = false;
+                comm2 = true;
+            }
+            else
             if (!comm && setComment(workHour, downtime, 3))
                 comm = true;
             else
@@ -709,10 +726,10 @@ public class DailyPresenter implements DailyContract.Presenter {
             middnight.set(Calendar.MINUTE, Integer.parseInt(split[1]));
             middnight.set(Calendar.SECOND, Integer.parseInt(split[2]));
 
-            if (starth.after(middnight))
+            if (starthdowntime.after(middnight) && starth.before(middnight))
                 starth.add(Calendar.DATE,1);
 
-            if (endh.after(middnight))
+            if (endhdowntime.after(middnight) &&  endh.before(middnight))
                 endh.add(Calendar.DATE,1);
         }
 
@@ -720,6 +737,76 @@ public class DailyPresenter implements DailyContract.Presenter {
 
 
         return (starthdowntime.after(starth) && starthdowntime.before(endh)) || (endhdowntime.after(starth) && endhdowntime.before(endh));
+
+
+    }
+
+
+    @Override
+    public boolean setOneComment(WorkHour workHour, Downtime downtime, int shift) {
+
+        String startHour = convertHour(workHour.getStartHour(),shift);
+
+        startHour = Utils.converTimeString(startHour);
+
+
+        String[] parts = startHour.split(":");
+        Calendar starth = Calendar.getInstance();
+        starth.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
+        starth.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
+        starth.set(Calendar.SECOND, Integer.parseInt(parts[2]));
+
+        String endHour = convertHour(workHour.getEndHour(),shift);
+        endHour = Utils.converTimeString(endHour);
+
+        String[] partsEnd = endHour.split(":");
+        Calendar endh = Calendar.getInstance();
+        endh.set(Calendar.HOUR_OF_DAY, Integer.parseInt(partsEnd[0]));
+        endh.set(Calendar.MINUTE, Integer.parseInt(partsEnd[1]));
+        endh.set(Calendar.SECOND, Integer.parseInt(partsEnd[2]));
+
+
+        String startDowntime = Utils.converTimeString(downtime.getStartTime());
+
+        String[] partsSd = startDowntime.split(":");
+        Calendar starthdowntime = Calendar.getInstance();
+        starthdowntime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(partsSd[0]));
+        starthdowntime.set(Calendar.MINUTE, Integer.parseInt(partsSd[1]));
+        starthdowntime.set(Calendar.SECOND, Integer.parseInt(partsSd[2]));
+
+        String endDowntime = Utils.converTimeString(downtime.getEndTime());
+
+        String[] partsEndD = endDowntime.split(":");
+        Calendar endhdowntime = Calendar.getInstance();
+        endhdowntime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(partsEndD[0]));
+        endhdowntime.set(Calendar.MINUTE, Integer.parseInt(partsEndD[1]));
+        endhdowntime.set(Calendar.SECOND, Integer.parseInt(partsEndD[2]));
+
+
+        if (endhdowntime.before(starthdowntime)) {
+            endhdowntime.add(Calendar.DATE, 1);
+        }
+
+        if (shift==3)
+        {
+            String mid = "00:00:00";
+            String[] split = mid.split(":");
+            Calendar middnight = Calendar.getInstance();
+            middnight.set(Calendar.HOUR_OF_DAY, Integer.parseInt(split[0]));
+            middnight.set(Calendar.MINUTE, Integer.parseInt(split[1]));
+            middnight.set(Calendar.SECOND, Integer.parseInt(split[2]));
+
+            if (starthdowntime.after(middnight) && starth.before(middnight))
+                starth.add(Calendar.DATE,1);
+
+            if (endhdowntime.after(middnight) &&  endh.before(middnight))
+                endh.add(Calendar.DATE,1);
+        }
+
+
+
+
+        return (starthdowntime.after(starth) && endhdowntime.before(endh));
 
 
     }

@@ -97,6 +97,7 @@ public interface DailyContract {
         void incrementCount(Line line);
         void setDowntime(Line line,Downtime downtime);
         boolean setComment(WorkHour workHour, Downtime downtime, int shift);
+        boolean setOneComment(WorkHour workHour, Downtime downtime, int shift);
         String convertHour(String hour, int shift);
         String downtime (String zone, String location , String reason);
         void verifyLeaks(Line line);
