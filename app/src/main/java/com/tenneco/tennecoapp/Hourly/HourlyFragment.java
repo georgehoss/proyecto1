@@ -88,8 +88,10 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
             ArrayList<Line> lines = new ArrayList<>();
             ArrayList<Line> dlines = new ArrayList<>();
             boolean today = false, tomorrow = false;
+            boolean yesterday = false;
             String date = Utils.getDateString();
             String t0morrow = Utils.getTomorrowDateString();
+            String yesterdate = Utils.getYesterdayDateString();
 
 
             for (DataSnapshot itemSnapshot : dataSnapshot.getChildren())
@@ -102,11 +104,16 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
                     //else
                       //  dlines.add(line);
 
-                    if (line.getDate()!=null&& line.getDate().equals(date))
-                        today=true;
 
-                    if (line.getDate()!=null&& line.getDate().equals(t0morrow))
-                        tomorrow=true;
+                    if (line.getDate()!=null&& line.getDate().equals(date))
+                    today=true;
+
+                    if(line.getDate()!=null&& line.getDate().equals(t0morrow))
+                    tomorrow=true;
+
+                    if(line.getDate()!=null && line.getDate().equals(yesterdate))
+                    yesterday = true;
+
 
                 }
             }
@@ -144,6 +151,14 @@ public class HourlyFragment extends Fragment implements HourlyContract.View,Prod
             for (int size = lines.size()-1; size>=0 ; size--)
                 mLines.add(lines.get(size));
 
+
+            if(Utils.compareTimeShift3(Utils.getTimeString())) {
+                if (yesterday)
+                    hideFb();
+                else
+                    showFb();
+            }
+            else
             if(!today)
                 showFb();
             else
@@ -335,7 +350,12 @@ postsQuery = dbPLines.child("-La-XOCsi3i2KHRys0oa");
         line.setId(id+mLine.getCode()+Utils.getDateStamp());
         line.setCode(mLine.getCode());
         line.setDescription(mLine.getDescription());
-        line.setDate(Utils.getDateString());
+
+        if (!Utils.compareTimeShift3(Utils.getTimeString()))
+            line.setDate(Utils.getDateString());
+        else
+            line.setDate(Utils.getYesterdayDateString());
+
         line.setParentId(lineId);
         line.setPassword(mLine.getPassword());
         line.setProducts(mLine.getProducts());

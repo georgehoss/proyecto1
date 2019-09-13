@@ -326,8 +326,8 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleContr
                     dia = "0"+dia;
 
                 final String selectedDate = mes + "/" + dia + "/" + ano;
-                if (Utils.compareDate(Utils.getDateString(),selectedDate))
-                    Toast.makeText(ScheduleActivity.this, "Sorry, dates before today are not allowed", Toast.LENGTH_SHORT).show();
+                if (Utils.compareDate(Utils.getYesterdayDateString(),selectedDate))
+                    Toast.makeText(ScheduleActivity.this, "Sorry, that date is not allowed", Toast.LENGTH_SHORT).show();
                 else {
                     mTvDate.setText(selectedDate);
                     getPLines();
